@@ -28,7 +28,7 @@ Phases 1 to 10 are prototypes. Phase 11 is the final build.
 - [x] `Ssd1306Display` OLED driver, 64x32 logical canvas scaled 2x, I2C scan, idle dim (ADR 0007)
 - [x] Display test screen (border, heart, text line) and native tests for scaling and thresholding
 - [x] Identify both boards (both classic ESP32-D0WD-V3, see `docs/hardware/bringup-log.md`)
-- [ ] Flash board A and board B, test screen visible on both (USB power only)
+- [ ] Flash board A and board B, test screen visible on both (USB power only): flashed, OLED found at 0x3C on both; visual check pending
 - [ ] Check OLED orientation (`HS_OLED_FLIP`) on the real screens
 - [ ] Avatar sprites (two 8x8 placeholders exist; draw real ones with `tools/pixel2header.py`)
 - [ ] Simple animations in `Animator` (heartbeat pulse, fade)

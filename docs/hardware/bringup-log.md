@@ -45,4 +45,15 @@ number; attempt 6 disproves that.)
 
 ## First boot (Step 3)
 
-_Filled in after flashing: firmware version, chip, free heap, display driver, I2C address._
+Flashed 2026-11-16 over USB (`pio run -e esp32dev -t upload --upload-port COMx`),
+MAC verified with esptool before each upload. Firmware commit `9f21871`
+(display code), no `secrets.h` yet.
+
+| Label | Port | MAC checked | Upload | FW | Device ID | Chip (boot log) | PSRAM | Free heap at boot | Display driver | I2C scan | OLED address | Display init |
+|-------|------|-------------|--------|----|-----------|-----------------|-------|-------------------|----------------|----------|--------------|--------------|
+| board-B | COM3 | 20:50:0d:cd:63:f4 | SUCCESS | 0.1.0 | `hs-20500dcd63f4` | ESP32-D0WD-V3 rev 3, 2 cores, 4096 KB flash | 0 KB | 306744 B | ssd1306, logical 64x32 x2, mono | 1 device | 0x3C | ok, flip=0 |
+| board-A | COM6 | 20:50:0d:cd:fd:18 | SUCCESS | 0.1.0 | `hs-20500dcdfd18` | ESP32-D0WD-V3 rev 3, 2 cores, 4096 KB flash | 0 KB | 307352 B | ssd1306, logical 64x32 x2, mono | 1 device | 0x3C | ok, flip=0 |
+
+Both log `wifi: no credentials` (expected until `include/secrets.h` exists) and
+`cloud: sync not implemented yet` (Phase 2 stub). Display init takes about 1.4 s
+(U8g2 begin). Visual check of the test screen: _pending user confirmation_.

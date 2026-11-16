@@ -37,7 +37,11 @@ void WifiManager::loop() {
 
     if (!isConnected && millis() - lastAttemptMs_ >= HS_WIFI_RETRY_MS) {
         lastAttemptMs_ = millis();
-        LOGI("wifi", "retrying");
+        const wl_status_t st = WiFi.status();
+        LOGI("wifi", "retrying (status %d: %s)", (int)st,
+             st == WL_NO_SSID_AVAIL   ? "network not found; ESP32 needs 2.4 GHz"
+             : st == WL_CONNECT_FAILED ? "connect failed; check password"
+                                       : "not connected");
         WiFi.reconnect();
     }
 }

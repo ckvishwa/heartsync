@@ -43,6 +43,12 @@ class ConnectionReport {
   final String? uid;
 
   bool get allOk => checks.every((c) => c.ok);
+
+  /// Boards registered to the signed-in person.
+  List<DeviceStatus> get myBoards => [
+    for (final d in devices)
+      if (d.ownerUid == uid) d,
+  ];
 }
 
 /// Checks that the phone reaches the cloud and that the couple's boards are online.

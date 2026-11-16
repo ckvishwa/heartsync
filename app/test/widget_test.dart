@@ -120,6 +120,40 @@ void main() {
     expect(find.text('Sign in'), findsOneWidget);
   });
 
+  testWidgets('with no board of your own, the home screen offers setup', (tester) async {
+    await pumpApp(tester);
+    await signIn(tester);
+    expect(find.text('Set up a board'), findsOneWidget);
+    expect(find.textContaining('is set up'), findsNothing);
+  });
+
+  testWidgets('once your board is registered, it shows as set up', (tester) async {
+    await pumpApp(tester);
+    connection.report = ConnectionReport(
+      checks: const [],
+      uid: 'alice',
+      devices: [
+        DeviceStatus(
+          deviceId: 'hs-20500dcdfd18',
+          ownerUid: 'alice',
+          firmwareVersion: '0.1.0',
+          lastSeen: DateTime.now(),
+        ),
+        const DeviceStatus(
+          deviceId: 'hs-20500dcd63f4',
+          ownerUid: 'bob',
+          firmwareVersion: '0.1.0',
+          lastSeen: null,
+        ),
+      ],
+    );
+    await signIn(tester);
+    expect(find.text('Your board hs-20500dcdfd18 is set up'), findsOneWidget);
+    expect(find.text('Online.'), findsOneWidget);
+    expect(find.text('Set up a board'), findsNothing);
+    expect(find.text('Change Wi-Fi or set up again'), findsOneWidget);
+  });
+
   testWidgets('the home screen shows the connection check and both boards', (tester) async {
     await pumpApp(tester);
     final now = DateTime.now();

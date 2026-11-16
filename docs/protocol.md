@@ -73,6 +73,28 @@ Payloads:
 - Read: owner always; partner **only while `sharingEnabled == true`**.
 - Never logged, never put in notifications, never copied into other documents.
 
+## Device tokens (from Phase 3 provisioning)
+
+A board signs in with a custom token minted by `registerDevice` (Phase 3) for its
+owner's uid, with custom claims:
+
+| Claim      | Value                         |
+|------------|-------------------------------|
+| `deviceId` | `hs-` + 12 hex digits of the MAC |
+| `coupleId` | the owner's couple at mint time |
+
+The board exchanges it for a refresh token immediately; custom claims carry over
+to every ID token refreshed from it. A token with a `deviceId` claim may only:
+
+- read and create `couples/{coupleId}/events` (create still needs `from == uid`), and
+- read, create and update `couples/{coupleId}/devices/{deviceId}` for its own `deviceId`,
+
+where `coupleId` must equal the claim. It is denied everything else: all of
+`users/**` (profile, `private/**`, cycle data), the couple document, other device
+records, `releases`, and all of Storage. Rules tests: "device-scoped tokens" in
+`cloud/test/rules.test.mjs`. Bench boards provisioned before Phase 3 still hold
+plain owner tokens (no claims) until they are re-provisioned.
+
 ## Rules summary
 
 1. Deny by default.
@@ -81,7 +103,8 @@ Payloads:
 4. No one can write another person's events (`from == request.auth.uid`).
 5. Membership (`coupleId`, `members`) is server-set only.
 6. Storage objects are scoped by couple: `couples/{coupleId}/...`.
-7. Firmware binaries (`firmware/...`) are readable by signed-in users, written only by CI.
+7. Firmware binaries (`firmware/...`) are readable by signed-in people, written only by CI.
+8. Board tokens (`deviceId` claim) reach only their couple's events and their own device record.
 
 ## Callable functions
 

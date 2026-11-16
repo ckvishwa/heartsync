@@ -20,6 +20,23 @@ Notes:
   port; if the port appears but esptool cannot connect, hold BOOT, tap EN, release BOOT.
   An S3 DevKitC needs the cable in the port labelled UART for serial logs.
 
+### Board-B detection attempts (2026-11-16)
+
+User reports both boards are the same model, and OLEDs on 3V3.
+
+| # | Action by user | Ports seen | Board on COM3 (MAC) | Result |
+|---|----------------|------------|---------------------|--------|
+| 1 | Both boards plugged in | COM3 | 20:50:0d:cd:fd:18 (board-A) | board-B not seen |
+| 2 | Swapped USB ports | COM3 | 20:50:0d:cd:fd:18 (board-A) | board-B not seen |
+| 3 | Swap cable/board test requested | COM3 | 20:50:0d:cd:fd:18 (board-A) | board-B not seen |
+| 4 | Recheck | COM3 | 20:50:0d:cd:fd:18 (board-A) | board-B not seen |
+
+Windows shows no unknown or failed USB device, so board-B is not enumerating at
+all (no data link), rather than missing a driver. Board-A works in both ports, so
+the PC ports are fine. Remaining suspects: board-B's cable (charge-only), board-B's
+USB socket, or its CP210x. Next test: board-B alone, on board-A's cable and port,
+and note its power LED.
+
 ## Wiring check
 
 - board-A is a classic ESP32: OLED SDA on GPIO 21, SCL on GPIO 22 (default Wire pins). Matches.

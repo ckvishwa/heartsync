@@ -7,8 +7,8 @@ contains a pin number outside `config.h`.
 
 | Board | Model | Device ID | Notes |
 |-------|-------|-----------|-------|
-| A (Alice) | ESP32-D0WD-V3 dev board, 4 MB flash (`esp32dev`) | `hs-20500dcdfd18` | COM3, see `bringup-log.md` |
-| B (Bob) | ESP32-D0WD-V3 dev board, 4 MB flash (`esp32dev`) | `hs-20500dcd63f4` | COM3 when alone, see `bringup-log.md` |
+| A (Alice) | ESP32-D0WD-V3 dev board, 4 MB flash (`esp32dev`) | `hs-20500dcdfd18` | COM6 on 2026-11-16 (C to C cable); verify MAC before flashing |
+| B (Bob) | ESP32-D0WD-V3 dev board, 4 MB flash (`esp32dev`) | `hs-20500dcd63f4` | COM3 on 2026-11-16 (A to C cable); verify MAC before flashing |
 
 ## Bench OLED (both boards)
 

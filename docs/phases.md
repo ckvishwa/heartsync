@@ -9,8 +9,8 @@
   scales it 2x and thresholds colour to on/off.
 - **OLED I2C pins:** SDA 21 / SCL 22 on classic ESP32, SDA 8 / SCL 9 on ESP32-S3 (`config.h`).
 - **Boards:** both are classic ESP32-D0WD-V3, 4 MB (`esp32dev`). board-A (Alice)
-  `hs-20500dcdfd18`, board-B (Bob) `hs-20500dcd63f4`. Their CP210x share a USB
-  serial number, so plug in one at a time. `esp32-s3-devkitc-1` stays the default env.
+  `hs-20500dcdfd18`, board-B (Bob) `hs-20500dcd63f4`. COM ports can move; check
+  the MAC before flashing. `esp32-s3-devkitc-1` stays the default env.
 - **Firebase project:** none yet. Everything runs on the emulator with project id
   `demo-heartsync`.
 - **Device auth:** device signs in as its owner with a custom token (see `architecture.md`).

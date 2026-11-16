@@ -1,0 +1,24 @@
+name,value,unit,status,comment
+body_length,160,mm,target,Outer length (about 16 cm)
+body_width,75,mm,target,Outer width (about 7.5 cm)
+body_thickness,32,mm,target,Outer thickness target (about 3.2 cm)
+body_thickness_max,35,mm,hard limit,HARD LIMIT. The stack-up must never exceed this
+wall_thickness,2,mm,assumption,Starting value. Tune after the first PLA test print
+corner_radius,6,mm,assumption,Outer corner radius under the fabric wrap
+fabric_allowance,0.6,mm,assumption,Fabric thickness per side. Measure the real fabric
+panel_width,128,mm,verify against datasheet,64 px at 2 mm pitch
+panel_height,64,mm,verify against datasheet,32 px at 2 mm pitch
+panel_depth,0,mm,verify against datasheet,Panel plus connectors. Measure the real panel
+panel_pitch,2,mm,spec,P2
+battery_length,0,mm,verify against datasheet,10000 mAh cell not chosen. Fill in from the datasheet
+battery_width,0,mm,verify against datasheet,Fill in from the datasheet
+battery_thickness,0,mm,verify against datasheet,Fill in from the datasheet
+battery_swell_gap,1,mm,safety,Free space over the cell face. Must stay within 0.5 to 1 mm
+pcb_thickness,1.6,mm,assumption,Standard FR4
+gasket_width,2,mm,assumption,Seam gasket channel for the IP54 target
+gasket_compression,0.3,mm,assumption,Tune to the gasket material
+dock_magnet_count,4,count,spec,Four magnets in the dock
+dock_magnet_diameter,0,mm,verify against datasheet,Magnet not chosen
+dock_magnet_thickness,0,mm,verify against datasheet,Magnet not chosen
+pogo_pin_count,0,count,verify against datasheet,Decide in Phase 10
+fit_clearance,0.2,mm,assumption,General clearance between printed parts. Tune per printer

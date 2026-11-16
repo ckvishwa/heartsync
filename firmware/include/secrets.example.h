@@ -6,8 +6,12 @@
 #define HS_WIFI_SSID "your-wifi-name"
 #define HS_WIFI_PASSWORD "your-wifi-password"
 
-// Phase 2 (CloudClient). Leave as is until the Firebase project exists.
+// Phase 2 (CloudClient), emulator. Set the PC's LAN IP running the Firebase
+// emulators, e.g. "10.0.0.18". Empty disables sync.
+#define HS_FIREBASE_EMULATOR_HOST ""
 #define HS_FIREBASE_PROJECT_ID "demo-heartsync"
-#define HS_FIREBASE_API_KEY ""
-#define HS_COUPLE_ID ""
-#define HS_DEVICE_CUSTOM_TOKEN ""
+#define HS_FIREBASE_API_KEY ""  // empty is fine for the emulator
+
+// The device's custom token is NOT stored here (one secrets.h serves both boards).
+// It is provisioned per board over serial into NVS: tools/provision_device.py.
+// The device finds its couple from users/{uid}.coupleId.

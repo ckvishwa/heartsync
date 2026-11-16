@@ -32,7 +32,11 @@ public:
     uint8_t fitScale(const Sprite& sprite) const;
 
     // Display test screen: border, heart, and one centred line of text.
-    void showTestScreen(const char* text);
+    void showTestScreen(const char* text) { showSpriteWithText(sprites::kHeart, text, true); }
+
+    // Sprite (2x on canvases of at least 32x32) near the top, one centred text
+    // line at the bottom, optional one-pixel border. Clears and shows.
+    void showSpriteWithText(const Sprite& sprite, const char* text, bool border);
 
 private:
     IDisplay& display_;

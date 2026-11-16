@@ -78,6 +78,7 @@
 // Input: BOOT button debounce
 // ---------------------------------------------------------------------------
 #define HS_BUTTON_DEBOUNCE_MS 30
+#define HS_SERIAL_LINE_MAX 2048        // longest serial command (custom tokens are ~1 KB)
 
 // ---------------------------------------------------------------------------
 // Small LED display, small_led driver only (assumption: 8x8 WS2812B matrix, see docs/phases.md)
@@ -110,3 +111,16 @@
 #define HS_WIFI_RETRY_MS 15000
 #define HS_OTA_HEALTH_TIMEOUT_MS 60000  // roll back if not healthy by then
 #define HS_SERIAL_BAUD 115200
+
+// ---------------------------------------------------------------------------
+// Cloud sync (Phase 2). Emulator host and Wi-Fi come from secrets.h.
+// ---------------------------------------------------------------------------
+#define HS_EMU_PORT_AUTH 9099          // must match cloud/firebase.json
+#define HS_EMU_PORT_FIRESTORE 8080
+#define HS_EMU_PORT_FUNCTIONS 5001
+#define HS_FUNCTIONS_REGION "us-central1"
+#define HS_CLOUD_POLL_MS 2000          // event poll interval
+#define HS_CLOUD_HEARTBEAT_MS 60000    // device heartbeat interval
+#define HS_CLOUD_HTTP_TIMEOUT_MS 3000
+#define HS_CLOUD_RETRY_MIN_MS 2000
+#define HS_CLOUD_RETRY_MAX_MS 30000

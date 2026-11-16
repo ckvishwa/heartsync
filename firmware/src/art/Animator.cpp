@@ -79,17 +79,18 @@ void Animator::showCentered(const Sprite& sprite, uint8_t scale) {
     display_.show();
 }
 
-void Animator::showTestScreen(const char* text) {
+void Animator::showSpriteWithText(const Sprite& sprite, const char* text, bool border) {
     const int16_t w = static_cast<int16_t>(display_.logicalWidth());
     const int16_t h = static_cast<int16_t>(display_.logicalHeight());
     display_.clear();
-    drawRect(0, 0, w, h, kTextColor);
+    if (border) {
+        drawRect(0, 0, w, h, kTextColor);
+    }
 
-    // Heart at 2x, centred horizontally, near the top; text line below it.
-    const Sprite& heart = sprites::kHeart;
+    // Sprite at 2x, centred horizontally, near the top; text line below it.
     const uint8_t scale = (h >= 32 && w >= 32) ? 2 : 1;
-    const int16_t hx = (w - heart.width * scale) / 2;
-    drawSprite(heart, hx, 3, scale);
+    const int16_t sx = (w - sprite.width * scale) / 2;
+    drawSprite(sprite, sx, 3, scale);
 
     const int16_t tx = (w - static_cast<int16_t>(font3x5::textWidth(text))) / 2;
     const int16_t ty = h - 2 - font3x5::kHeight;

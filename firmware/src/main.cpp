@@ -17,6 +17,7 @@
 #include "art/Sprites.h"
 #include "display/DisplayFactory.h"
 #include "events/EventBus.h"
+#include "input/Debouncer.h"
 #include "net/CloudClient.h"
 #include "net/Ota.h"
 #include "net/WifiManager.h"
@@ -29,6 +30,7 @@ hs::Animator animator(display);
 hs::EventBus bus;
 hs::WifiManager wifi;
 hs::CloudClient cloud(bus);
+hs::Debouncer bootButton(HS_BUTTON_DEBOUNCE_MS);
 
 char deviceId[16];  // "hs-" + 12 hex digits of the base MAC
 
@@ -43,6 +45,59 @@ void onEvent(const hs::Event& event, void*) {
     LOGI("event", "%s from %s", hs::eventTypeName(event.type), event.from.c_str());
     if (event.type == hs::EventType::Heart) {
         animator.showCentered(hs::sprites::kHeart, animator.fitScale(hs::sprites::kHeart));
+    }
+}
+
+void sendHeart() {
+    const bool ok = cloud.sendHeart();
+    animator.showSpriteWithText(hs::sprites::kHeart, ok ? "SENT" : "NOT SENT", false);
+}
+
+// Serial commands, one per line. Tokens are never echoed.
+//   token <jwt>   store this board's custom token (tools/provision_device.py)
+//   forget        erase stored tokens
+//   heart         send a heart, same as the BOOT button
+//   status        print cloud state
+void handleCommand(char* line) {
+    if (strncmp(line, "token ", 6) == 0) {
+        cloud.provisionCustomToken(line + 6);
+    } else if (strcmp(line, "forget") == 0) {
+        cloud.forget();
+    } else if (strcmp(line, "heart") == 0) {
+        sendHeart();
+    } else if (strcmp(line, "status") == 0) {
+        LOGI("status", "id=%s wifi=%d heap=%u", deviceId, wifi.connected(),
+             (unsigned)ESP.getFreeHeap());
+        cloud.logStatus();
+    } else if (line[0] != '\0') {
+        LOGW("cli", "unknown command (try: status, heart, token <jwt>, forget)");
+    }
+}
+
+void pollSerial() {
+    static char line[HS_SERIAL_LINE_MAX];
+    static size_t len = 0;
+    static bool overflow = false;
+    while (Serial.available() > 0) {
+        const int c = Serial.read();
+        if (c == '\r') {
+            continue;
+        }
+        if (c == '\n') {
+            line[len] = '\0';
+            if (overflow) {
+                LOGW("cli", "line too long, ignored");
+            } else {
+                handleCommand(line);
+            }
+            memset(line, 0, sizeof(line));  // do not keep tokens in RAM
+            len = 0;
+            overflow = false;
+        } else if (len + 1 < sizeof(line)) {
+            line[len++] = static_cast<char>(c);
+        } else {
+            overflow = true;
+        }
     }
 }
 
@@ -67,6 +122,7 @@ void setup() {
          (int)display.isColor(), (int)displayOk);
     animator.showTestScreen("HEARTSYNC " HS_FW_VERSION);
 
+    pinMode(HS_PIN_BUTTON, INPUT_PULLUP);  // BOOT button: input only, active low
     bus.subscribe(onEvent);
     wifi.begin(HS_WIFI_SSID, HS_WIFI_PASSWORD);
     cloud.begin(deviceId);
@@ -81,8 +137,13 @@ void setup() {
 
 void loop() {
     wifi.loop();
-    cloud.loop();
+    cloud.loop(wifi.connected());
     display.tick(millis());
+    pollSerial();
+    if (bootButton.update(digitalRead(HS_PIN_BUTTON) == LOW, millis())) {
+        LOGI("input", "BOOT button pressed: sending heart");
+        sendHeart();
+    }
 
     static uint32_t lastStatusMs = 0;
     if (millis() - lastStatusMs >= 30000) {

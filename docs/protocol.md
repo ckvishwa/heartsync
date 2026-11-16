@@ -99,6 +99,22 @@ On the device, an event is encoded as compact JSON (`firmware/src/events/EventCo
 
 `createdAt` is added by the server and is not part of the device encoding.
 
+## Device sync (firmware, Phase 2)
+
+See ADR 0008. The board signs in as its owner and makes only these calls:
+
+| Call | Path | Purpose |
+|------|------|---------|
+| Auth `signInWithCustomToken` | - | first sign-in with the serial-provisioned custom token |
+| Auth `securetoken` refresh | - | every boot and before the ID token expires (refresh token in NVS) |
+| Firestore GET | `users/{owner}` | read `coupleId` |
+| Firestore GET | `couples/{coupleId}` | read `members`, pick the partner |
+| Firestore `:commit` | `couples/{coupleId}/devices/{deviceId}` | heartbeat: `owner`, `firmwareVersion`, `online`, `lastSeen` (server time) every 60 s |
+| Firestore `:runQuery` | `couples/{coupleId}/events` | `from == partner`, `createdAt > cursor`, every 2 s |
+| Callable | `sendHeart` | BOOT button or `heart` serial command |
+
+The firmware never reads or writes `users/{uid}/private/*`.
+
 ## Firmware release manifest
 
 Written by `firmware/tools/sign_firmware.py`:

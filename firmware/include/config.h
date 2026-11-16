@@ -125,3 +125,27 @@
 #define HS_CLOUD_CALL_TIMEOUT_MS 10000  // sendHeart: a cold function can take several seconds
 #define HS_CLOUD_RETRY_MIN_MS 2000
 #define HS_CLOUD_RETRY_MAX_MS 30000
+
+// ---------------------------------------------------------------------------
+// BLE Wi-Fi setup (Phase 3, ADR 0009). Mirrored in docs/protocol.md
+// "BLE provisioning" and in the app (lib/data/board_setup_protocol.dart).
+// UUIDs: one random base, the first group numbers the characteristic.
+// ---------------------------------------------------------------------------
+#define HS_SETUP_PROTO 1
+#define HS_SETUP_NAME_PREFIX "heartsync-"      // + last 4 hex of the device id
+#define HS_SETUP_UUID_SERVICE "6a350000-4898-4679-a24f-021d40cfd52a"
+#define HS_SETUP_UUID_INFO "6a350001-4898-4679-a24f-021d40cfd52a"
+#define HS_SETUP_UUID_WIFI_SCAN "6a350002-4898-4679-a24f-021d40cfd52a"
+#define HS_SETUP_UUID_WIFI_LIST "6a350003-4898-4679-a24f-021d40cfd52a"
+#define HS_SETUP_UUID_WIFI_CREDS "6a350004-4898-4679-a24f-021d40cfd52a"
+#define HS_SETUP_UUID_TOKEN "6a350005-4898-4679-a24f-021d40cfd52a"
+#define HS_SETUP_UUID_STATUS "6a350006-4898-4679-a24f-021d40cfd52a"
+#define HS_SETUP_LONG_PRESS_MS 5000            // hold BOOT this long (while running) to reset
+#define HS_SETUP_TAP_MAX_MS 1000               // shorter press = tap (send heart)
+#define HS_SETUP_WINDOW_MS (15UL * 60UL * 1000UL)  // advertise this long, then stop
+#define HS_SETUP_MAX_FAILS 3                   // wrong passkeys before lockout
+#define HS_SETUP_MTU 247
+#define HS_SETUP_TOKEN_MAX 1536                // custom token, bytes
+#define HS_SETUP_WIFI_LIST_MAX 20
+#define HS_SETUP_WIFI_CONNECT_MS 20000         // give up on a Wi-Fi test after this
+#define HS_SETUP_REBOOT_DELAY_MS 3000          // after signed_in, then reboot to normal

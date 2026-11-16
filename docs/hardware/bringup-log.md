@@ -114,3 +114,27 @@ scan, wrong Wi-Fi password, BOOT tap with nothing pending, no BOOT tap (25 s
 reject), change networks, proto mismatch with the new firmware, lockout. Also not
 yet recorded: Wi-Fi scan and connect while a BLE link is up (the setups above
 show it works on esp32dev, but the scan count was not compared).
+
+### Remaining checks, run 2026-11-16 evening (stopped part-way)
+
+Network moved from the "DeltaForce " hotspot to "Peace" (2.4 GHz, WPA2): PC
+10.0.0.18, phone 10.0.0.52. The user updated `secrets.h`; both boards reflashed
+(MACs checked) and boot logs show `emulator 10.0.0.18`. App rebuilt for 10.0.0.18.
+
+| Step | Result | Evidence |
+|------|--------|----------|
+| 1 Wi-Fi list count | PASS | board-B `Wi-Fi scan: 15 networks, 2 pages`; app showed 15 |
+| 2 Wrong Wi-Fi password | PASS (board) | board-B 17:57:09 `Wi-Fi test failed (auth)` (reason 15, 4-way handshake); retry with the right password 17:57:31 `Wi-Fi "Peace" works; saved`, signed in, normal mode on Peace (ip 10.0.0.3) |
+| 2 App after a wrong password | FAIL, fixed in `a43fa28` | the app went back to the list and forgot the network; now a network page keeps it, with the reason on top. Re-run on the phone still pending |
+| 3 BOOT tap with nothing pending | NOT RUN | |
+| 4 No BOOT tap (25 s reject) | NOT RUN | |
+| 5 Change networks | PASS (in passing) | board-B moved from "DeltaForce " to "Peace" by hold + setup |
+| 6 Proto mismatch | PASS (earlier today) | see above; not repeated with the new firmware |
+| 7 Lockout | NOT RUN | |
+| Secrets grep (serial + logcat) | NOT RUN | logs saved in the session scratchpad only |
+
+Also found: the Dual App profile (user 95) had no Nearby devices permission and the
+app said "Turn on Bluetooth"; fixed in `a43fa28` (asks for the permission). The
+Dual copy does not have that build yet (adb dropped during install). Wireless adb
+turns off when the phone changes Wi-Fi network.
+

@@ -5,6 +5,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'board_setup_protocol.dart';
+import 'simulated_board.dart';
 
 /// A board found while scanning (advertising the setup service).
 class FoundBoard {
@@ -239,6 +240,11 @@ class _BluetoothBoardLink implements BoardLink {
   Future<void> disconnect() => _device.disconnect().catchError((_) {});
 }
 
+/// The real Bluetooth repository, or in debug builds with
+/// `--dart-define=SIMULATED_BOARD=true` a simulated board (for the Android
+/// emulator, which has no BLE radio). Release builds always use Bluetooth.
 final boardSetupRepositoryProvider = Provider<BoardSetupRepository>(
-  (ref) => BluetoothBoardSetupRepository(),
+  (ref) => kDebugMode && simulatedBoardEnabled
+      ? SimulatedBoardSetupRepository()
+      : BluetoothBoardSetupRepository(),
 );

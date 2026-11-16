@@ -47,6 +47,30 @@ Last updated: 2026-11-16 (Phase 3 BLE slice built; setup protocol 2 committed, h
 - Repo: private github.com/ckvishwa/heartsync (`main`). CI runs on push; the cloud
   deploy job stays off until a `FIREBASE_PROJECT_ID` repo variable exists.
 
+## Where we stopped (2026-11-16 evening, user said stop and save)
+
+- Network is now "Peace": PC **10.0.0.18**, `secrets.h` updated by the user, both
+  boards reflashed (boot logs show 10.0.0.18). Build the app with
+  `--dart-define=EMULATOR_HOST=10.0.0.18`. Re-check `ipconfig` first (DHCP).
+- Board-B: set up as Bob on Peace, normal mode. Board-A: reflashed, in setup
+  mode, not set up on Peace yet (set up as Alice from the main app copy).
+- Phase 3 checks done: 1 list count, 2 wrong password (board), 5 change networks,
+  6 proto mismatch. Still to run, in this order: re-run 2 on the phone (new
+  network page), 3 BOOT tap with nothing pending, 4 no BOOT tap (25 s), 7 lockout,
+  then grep serial and logcat for the password, token and code. Results:
+  `docs/hardware/bringup-log.md`.
+- App `a43fa28`: Wi-Fi network page (failures stay on it), permission message.
+  Not on the Dual App copy yet; not pushed.
+- **AVD testing (new, not yet run to completion):** `reva_api36` (API 36). An AVD
+  has no BLE, so a debug-only simulated board (`lib/data/simulated_board.dart`,
+  `--dart-define=SIMULATED_BOARD=true`) stands in for the board; registration
+  is real. Suite: `app/integration_test/app_test.dart`, run with
+  `app/tool/avd_test.sh` (emulators up and seeded); screenshots go to
+  `app/build/avd_screens/`. The first run was stopped by the user before it
+  finished, so its result is unknown. Next: run it, review the screenshots for
+  UI/UX, check the PAGECOUNT line (33 networks over several 512-byte pages).
+  The simulated board registers `hs-5e1a00000001` to Bob in the emulator.
+
 ## Next: hardware test of BLE setup, proto 2 (needs the user's go)
 
 Before starting: run `ipconfig` and confirm the PC IP (last `10.143.236.144`; it is

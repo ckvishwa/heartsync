@@ -1,4 +1,5 @@
-// Draws sprites onto an IDisplay. Hardware-free: compiles in native tests.
+// Draws sprites, text and shapes onto an IDisplay's logical canvas.
+// Hardware-free: compiles in native tests.
 // Animations (heartbeat pulse, fades) are added here in Phase 1.
 #pragma once
 
@@ -13,12 +14,25 @@ class Animator {
 public:
     explicit Animator(IDisplay& display) : display_(display) {}
 
-    // Draw set pixels of the sprite with its top-left corner at (x, y).
-    // Unset pixels are left untouched. Pixels off the display are clipped.
-    void drawSprite(const Sprite& sprite, int16_t x, int16_t y);
+    // Draw set pixels of the sprite with its top-left corner at (x, y), each
+    // sprite pixel as a scale x scale block. Unset pixels are left untouched.
+    // Pixels off the canvas are clipped.
+    void drawSprite(const Sprite& sprite, int16_t x, int16_t y, uint8_t scale = 1);
 
-    // Clear, draw the sprite centred, and show.
-    void showCentered(const Sprite& sprite);
+    // One-pixel rectangle outline.
+    void drawRect(int16_t x, int16_t y, int16_t w, int16_t h, Rgb color);
+
+    // Text in the 3x5 font, top-left at (x, y). Returns the width drawn.
+    uint16_t drawText(const char* text, int16_t x, int16_t y, Rgb color);
+
+    // Clear, draw the sprite centred at the given scale, and show.
+    void showCentered(const Sprite& sprite, uint8_t scale = 1);
+
+    // Largest whole-number scale at which the sprite still fits the canvas.
+    uint8_t fitScale(const Sprite& sprite) const;
+
+    // Display test screen: border, heart, and one centred line of text.
+    void showTestScreen(const char* text);
 
 private:
     IDisplay& display_;

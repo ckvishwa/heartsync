@@ -21,8 +21,9 @@ public:
         LOGW("display", "hub75 driver is a stub (Phase 1b); nothing will be shown");
         return true;
     }
-    uint16_t width() const override { return HS_HUB75_WIDTH; }
-    uint16_t height() const override { return HS_HUB75_HEIGHT; }
+    uint16_t logicalWidth() const override { return HS_HUB75_WIDTH; }
+    uint16_t logicalHeight() const override { return HS_HUB75_HEIGHT; }
+    bool isColor() const override { return true; }
     void setPixel(int16_t, int16_t, Rgb) override {}
     void clear() override {}
     void show() override {}

@@ -2,11 +2,14 @@
 
 ## Assumptions (change these when the real answer is known)
 
-- **Small LED type:** 8x8 WS2812B (NeoPixel-style) matrix, 64 LEDs, GRB, one data
-  pin, serpentine wiring, powered from the board's 5 V pin over USB. If it is a
-  strip, set `HS_MATRIX_HEIGHT` to 1 in `firmware/include/config.h`.
-- **LED data pin:** GPIO 5 on ESP32-S3, GPIO 4 on classic ESP32 (`config.h`).
-- **Board:** `esp32-s3-devkitc-1` by default; `esp32dev` env exists for classic ESP32.
+- **Bench display:** 0.96 inch 128x64 monochrome I2C OLED (SSD1306 class) on each
+  board, address 0x3C or 0x3D, powered from 3V3 (ADR 0007). Driver `ssd1306`.
+  The old 8x8 WS2812B driver is kept in env `esp32-s3-small-led`.
+- **Logical canvas:** art always draws at 64x32 (the final HUB75 size). The OLED
+  scales it 2x and thresholds colour to on/off.
+- **OLED I2C pins:** SDA 21 / SCL 22 on classic ESP32, SDA 8 / SCL 9 on ESP32-S3 (`config.h`).
+- **Boards:** board-A is a classic ESP32-D0WD-V3 (`esp32dev`). Board-B not yet
+  identified. `esp32-s3-devkitc-1` stays the default env.
 - **Firebase project:** none yet. Everything runs on the emulator with project id
   `demo-heartsync`.
 - **Device auth:** device signs in as its owner with a custom token (see `architecture.md`).
@@ -21,9 +24,11 @@ Phases 1 to 10 are prototypes. Phase 11 is the final build.
 - [x] `SmallLedDisplay` driver (FastLED), brightness capped at 25 percent
 - [x] Heart sprite and native tests
 - [x] Firmware boots, joins Wi-Fi, prints device ID, draws a static heart (builds; not yet flashed)
-- [ ] Confirm the LED type, size, colour order, and data pin on both boards
-- [ ] Flash board A and board B, heart visible on both (USB power only)
-- [ ] Check serpentine vs progressive wiring and rotation with a test pattern
+- [x] `Ssd1306Display` OLED driver, 64x32 logical canvas scaled 2x, I2C scan, idle dim (ADR 0007)
+- [x] Display test screen (border, heart, text line) and native tests for scaling and thresholding
+- [ ] Identify both boards (board-A done: classic ESP32 on COM3; board-B not detected)
+- [ ] Flash board A and board B, test screen visible on both (USB power only)
+- [ ] Check OLED orientation (`HS_OLED_FLIP`) on the real screens
 - [ ] Avatar sprites (two 8x8 placeholders exist; draw real ones with `tools/pixel2header.py`)
 - [ ] Simple animations in `Animator` (heartbeat pulse, fade)
 - [ ] Phase 1b: `Hub75Display` driver when the 64x32 P2 panel arrives

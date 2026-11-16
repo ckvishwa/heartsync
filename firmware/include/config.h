@@ -7,32 +7,40 @@
 #define HS_FW_VERSION "0.1.0"
 
 // ---------------------------------------------------------------------------
-// Display driver selection: -DDISPLAY_DRIVER=small_led | hub75 (platformio.ini)
+// Display driver selection: -DDISPLAY_DRIVER=ssd1306 | small_led | hub75 (platformio.ini)
 // ---------------------------------------------------------------------------
 #define HS_DISPLAY_ID_small_led 1
 #define HS_DISPLAY_ID_hub75 2
+#define HS_DISPLAY_ID_ssd1306 3
 #define HS_CAT_(a, b) a##b
 #define HS_CAT(a, b) HS_CAT_(a, b)
 #ifndef DISPLAY_DRIVER
-#define DISPLAY_DRIVER small_led
+#define DISPLAY_DRIVER ssd1306
 #endif
 #define HS_DISPLAY_ID HS_CAT(HS_DISPLAY_ID_, DISPLAY_DRIVER)
 #define HS_DISPLAY_IS_SMALL_LED (HS_DISPLAY_ID == HS_DISPLAY_ID_small_led)
 #define HS_DISPLAY_IS_HUB75 (HS_DISPLAY_ID == HS_DISPLAY_ID_hub75)
+#define HS_DISPLAY_IS_SSD1306 (HS_DISPLAY_ID == HS_DISPLAY_ID_ssd1306)
 
 // ---------------------------------------------------------------------------
 // Board: ESP32-S3 DevKitC-1
 // ---------------------------------------------------------------------------
 #if defined(HS_BOARD_ESP32_S3_DEVKITC)
 #define HS_BOARD_NAME "esp32-s3-devkitc-1"
-#define HS_PIN_LED_DATA 5
+#define HS_PIN_LED_DATA 5    // small_led driver only
+#define HS_PIN_I2C_SDA 8     // OLED SDA
+#define HS_PIN_I2C_SCL 9     // OLED SCL
+#define HS_PIN_BUTTON 0      // BOOT button, active low, input only
 
 // ---------------------------------------------------------------------------
 // Board: classic ESP32 DevKit
 // ---------------------------------------------------------------------------
 #elif defined(HS_BOARD_ESP32_DEV)
 #define HS_BOARD_NAME "esp32dev"
-#define HS_PIN_LED_DATA 4
+#define HS_PIN_LED_DATA 4    // small_led driver only
+#define HS_PIN_I2C_SDA 21    // OLED SDA
+#define HS_PIN_I2C_SCL 22    // OLED SCL
+#define HS_PIN_BUTTON 0      // BOOT button, active low, input only
 
 // ---------------------------------------------------------------------------
 // Host (native tests): no pins
@@ -45,7 +53,34 @@
 #endif
 
 // ---------------------------------------------------------------------------
-// Small LED display (assumption: 8x8 WS2812B matrix, see docs/phases.md)
+// Logical canvas. Art and game logic always draw at this size, the size of the
+// final 64x32 P2 HUB75 panel. Drivers scale it to their hardware.
+// ---------------------------------------------------------------------------
+#define HS_LOGICAL_WIDTH 64
+#define HS_LOGICAL_HEIGHT 32
+
+// ---------------------------------------------------------------------------
+// SSD1306 OLED (bench display): 0.96 inch, 128x64, monochrome, I2C.
+// The 64x32 logical canvas is scaled 2x (each logical pixel is a 2x2 block).
+// ---------------------------------------------------------------------------
+#define HS_OLED_WIDTH 128
+#define HS_OLED_HEIGHT 64
+#define HS_OLED_SCALE 2
+#define HS_OLED_I2C_HZ 400000
+#define HS_OLED_FLIP 0                 // 1: rotate 180 degrees (hardware flip)
+#define HS_MONO_THRESHOLD 24           // luma 0..255; above this a pixel is on
+#define HS_OLED_IDLE_DIM_MS 30000      // contrast drops after this much idle time
+#define HS_OLED_IDLE_OFF_MS 600000     // panel off after this much idle time (burn-in)
+#define HS_OLED_DIM_PERCENT 5          // contrast while dimmed
+#define HS_OLED_CONTRAST_DEFAULT_PERCENT 100
+
+// ---------------------------------------------------------------------------
+// Input: BOOT button debounce
+// ---------------------------------------------------------------------------
+#define HS_BUTTON_DEBOUNCE_MS 30
+
+// ---------------------------------------------------------------------------
+// Small LED display, small_led driver only (assumption: 8x8 WS2812B matrix, see docs/phases.md)
 // ---------------------------------------------------------------------------
 #define HS_MATRIX_WIDTH 8
 #define HS_MATRIX_HEIGHT 8      // set to 1 for a strip
@@ -60,7 +95,9 @@
 #define HS_HUB75_HEIGHT 32
 
 // ---------------------------------------------------------------------------
-// Power limits. Do not raise until power is characterised in Phase 8.
+// LED power limits (small_led and hub75 drivers). Do not raise until power is
+// characterised in Phase 8. The OLED draws a few mA and maps brightness
+// straight to its contrast register.
 // ---------------------------------------------------------------------------
 #define HS_BRIGHTNESS_CAP_PERCENT 25
 #define HS_BRIGHTNESS_DEFAULT_PERCENT 25

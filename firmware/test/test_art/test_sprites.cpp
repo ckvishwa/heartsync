@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "art/Animator.h"
+#include "art/Font3x5.h"
 #include "art/Sprites.h"
 #include "display/IDisplay.h"
 
@@ -15,8 +16,9 @@ class FakeDisplay : public hs::IDisplay {
 public:
     FakeDisplay(uint16_t w, uint16_t h) : w_(w), h_(h), pixels_(w * h, hs::kBlack) {}
     bool begin() override { return true; }
-    uint16_t width() const override { return w_; }
-    uint16_t height() const override { return h_; }
+    uint16_t logicalWidth() const override { return w_; }
+    uint16_t logicalHeight() const override { return h_; }
+    bool isColor() const override { return true; }
     void setPixel(int16_t x, int16_t y, hs::Rgb c) override {
         if (x < 0 || y < 0 || x >= w_ || y >= h_) {
             return;
@@ -131,6 +133,75 @@ void test_draw_clips_at_edges() {
     animator.drawSprite(hs::sprites::kHeart, -20, -20);  // fully off: must not crash
 }
 
+void test_heart_at_2x_on_logical_canvas() {
+    // The bench OLED and the final panel both expose a 64x32 logical canvas.
+    FakeDisplay display(64, 32);
+    hs::Animator animator(display);
+    animator.showCentered(hs::sprites::kHeart, 2);
+    TEST_ASSERT_EQUAL(40 * 4, display.lit());
+    // 16x16 heart centred: top-left at (24, 8). Sprite pixel (1, 0) covers (26..27, 8..9).
+    TEST_ASSERT_TRUE(display.at(26, 8) == hs::sprites::kHeart.color);
+    TEST_ASSERT_TRUE(display.at(27, 9) == hs::sprites::kHeart.color);
+    TEST_ASSERT_TRUE(display.at(25, 8) == hs::kBlack);  // sprite pixel (0, 0) is empty
+}
+
+void test_fit_scale() {
+    FakeDisplay panel(64, 32);
+    TEST_ASSERT_EQUAL(4, hs::Animator(panel).fitScale(hs::sprites::kHeart));
+    FakeDisplay matrix(8, 8);
+    TEST_ASSERT_EQUAL(1, hs::Animator(matrix).fitScale(hs::sprites::kHeart));
+}
+
+void test_font_glyphs() {
+    TEST_ASSERT_EQUAL_PTR(hs::font3x5::glyph('A'), hs::font3x5::glyph('a'));
+    TEST_ASSERT_EQUAL_PTR(hs::font3x5::glyph('?'), hs::font3x5::glyph('~'));
+    TEST_ASSERT_EQUAL(0, hs::font3x5::textWidth(""));
+    TEST_ASSERT_EQUAL(3, hs::font3x5::textWidth("H"));
+    TEST_ASSERT_EQUAL(7, hs::font3x5::textWidth("HI"));
+}
+
+void test_draw_text() {
+    FakeDisplay display(64, 32);
+    hs::Animator animator(display);
+    const hs::Rgb white{255, 255, 255};
+    TEST_ASSERT_EQUAL(3, animator.drawText("I", 0, 0, white));
+    // 'I' is ###, .#., .#., .#., ###: 9 pixels.
+    TEST_ASSERT_EQUAL(9, display.lit());
+    TEST_ASSERT_TRUE(display.at(0, 0) == white);
+    TEST_ASSERT_TRUE(display.at(0, 1) == hs::kBlack);
+    TEST_ASSERT_TRUE(display.at(1, 2) == white);
+}
+
+void test_test_screen_has_border_heart_and_text() {
+    FakeDisplay display(64, 32);
+    hs::Animator animator(display);
+    animator.showTestScreen("OK");
+    TEST_ASSERT_EQUAL(1, display.shows);
+    // Border corners and edges.
+    TEST_ASSERT_TRUE(display.at(0, 0) != hs::kBlack);
+    TEST_ASSERT_TRUE(display.at(63, 31) != hs::kBlack);
+    TEST_ASSERT_TRUE(display.at(32, 0) != hs::kBlack);
+    TEST_ASSERT_TRUE(display.at(0, 16) != hs::kBlack);
+    // Heart at 2x with top-left (24, 3): sprite pixel (1, 0) lands at (26, 3).
+    TEST_ASSERT_TRUE(display.at(26, 3) == hs::sprites::kHeart.color);
+    // Text rows 25..29 have lit pixels inside the border.
+    int textLit = 0;
+    for (int y = 25; y < 30; ++y) {
+        for (int x = 1; x < 63; ++x) {
+            textLit += display.at(x, y) != hs::kBlack ? 1 : 0;
+        }
+    }
+    TEST_ASSERT_TRUE(textLit > 0);
+}
+
+void test_draw_rect_outline() {
+    FakeDisplay display(8, 8);
+    hs::Animator animator(display);
+    animator.drawRect(0, 0, 8, 8, hs::Rgb{1, 2, 3});
+    TEST_ASSERT_EQUAL(28, display.lit());  // 8 * 4 - 4 shared corners
+    TEST_ASSERT_TRUE(display.at(3, 3) == hs::kBlack);
+}
+
 int main(int, char**) {
     UNITY_BEGIN();
     RUN_TEST(test_heart_size_and_pixel_count);
@@ -140,5 +211,11 @@ int main(int, char**) {
     RUN_TEST(test_draw_heart_on_small_display);
     RUN_TEST(test_draw_heart_centered_on_panel_size);
     RUN_TEST(test_draw_clips_at_edges);
+    RUN_TEST(test_heart_at_2x_on_logical_canvas);
+    RUN_TEST(test_fit_scale);
+    RUN_TEST(test_font_glyphs);
+    RUN_TEST(test_draw_text);
+    RUN_TEST(test_test_screen_has_border_heart_and_text);
+    RUN_TEST(test_draw_rect_outline);
     return UNITY_END();
 }

@@ -7,14 +7,35 @@ contains a pin number outside `config.h`.
 
 | Board | Model | Device ID | Notes |
 |-------|-------|-----------|-------|
-| A | _to confirm_ | _printed on serial at boot_ | |
-| B | _to confirm_ | _printed on serial at boot_ | |
+| A (Alice) | ESP32-D0WD-V3 dev board, 4 MB flash (`esp32dev`) | `hs-20500dcdfd18` | COM3, see `bringup-log.md` |
+| B (Bob) | _to confirm_ | _printed on serial at boot_ | not detected yet |
+
+## Bench OLED (both boards)
+
+0.96 inch, 4-pin, I2C, 128x64 monochrome, SSD1306 class. Address 0x3C (0x3D also
+accepted; the firmware scans the bus at boot). Pull-ups are on the OLED module.
+Power from 3V3, never 5V.
+
+| OLED pin | Classic ESP32 | ESP32-S3 | Macro |
+|----------|---------------|----------|-------|
+| GND | GND | GND | - |
+| VCC | 3V3 | 3V3 | - |
+| SCL | GPIO 22 | GPIO 9 | `HS_PIN_I2C_SCL` |
+| SDA | GPIO 21 | GPIO 8 | `HS_PIN_I2C_SDA` |
+
+## BOOT button (both boards)
+
+`HS_PIN_BUTTON` = GPIO 0, on-board BOOT button, active low. Input only (strapping
+pin: never drive it). Used in Phase 2 to send a heart.
 
 ## ESP32-S3 DevKitC-1 (`env:esp32-s3-devkitc-1`, flag `HS_BOARD_ESP32_S3_DEVKITC`)
 
 | Function | Macro | GPIO | Notes |
 |----------|-------|------|-------|
-| Small LED data | `HS_PIN_LED_DATA` | 5 | Not a strapping pin. A 330 ohm series resistor near the first LED is recommended. |
+| OLED SDA | `HS_PIN_I2C_SDA` | 8 | I2C. |
+| OLED SCL | `HS_PIN_I2C_SCL` | 9 | I2C. |
+| BOOT button | `HS_PIN_BUTTON` | 0 | Input only, active low. |
+| Small LED data | `HS_PIN_LED_DATA` | 5 | `small_led` driver only. A 330 ohm series resistor near the first LED is recommended. |
 | LED power | - | 5V pin | From USB. Current limited in software. |
 | Ground | - | GND | Common ground with the LED. |
 
@@ -25,7 +46,10 @@ Avoid on S3: 0, 3, 45, 46 (strapping), 19 and 20 (USB), 26 to 32 (flash),
 
 | Function | Macro | GPIO | Notes |
 |----------|-------|------|-------|
-| Small LED data | `HS_PIN_LED_DATA` | 4 | Not a strapping pin. |
+| OLED SDA | `HS_PIN_I2C_SDA` | 21 | Default Wire SDA. |
+| OLED SCL | `HS_PIN_I2C_SCL` | 22 | Default Wire SCL. |
+| BOOT button | `HS_PIN_BUTTON` | 0 | Input only, active low. |
+| Small LED data | `HS_PIN_LED_DATA` | 4 | `small_led` driver only. |
 | LED power | - | VIN / 5V pin | From USB. |
 | Ground | - | GND | |
 
@@ -39,5 +63,5 @@ CLK, LAT, OE). Assign in `config.h` when the panel arrives and fill this table.
 
 ## Later peripherals
 
-I2C (IMU, DRV2605L, light sensor), I2S (mic), touch, UART (LTE-M/GNSS): not
+I2C (IMU, DRV2605L, light sensor) will share the OLED bus above. I2S (mic), touch, UART (LTE-M/GNSS): not
 assigned. Add a row here and a macro in `config.h` in the phase that introduces each.

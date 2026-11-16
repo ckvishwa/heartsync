@@ -1,6 +1,6 @@
 // heartsync firmware entry point.
-// Phase 1 hello: print the device ID, show a static heart through IDisplay,
-// connect to Wi-Fi from secrets.h.
+// Phase 1 hello: print the device ID, show the display test screen through
+// IDisplay, connect to Wi-Fi from secrets.h.
 #include <Arduino.h>
 #include <esp_mac.h>
 
@@ -42,7 +42,7 @@ void initDeviceId() {
 void onEvent(const hs::Event& event, void*) {
     LOGI("event", "%s from %s", hs::eventTypeName(event.type), event.from.c_str());
     if (event.type == hs::EventType::Heart) {
-        animator.showCentered(hs::sprites::kHeart);
+        animator.showCentered(hs::sprites::kHeart, animator.fitScale(hs::sprites::kHeart));
     }
 }
 
@@ -54,26 +54,35 @@ void setup() {
     initDeviceId();
     LOGI("boot", "heartsync v%s board=%s", HS_FW_VERSION, HS_BOARD_NAME);
     LOGI("boot", "device id: %s", deviceId);
+    LOGI("boot", "chip=%s rev=%d cores=%d flash=%uKB psram=%uKB heap=%u", ESP.getChipModel(),
+         (int)ESP.getChipRevision(), (int)ESP.getChipCores(),
+         (unsigned)(ESP.getFlashChipSize() / 1024), (unsigned)(ESP.getPsramSize() / 1024),
+         (unsigned)ESP.getFreeHeap());
 
     hs::ota::begin();
 
     const bool displayOk = display.begin();
-    LOGI("boot", "display=%s %ux%u ok=%d", display.name(), (unsigned)display.width(),
-         (unsigned)display.height(), displayOk);
-    animator.showCentered(hs::sprites::kHeart);
+    LOGI("boot", "display=%s logical=%ux%u color=%d ok=%d", display.name(),
+         (unsigned)display.logicalWidth(), (unsigned)display.logicalHeight(),
+         (int)display.isColor(), (int)displayOk);
+    animator.showTestScreen("HEARTSYNC " HS_FW_VERSION);
 
     bus.subscribe(onEvent);
     wifi.begin(HS_WIFI_SSID, HS_WIFI_PASSWORD);
     cloud.begin(deviceId);
 
-    if (displayOk) {
-        hs::ota::reportHealthy();
+    // A missing bench display is not a firmware fault: stay healthy so a
+    // wiring problem never triggers a rollback or a reboot loop.
+    if (!displayOk) {
+        LOGW("boot", "display not available; running headless");
     }
+    hs::ota::reportHealthy();
 }
 
 void loop() {
     wifi.loop();
     cloud.loop();
+    display.tick(millis());
 
     static uint32_t lastStatusMs = 0;
     if (millis() - lastStatusMs >= 30000) {

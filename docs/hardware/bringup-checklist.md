@@ -12,7 +12,15 @@ until Phase 8. Read `safety.md` before touching anything with a battery.
 - [ ] Serial at 115200 shows the boot log and the device ID; record the ID in `pinout.md`
 - [ ] Wi-Fi connects (after creating `include/secrets.h`)
 
-### Small LED A
+### OLED A
+
+- [ ] Wire GND, VCC (3V3), SCL, SDA per `pinout.md` (board unpowered while wiring)
+- [ ] Boot log shows the I2C scan with a device at 0x3C or 0x3D
+- [ ] Test screen appears: border, heart, and "HEARTSYNC <version>", the right way up
+- [ ] If upside down: set `HS_OLED_FLIP` to 1. If blank: check scan, then address, then wiring
+- [ ] Display dims after 30 s idle and turns off after 10 min
+
+### Small LED A (old bench display, `esp32-s3-small-led` env only)
 
 - [ ] Identify the LED type, pixel count, and layout; update `config.h` if not 8x8 WS2812B
 - [ ] Wire 5V, GND, and data to `HS_PIN_LED_DATA` (board unpowered while wiring)
@@ -20,7 +28,7 @@ until Phase 8. Read `safety.md` before touching anything with a battery.
 - [ ] If colours are wrong: fix `HS_LED_COLOR_ORDER`. If rows are mirrored: toggle `HS_MATRIX_SERPENTINE`
 - [ ] LED and board stay cool after 10 minutes at the 25 percent cap
 
-### Board B and small LED B
+### Board B and OLED B
 
 - [ ] Repeat all of the above for board B
 

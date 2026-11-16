@@ -11,3 +11,4 @@ One file per decision. Create new ones with `/new-adr <title>` or by copying
 | 0004 | [App: Flutter](0004-app-flutter.md) | Accepted |
 | 0005 | [OTA: dual slot, signed](0005-ota-dual-slot-signed.md) | Accepted |
 | 0006 | [Power: single LiPo, USB-C PD](0006-power-single-lipo-usbc-pd.md) | Accepted |
+| 0007 | [OLED bench display with U8g2](0007-oled-bench-display-u8g2.md) | Proposed |

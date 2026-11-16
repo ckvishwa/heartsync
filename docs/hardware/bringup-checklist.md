@@ -7,18 +7,18 @@ until Phase 8. Read `safety.md` before touching anything with a battery.
 
 ### Board A
 
-- [ ] Identify the board model; record it in `pinout.md`
-- [ ] `pio run -e <env> -t upload` succeeds
-- [ ] Serial at 115200 shows the boot log and the device ID; record the ID in `pinout.md`
+- [x] Identify the board model; record it in `pinout.md`
+- [x] `pio run -e <env> -t upload` succeeds
+- [x] Serial at 115200 shows the boot log and the device ID; record the ID in `pinout.md`
 - [ ] Wi-Fi connects (after creating `include/secrets.h`)
 
 ### OLED A
 
-- [ ] Wire GND, VCC (3V3), SCL, SDA per `pinout.md` (board unpowered while wiring)
-- [ ] Boot log shows the I2C scan with a device at 0x3C or 0x3D
-- [ ] Test screen appears: border, heart, and "HEARTSYNC <version>", the right way up
-- [ ] If upside down: set `HS_OLED_FLIP` to 1. If blank: check scan, then address, then wiring
-- [ ] Display dims after 30 s idle and turns off after 10 min
+- [x] Wire GND, VCC (3V3), SCL, SDA per `pinout.md` (board unpowered while wiring)
+- [x] Boot log shows the I2C scan with a device at 0x3C or 0x3D
+- [x] Test screen appears: border, heart, and "HEARTSYNC <version>", the right way up
+- [x] If upside down: set `HS_OLED_FLIP` to 1. If blank: check scan, then address, then wiring
+- [x] Display dims after 30 s idle (10 min off not yet observed)
 
 ### Small LED A (old bench display, `esp32-s3-small-led` env only)
 
@@ -30,7 +30,7 @@ until Phase 8. Read `safety.md` before touching anything with a battery.
 
 ### Board B and OLED B
 
-- [ ] Repeat all of the above for board B
+- [x] Repeat the board and OLED items above for board B (all pass, 2026-11-16)
 
 ## Phase 2: cloud sync
 

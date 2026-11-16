@@ -56,4 +56,8 @@ MAC verified with esptool before each upload. Firmware commit `9f21871`
 
 Both log `wifi: no credentials` (expected until `include/secrets.h` exists) and
 `cloud: sync not implemented yet` (Phase 2 stub). Display init takes about 1.4 s
-(U8g2 begin). Visual check of the test screen: _pending user confirmation_.
+(U8g2 begin). Visual check (user, 2026-11-16): **pass on both boards.** Border, 2x heart and
+"HEARTSYNC 0.1.0" visible, orientation correct (`HS_OLED_FLIP` stays 0), idle
+dimming after 30 s works.
+
+**Step 3 result: board-A PASS, board-B PASS.**

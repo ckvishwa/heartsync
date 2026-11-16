@@ -8,17 +8,16 @@ Bench setup: two ESP32 dev boards on USB power only, each with a 0.96 inch
 | Label | Owner (seed) | COM port | Chip | Revision | Flash | PSRAM | MAC | Device ID | PIO env |
 |-------|--------------|----------|------|----------|-------|-------|-----|-----------|---------|
 | board-A | Alice (`--person a@example.com:Alice:...`) | COM3 (CP210x) | ESP32-D0WD-V3 (classic, dual core, 240 MHz) | v3.1 | 4 MB (mfr 0x68, dev 0x4016), 3.3 V | none embedded; external confirmed at first boot | 20:50:0d:cd:fd:18 | `hs-20500dcdfd18` | `esp32dev` |
-| board-B | Bob (`--person b@example.com:Bob:...`) | _not detected_ | _pending_ | | | | | | |
+| board-B | Bob (`--person b@example.com:Bob:...`) | COM3 (CP210x), one board at a time | ESP32-D0WD-V3 (classic, dual core, 240 MHz) | v3.1 | 4 MB, 3.3 V | none embedded; external confirmed at first boot | 20:50:0d:cd:63:f4 | `hs-20500dcd63f4` | `esp32dev` |
 
 Notes:
 
 - Labels follow detection order; board-A is the first board that answered. Board-A
   is Alice's board, board-B is Bob's, matching `tools/seed_couple.py`.
 - Device ID is `hs-` plus the base MAC in hex, as printed by the firmware at boot.
-- Board-B: no second USB serial device enumerated on 2026-11-16 (only COM3 present).
-  Usual cause is a charge-only USB cable. Fix: try a known data cable and another
-  port; if the port appears but esptool cannot connect, hold BOOT, tap EN, release BOOT.
-  An S3 DevKitC needs the cable in the port labelled UART for serial logs.
+- **Both CP210x bridges report the same USB serial number (`0001`)**, so Windows
+  only gives one of them a COM port at a time (both appear as COM3). Work with one
+  board plugged in at a time, and confirm the MAC with esptool before every flash.
 
 ### Board-B detection attempts (2026-11-16)
 
@@ -30,16 +29,15 @@ User reports both boards are the same model, and OLEDs on 3V3.
 | 2 | Swapped USB ports | COM3 | 20:50:0d:cd:fd:18 (board-A) | board-B not seen |
 | 3 | Swap cable/board test requested | COM3 | 20:50:0d:cd:fd:18 (board-A) | board-B not seen |
 | 4 | Recheck | COM3 | 20:50:0d:cd:fd:18 (board-A) | board-B not seen |
+| 5 | Board-B alone, on board-A's cable and port | COM3 | 20:50:0d:cd:63:f4 (board-B) | **board-B identified** |
 
-Windows shows no unknown or failed USB device, so board-B is not enumerating at
-all (no data link), rather than missing a driver. Board-A works in both ports, so
-the PC ports are fine. Remaining suspects: board-B's cable (charge-only), board-B's
-USB socket, or its CP210x. Next test: board-B alone, on board-A's cable and port,
-and note its power LED.
+Resolved: board-B works alone. Most likely cause is the duplicate CP210x serial
+number above (or board-B's original cable being charge-only). Either way: one
+board on USB at a time, MAC check before flashing.
 
 ## Wiring check
 
-- board-A is a classic ESP32: OLED SDA on GPIO 21, SCL on GPIO 22 (default Wire pins). Matches.
+- Both boards are classic ESP32: OLED SDA on GPIO 21, SCL on GPIO 22 (default Wire pins). Matches.
 
 ## First boot (Step 3)
 

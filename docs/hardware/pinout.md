@@ -8,7 +8,7 @@ contains a pin number outside `config.h`.
 | Board | Model | Device ID | Notes |
 |-------|-------|-----------|-------|
 | A (Alice) | ESP32-D0WD-V3 dev board, 4 MB flash (`esp32dev`) | `hs-20500dcdfd18` | COM3, see `bringup-log.md` |
-| B (Bob) | _to confirm_ | _printed on serial at boot_ | not detected yet |
+| B (Bob) | ESP32-D0WD-V3 dev board, 4 MB flash (`esp32dev`) | `hs-20500dcd63f4` | COM3 when alone, see `bringup-log.md` |
 
 ## Bench OLED (both boards)
 

@@ -8,8 +8,9 @@
 - **Logical canvas:** art always draws at 64x32 (the final HUB75 size). The OLED
   scales it 2x and thresholds colour to on/off.
 - **OLED I2C pins:** SDA 21 / SCL 22 on classic ESP32, SDA 8 / SCL 9 on ESP32-S3 (`config.h`).
-- **Boards:** board-A is a classic ESP32-D0WD-V3 (`esp32dev`). Board-B not yet
-  identified. `esp32-s3-devkitc-1` stays the default env.
+- **Boards:** both are classic ESP32-D0WD-V3, 4 MB (`esp32dev`). board-A (Alice)
+  `hs-20500dcdfd18`, board-B (Bob) `hs-20500dcd63f4`. Their CP210x share a USB
+  serial number, so plug in one at a time. `esp32-s3-devkitc-1` stays the default env.
 - **Firebase project:** none yet. Everything runs on the emulator with project id
   `demo-heartsync`.
 - **Device auth:** device signs in as its owner with a custom token (see `architecture.md`).
@@ -26,7 +27,7 @@ Phases 1 to 10 are prototypes. Phase 11 is the final build.
 - [x] Firmware boots, joins Wi-Fi, prints device ID, draws a static heart (builds; not yet flashed)
 - [x] `Ssd1306Display` OLED driver, 64x32 logical canvas scaled 2x, I2C scan, idle dim (ADR 0007)
 - [x] Display test screen (border, heart, text line) and native tests for scaling and thresholding
-- [ ] Identify both boards (board-A done: classic ESP32 on COM3; board-B not detected)
+- [x] Identify both boards (both classic ESP32-D0WD-V3, see `docs/hardware/bringup-log.md`)
 - [ ] Flash board A and board B, test screen visible on both (USB power only)
 - [ ] Check OLED orientation (`HS_OLED_FLIP`) on the real screens
 - [ ] Avatar sprites (two 8x8 placeholders exist; draw real ones with `tools/pixel2header.py`)

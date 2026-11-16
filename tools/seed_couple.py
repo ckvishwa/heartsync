@@ -18,8 +18,12 @@ to a service-account file that lives OUTSIDE the repo):
   python tools/seed_couple.py --project <project-id> --production ...
 
 New users get a random temporary password, printed once. Change it in the app.
-Device custom tokens (so a device can sign in as its owner) are a Phase 2 task
-and are not minted here yet.
+
+Device custom tokens (so a device can sign in as its owner):
+  --mint-tokens writes one custom token per device to tools/.device-tokens/<id>.token
+  (git-ignored; tokens are never printed). Load each into its board over serial with
+  tools/provision_device.py within one hour (custom tokens expire); the board then
+  keeps a refresh token in NVS.
 
 Requires: pip install firebase-admin
 """
@@ -46,6 +50,9 @@ def main() -> int:
     parser.add_argument("--person", type=parse_person, action="append", required=True,
                         help="email:DisplayName:device-id (give exactly two)")
     parser.add_argument("--firmware-version", default="0.1.0")
+    parser.add_argument("--mint-tokens", action="store_true",
+                        help="write a custom token per device to --token-dir (never printed)")
+    parser.add_argument("--token-dir", default=os.path.join(os.path.dirname(__file__), ".device-tokens"))
     parser.add_argument("--production", action="store_true",
                         help="write to the real project instead of the emulators")
     args = parser.parse_args()
@@ -103,6 +110,17 @@ def main() -> int:
             }
         )
         print(f"device: {person['device_id']} (owner {person['email']})")
+
+    if args.mint_tokens:
+        os.makedirs(args.token_dir, exist_ok=True)
+        for person in args.person:
+            token = auth.create_custom_token(person["uid"])
+            if isinstance(token, bytes):
+                token = token.decode("ascii")
+            path = os.path.join(args.token_dir, f"{person['device_id']}.token")
+            with open(path, "w", encoding="ascii") as f:
+                f.write(token)
+            print(f"token:  {person['device_id']} -> {path} (expires in 1 hour)")
 
     print("Done.")
     return 0

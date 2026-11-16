@@ -41,12 +41,13 @@ Phases 1 to 10 are prototypes. Phase 11 is the final build.
 - [x] App: login and "Send heart" against the emulator
 - [x] Web: device list and placeholder editor grid
 - [ ] Create the real Firebase project; add its config to app, web, and `secrets.h`
-- [ ] Seed the couple and both devices (`tools/seed_couple.py`)
-- [ ] `CloudClient`: sign in with the device's custom token
-- [ ] `CloudClient`: listen to `couples/{id}/events` where `from != owner`
-- [ ] `CloudClient`: write device heartbeat (`lastSeen`, `online`, firmware version)
-- [ ] Received `heart` event draws the heart on the other board
-- [ ] A button or serial command on board A sends a heart; it appears on board B
+- [x] Seed the couple and both devices (`tools/seed_couple.py`)
+- [x] `CloudClient`: sign in with the device's custom token
+- [x] `CloudClient`: listen to `couples/{id}/events` from the partner (REST polling, ADR 0008)
+- [x] `CloudClient`: write device heartbeat (`lastSeen`, `online`, firmware version)
+- [x] Received `heart` event draws the heart on the other board
+- [x] A button or serial command on board A sends a heart; it appears on board B (BOOT button, both directions)
+- [x] App: connection check (emulator ports, sign-in, pairing, boards online)
 - [ ] Phase 2b: signed OTA download and verify (rollback health check already in place)
 
 ## Phase 3: App

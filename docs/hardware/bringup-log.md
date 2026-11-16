@@ -61,3 +61,22 @@ Both log `wifi: no credentials` (expected until `include/secrets.h` exists) and
 dimming after 30 s works.
 
 **Step 3 result: board-A PASS, board-B PASS.**
+
+## Phase 2 sync (Step 4, 2026-11-16)
+
+Network: open 2.4 GHz hotspot "DeltaForce " (trailing space in the SSID), PC
+10.143.236.144 running the emulators on 0.0.0.0, phone on the same network.
+Home network "Peace" refused the boards at the auth step (reason 2) and was not used.
+
+| Test | Result | Evidence |
+|------|--------|----------|
+| Both boards sign in (custom token, then refresh token) | PASS | `state=polling uid=alice partner=bob` / `uid=bob partner=alice` |
+| Heartbeat (`lastSeen`, `online`, fw) | PASS | device docs updated every 60 s; app shows both online |
+| BOOT on board-A sends a heart, board-B shows it | PASS | user observed |
+| BOOT on board-B sends a heart, board-A shows it | PASS | user observed |
+| App as Bob sends a heart, board-A (Alice) shows it | PASS | 5 events from bob 18:27:39-18:27:58Z, board-A logged 5x `heart from bob` |
+| App as Alice sends a heart, board-B (Bob) shows it | events written (18:27:15Z, 18:28:17Z); board-B display not yet confirmed by user |
+
+Fixes on the way: uid read from the ID token (custom-token sign-in has no
+`localId`); app Firebase options from `--dart-define-from-file` because the
+Android SDK rejected the API key `demo-key` ("Please set a valid API key").

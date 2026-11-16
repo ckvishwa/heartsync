@@ -116,6 +116,56 @@ records, `releases`, and all of Storage. Rules tests: "device-scoped tokens" in
 `cloud/test/rules.test.mjs`. Bench boards provisioned before Phase 3 still hold
 plain owner tokens (no claims) until they are re-provisioned.
 
+## BLE provisioning (Phase 3, ADR 0009)
+
+A board in setup mode advertises as `heartsync-<last 4 hex of its id>` with one
+service. UUIDs share the base `6a35xxxx-4898-4679-a24f-021d40cfd52a`
+(`firmware/include/config.h`, `app/lib/data/board_setup_protocol.dart`).
+
+| Characteristic | UUID prefix | Access | Value (UTF-8 JSON unless noted) |
+|---|---|---|---|
+| service   | `6a350000` | | |
+| `info`      | `6a350001` | read | `{"deviceId","fw","proto":1}` |
+| `wifiScan`  | `6a350002` | write | any byte: start a scan |
+| `wifiList`  | `6a350003` | read, notify | `[{"ssid","rssi","open"}]`, strongest first, one per SSID, no hidden, at most 20, fits 512 bytes |
+| `wifiCreds` | `6a350004` | write | `{"ssid","pass"}`: SSID 1..32 bytes kept exactly (spaces too), pass empty (open) or 8..63 bytes |
+| `token`     | `6a350005` | write | chunks: 1 flags byte (`0x01` first, `0x02` last) + token bytes; one chunk fits one write and 512 bytes; token at most 1536 bytes |
+| `status`    | `6a350006` | read, notify | `{"state","reason"?}` |
+
+**Security.** Every characteristic requires an encrypted and authenticated link:
+- LE Secure Connections only.
+- The board is DisplayOnly: the phone enters the 6-digit passkey shown on the OLED.
+- A new passkey per session. Bonds are deleted at every setup start and after each
+  session.
+- 3 failed pairings lock BLE (stored in NVS) until BOOT is held 5 s.
+- A connection that does not pair within 60 s is dropped.
+- Advertising stops after 15 min without a connection.
+
+**Status states:**
+- `idle`
+- `wifi_connecting`
+- `wifi_ok`
+- `wifi_failed`, with `reason`: `auth` (wrong password), `no_ap`, `timeout` or `other`
+- `signing_in`
+- `signed_in`
+
+Other reasons that can appear: `bad_creds`, `bad_token`, `not_ready`,
+`token_rejected`, `wrong_board`, `network`, `cloud_disabled`. Secrets never appear
+in any value the board sends.
+
+**Order:**
+1. The app connects and pairs, then reads `info`.
+2. It writes `wifiScan` and reads the list (or lets the user type a hidden SSID).
+3. It writes `wifiCreds`. The board tests the network and saves it only if it joins.
+4. It waits for `wifi_ok`.
+5. It calls `registerDevice({deviceId})` and writes the token chunks.
+6. The board signs in once (token in RAM only), stores the refresh token, reports
+   `signed_in`, and restarts into normal mode after 3 s.
+
+**Modes.** The board enters setup when no Wi-Fi is stored, or after BOOT is held 5 s
+while running (that wipes Wi-Fi and tokens). It stays in setup until sign-in
+succeeds. GPIO 0 is a strapping pin, so the gesture is never "hold at power-up".
+
 ## Rules summary
 
 1. Deny by default.
@@ -146,21 +196,20 @@ On the device, an event is encoded as compact JSON (`firmware/src/events/EventCo
 
 `createdAt` is added by the server and is not part of the device encoding.
 
-## Device sync (firmware, Phase 2)
+## Device sync (firmware, Phases 2 and 3)
 
-See ADR 0008. The board signs in as its owner and makes only these calls:
+See ADRs 0008 and 0009. The board signs in as its own uid `dev_<deviceId>` and
+takes `coupleId` and `owner` from its ID token claims. It makes only these calls:
 
 | Call | Path | Purpose |
 |------|------|---------|
-| Auth `signInWithCustomToken` | - | first sign-in with the serial-provisioned custom token |
+| Auth `signInWithCustomToken` | - | once, with the token from BLE setup (bench builds: serial) |
 | Auth `securetoken` refresh | - | every boot and before the ID token expires (refresh token in NVS) |
-| Firestore GET | `users/{owner}` | read `coupleId` |
-| Firestore GET | `couples/{coupleId}` | read `members`, pick the partner |
-| Firestore `:commit` | `couples/{coupleId}/devices/{deviceId}` | heartbeat: `owner`, `firmwareVersion`, `online`, `lastSeen` (server time) every 60 s |
-| Firestore `:runQuery` | `couples/{coupleId}/events` | `from == partner`, `createdAt > cursor`, every 2 s |
-| Callable | `sendHeart` | BOOT button or `heart` serial command |
+| Firestore `:commit` | `couples/{coupleId}/devices/{deviceId}` | heartbeat: `owner` (the claim), `firmwareVersion`, `online`, `lastSeen` (server time) every 60 s |
+| Firestore `:runQuery` | `couples/{coupleId}/events` | `createdAt > cursor`, any sender, every 2 s; the board drops its owner's own events and moves the cursor past them |
+| Callable | `sendHeart` | BOOT tap or `heart` serial command; the server posts as the owner |
 
-The firmware never reads or writes `users/{uid}/private/*`.
+The firmware never reads `users/**` or the couple document (its token cannot).
 
 ### Check-in intervals (firmware `config.h`, app `connection_repository.dart`)
 

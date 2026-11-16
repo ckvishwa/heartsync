@@ -43,4 +43,7 @@ Flutter app for iOS and Android. One codebase, Riverpod for state.
 - Cleartext HTTP is allowed in the **debug** manifest only, for the emulators.
 - The real project needs `flutterfire configure` and `--dart-define=USE_EMULATOR=false`.
 - Cycle data is health data: never log it, never cache it locally. See `features/mood_cycle/`.
-- No BLE yet (Phase 3). Do not edit generated files under `ios/` and `android/` build output.
+- BLE (Phase 3, ADR 0009): `flutter_blue_plus` lives only in `lib/data/board_setup_repository.dart`.
+  Its logging stays off (it would print the Wi-Fi password and token). Android pairs with
+  `removeBond` + `createBond` (system PIN prompt). It uses `License.nonprofit` (personal use).
+- Do not edit generated files under `ios/` and `android/` build output.

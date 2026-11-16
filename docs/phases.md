@@ -53,7 +53,12 @@ Phases 1 to 10 are prototypes. Phase 11 is the final build.
 
 ## Phase 3: App
 
-- [ ] Real pairing flow (BLE setup and Wi-Fi provisioning)
+- [x] Board identity `dev_<deviceId>` with owner claims; rules, `registerDevice`, board-aware `sendHeart` (ADR 0009)
+- [x] Firmware BLE setup mode: passkey on OLED, LE SC only, lockout, Wi-Fi test, one-time token
+- [x] App "Set up a board": scan, pair, Wi-Fi list or manual entry, register, send key
+- [ ] BLE setup tested on both bench boards (pairing, wrong PIN lockout, wrong Wi-Fi password, change networks)
+- [ ] Board-id proof of possession (squatting, ADR 0009) and an unregister path
+- [ ] Partner invites in the app (seed scripts until then)
 - [ ] Push notifications
 - [ ] Pixel editor, avatars, settings
 
@@ -98,5 +103,11 @@ Phases 1 to 10 are prototypes. Phase 11 is the final build.
 
 ## Phase 11: Final product
 
+- [ ] Release-build gate before burning flash and NVS encryption eFuses (ADR 0009). All must be true:
+  - Signed OTA download, verify and rollback tested on real boards
+  - BLE Wi-Fi setup works, including changing networks later
+  - All hardware final and tested on the S3 boards
+  - Rehearsal burn done on a spare S3 (boot, OTA, NVS read-back)
+  - Key backup decision made and recorded
 - [ ] Final PETG build of both devices
 - [ ] Pre-pair, final firmware, gift packaging

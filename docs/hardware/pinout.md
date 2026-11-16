@@ -26,7 +26,14 @@ Power from 3V3, never 5V.
 ## BOOT button (both boards)
 
 `HS_PIN_BUTTON` = GPIO 0, on-board BOOT button, active low. Input only (strapping
-pin: never drive it). Used in Phase 2 to send a heart.
+pin: never drive it).
+
+- **Tap** (released within `HS_SETUP_TAP_MAX_MS`, 1 s): send a heart.
+- **Hold 5 s while running** (`HS_SETUP_LONG_PRESS_MS`): the OLED counts down,
+  then the board wipes Wi-Fi and tokens and restarts into BLE setup (ADR 0009). In
+  setup mode a hold clears the pairing lockout.
+- **Never hold it while powering on or resetting**: GPIO 0 low at boot enters the ROM
+  download mode instead of the firmware.
 
 ## ESP32-S3 DevKitC-1 (`env:esp32-s3-devkitc-1`, flag `HS_BOARD_ESP32_S3_DEVKITC`)
 

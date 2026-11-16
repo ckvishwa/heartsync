@@ -1,11 +1,18 @@
 # heartsync
 
+## Start here
+
+**Read `docs/handoff.md` first.** It holds the current state, the open decisions,
+and the next step. Update it at the end of every session that changes the plan.
+
 ## Project
 
 Two matching pixel-art devices for a couple, paired through Firebase and controlled
-by a Flutter app and a small Next.js dashboard. **Current phase: 1 (Display) and
-2 (Cloud sync)**: pixel art on the small LEDs, and a heart sent from one board
-appears on the other. Do not build beyond these phases.
+by a Flutter app and a small Next.js dashboard. **Phase 2 (cloud sync) is done on
+the emulator; Phase 1 art items remain.** The bench display is an SSD1306 OLED
+(ADR 0007). The next slice, Phase 3 BLE Wi-Fi setup, is planned in
+`docs/handoff.md` but **must not be built until the user says "go"** and answers
+its open decisions. Do not build beyond that.
 
 ## Repo map
 

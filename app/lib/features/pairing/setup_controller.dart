@@ -31,6 +31,11 @@ class SetupState {
     this.networks = const [],
     this.scanningWifi = false,
     this.wifiError,
+    this.wifiErrorReason,
+    this.selected,
+    this.manualEntry = false,
+    this.manualSsid = '',
+    this.wifiAttempts = 0,
     this.message,
   });
 
@@ -41,7 +46,15 @@ class SetupState {
   final List<WifiNetwork> networks;
   final bool scanningWifi;
   final String? wifiError; // shown on the Wi-Fi step (e.g. wrong password)
+  final String? wifiErrorReason; // board reason behind wifiError, for help text
+  final WifiNetwork? selected; // the network page is open for this one
+  final bool manualEntry; // the network page is open for a typed name
+  final String manualSsid; // kept across a failed attempt (not a secret)
+  final int wifiAttempts; // failed attempts on the open network page
   final String? message; // shown on the failed step
+
+  /// The network page (rather than the list) is showing.
+  bool get networkPageOpen => selected != null || manualEntry;
 
   SetupState copyWith({
     SetupStep? step,
@@ -51,7 +64,13 @@ class SetupState {
     List<WifiNetwork>? networks,
     bool? scanningWifi,
     String? wifiError,
+    String? wifiErrorReason,
     bool clearWifiError = false,
+    WifiNetwork? selected,
+    bool clearSelected = false,
+    bool? manualEntry,
+    String? manualSsid,
+    int? wifiAttempts,
     String? message,
   }) => SetupState(
     step: step ?? this.step,
@@ -61,6 +80,11 @@ class SetupState {
     networks: networks ?? this.networks,
     scanningWifi: scanningWifi ?? this.scanningWifi,
     wifiError: clearWifiError ? null : (wifiError ?? this.wifiError),
+    wifiErrorReason: clearWifiError ? null : (wifiErrorReason ?? this.wifiErrorReason),
+    selected: clearSelected ? null : (selected ?? this.selected),
+    manualEntry: manualEntry ?? this.manualEntry,
+    manualSsid: manualSsid ?? this.manualSsid,
+    wifiAttempts: wifiAttempts ?? this.wifiAttempts,
     message: message ?? this.message,
   );
 
@@ -140,6 +164,31 @@ class SetupController extends Notifier<SetupState> {
     }
   }
 
+  /// Opens the network page for [network].
+  void selectNetwork(WifiNetwork network) => state = state.copyWith(
+    selected: network,
+    manualEntry: false,
+    wifiAttempts: 0,
+    clearWifiError: true,
+  );
+
+  /// Opens the network page for a network typed by hand (hidden networks).
+  void enterManually() => state = state.copyWith(
+    clearSelected: true,
+    manualEntry: true,
+    manualSsid: '',
+    wifiAttempts: 0,
+    clearWifiError: true,
+  );
+
+  /// Back from the network page to the list.
+  void backToNetworks() => state = state.copyWith(
+    clearSelected: true,
+    manualEntry: false,
+    wifiAttempts: 0,
+    clearWifiError: true,
+  );
+
   Future<void> refreshWifi() async {
     final link = _link;
     if (link == null) return;
@@ -162,9 +211,10 @@ class SetupController extends Notifier<SetupState> {
     if (link == null || info == null) return;
     final invalid = validateWifi(ssid, password);
     if (invalid != null) {
-      state = state.copyWith(wifiError: invalid);
+      state = state.copyWith(wifiError: invalid, wifiErrorReason: 'bad_creds');
       return;
     }
+    if (state.manualEntry) state = state.copyWith(manualSsid: ssid);
     state = state.copyWith(step: SetupStep.joiningWifi, clearWifiError: true);
     try {
       // Listen before writing: only answers to this write count.
@@ -181,7 +231,13 @@ class SetupController extends Notifier<SetupState> {
       await link.writeCreds(ssid, password);
       final wifi = await wifiResult;
       if (wifi.state != 'wifi_ok') {
-        state = state.copyWith(step: SetupStep.pickWifi, wifiError: describeReason(wifi.reason));
+        // Back to the same network page (not the list), with the reason on top.
+        state = state.copyWith(
+          step: SetupStep.pickWifi,
+          wifiError: describeReason(wifi.reason),
+          wifiErrorReason: wifi.reason,
+          wifiAttempts: state.wifiAttempts + 1,
+        );
         return;
       }
 

@@ -35,7 +35,14 @@ class _SetupBoardScreenState extends ConsumerState<SetupBoardScreen> {
                 'Check that the code on your phone matches the board, tap Pair on the '
                 'phone, then tap the BOOT button on the board.',
           ),
-          SetupStep.pickWifi => _WifiForm(state: state, controller: controller),
+          SetupStep.pickWifi =>
+            state.networkPageOpen
+                ? _NetworkPage(
+                    key: ValueKey('page-${state.selected?.ssid ?? '(manual)'}'),
+                    state: state,
+                    controller: controller,
+                  )
+                : _NetworkList(state: state, controller: controller),
           SetupStep.joiningWifi ||
           SetupStep.registering ||
           SetupStep.sendingKey ||
@@ -94,46 +101,71 @@ class _BoardList extends StatelessWidget {
   }
 }
 
-class _WifiForm extends StatefulWidget {
-  const _WifiForm({required this.state, required this.controller});
+IconData _wifiIcon(int bars) => switch (bars) {
+  4 => Icons.network_wifi,
+  3 => Icons.network_wifi_3_bar,
+  2 => Icons.network_wifi_2_bar,
+  _ => Icons.network_wifi_1_bar,
+};
+
+/// A board-reported problem with what to try next.
+class _ErrorCard extends StatelessWidget {
+  const _ErrorCard({required this.message, this.help, this.attempts = 0});
+  final String message;
+  final String? help;
+  final int attempts;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      key: const ValueKey('wifi-error'),
+      color: scheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.error_outline, color: scheme.onErrorContainer),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    message,
+                    style: TextStyle(color: scheme.onErrorContainer, fontWeight: FontWeight.bold),
+                  ),
+                  if (help != null) ...[
+                    const SizedBox(height: 4),
+                    Text(help!, style: TextStyle(color: scheme.onErrorContainer)),
+                  ],
+                  if (attempts > 1) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Failed attempts: $attempts',
+                      style: TextStyle(color: scheme.onErrorContainer, fontSize: 12),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Step 1 of Wi-Fi: the networks the board can see.
+class _NetworkList extends StatelessWidget {
+  const _NetworkList({required this.state, required this.controller});
   final SetupState state;
   final SetupController controller;
 
   @override
-  State<_WifiForm> createState() => _WifiFormState();
-}
-
-class _WifiFormState extends State<_WifiForm> {
-  final _ssid = TextEditingController();
-  final _password = TextEditingController();
-  bool _manual = false;
-  bool _open = false;
-
-  @override
-  void dispose() {
-    _ssid.dispose();
-    _password.clear();
-    _password.dispose();
-    super.dispose();
-  }
-
-  void _pick(WifiNetwork n) => setState(() {
-    _manual = false;
-    _ssid.text = n.ssid;
-    _open = n.open;
-    _password.clear();
-  });
-
-  void _join() {
-    final password = _open ? '' : _password.text;
-    _password.clear();
-    widget.controller.joinWifi(_ssid.text, password);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final s = widget.state;
-    final selected = _ssid.text.isNotEmpty || _manual;
+    final s = state;
     return ListView(
       children: [
         Text(
@@ -146,71 +178,212 @@ class _WifiFormState extends State<_WifiForm> {
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 8),
+        if (s.wifiError != null) _ErrorCard(message: s.wifiError!),
         if (s.scanningWifi) const LinearProgressIndicator(),
+        if (!s.scanningWifi && s.networks.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              '${s.networks.length} networks',
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          ),
         for (final n in s.networks)
           ListTile(
             key: ValueKey('net-${n.ssid}'),
-            leading: Icon(switch (n.bars) {
-              4 => Icons.network_wifi,
-              3 => Icons.network_wifi_3_bar,
-              2 => Icons.network_wifi_2_bar,
-              _ => Icons.network_wifi_1_bar,
-            }),
+            leading: Icon(_wifiIcon(n.bars)),
             title: Text(n.ssid),
-            trailing: n.open ? null : const Icon(Icons.lock_outline, size: 18),
-            selected: !_manual && _ssid.text == n.ssid,
-            onTap: () => _pick(n),
+            subtitle: Text('${n.signalLabel}${n.open ? ', open' : ''}'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!n.open) const Icon(Icons.lock_outline, size: 18),
+                const Icon(Icons.chevron_right),
+              ],
+            ),
+            onTap: () => controller.selectNetwork(n),
           ),
         ListTile(
           leading: const Icon(Icons.edit),
           title: const Text('Other network...'),
-          onTap: () => setState(() {
-            _manual = true;
-            _open = false;
-            _ssid.clear();
-            _password.clear();
-          }),
+          subtitle: const Text('Type the name of a hidden network'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: controller.enterManually,
         ),
         TextButton.icon(
-          onPressed: s.scanningWifi ? null : widget.controller.refreshWifi,
+          onPressed: s.scanningWifi ? null : controller.refreshWifi,
           icon: const Icon(Icons.refresh),
           label: const Text('Scan again'),
         ),
-        if (selected) ...[
-          const Divider(),
-          if (_manual)
-            TextField(
-              key: const ValueKey('ssid'),
-              controller: _ssid,
-              decoration: const InputDecoration(labelText: 'Network name'),
-              onChanged: (_) => setState(() {}),
-            )
-          else
-            Text(_ssid.text, style: Theme.of(context).textTheme.titleMedium),
-          if (!_open)
-            TextField(
-              key: const ValueKey('password'),
-              controller: _password,
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: const InputDecoration(labelText: 'Wi-Fi password'),
-            ),
-          if (s.wifiError != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                s.wifiError!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            ),
-          const SizedBox(height: 16),
-          FilledButton(onPressed: _join, child: const Text('Connect board')),
-        ] else if (s.wifiError != null)
-          Text(s.wifiError!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
       ],
     );
   }
+}
+
+/// Step 2 of Wi-Fi: one network's details, its password and Connect. A failed
+/// attempt comes back to this page with the reason on top (not to the list).
+class _NetworkPage extends StatefulWidget {
+  const _NetworkPage({super.key, required this.state, required this.controller});
+  final SetupState state;
+  final SetupController controller;
+
+  @override
+  State<_NetworkPage> createState() => _NetworkPageState();
+}
+
+class _NetworkPageState extends State<_NetworkPage> {
+  late final TextEditingController _ssid = TextEditingController(
+    text: widget.state.manualEntry ? widget.state.manualSsid : '',
+  );
+  final _password = TextEditingController();
+  final _passwordFocus = FocusNode();
+  bool _show = false;
+  late bool _open = widget.state.selected?.open ?? false;
+
+  @override
+  void dispose() {
+    _ssid.dispose();
+    _password.clear();
+    _password.dispose();
+    _passwordFocus.dispose();
+    super.dispose();
+  }
+
+  String get _name => widget.state.manualEntry ? _ssid.text : widget.state.selected!.ssid;
+
+  /// Null when Connect can be pressed; otherwise why not (shown under the field).
+  String? get _problem {
+    if (_name.isEmpty) return 'Enter the network name.';
+    // An empty password means "open network" to the board, so a protected
+    // network must never be sent one.
+    if (!_open && _password.text.isEmpty) return 'Enter the Wi-Fi password.';
+    return validateWifi(_name, _open ? '' : _password.text);
+  }
+
+  void _connect() {
+    final password = _open ? '' : _password.text;
+    _password.clear(); // not kept on screen or in state
+    widget.controller.joinWifi(_name, password);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = widget.state;
+    final n = s.selected;
+    final theme = Theme.of(context);
+    final problem = _problem;
+    final typing = _password.text.isNotEmpty || (s.manualEntry && _ssid.text.isNotEmpty);
+    return ListView(
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: widget.controller.backToNetworks,
+            icon: const Icon(Icons.arrow_back),
+            label: const Text('All networks'),
+          ),
+        ),
+        if (s.wifiError != null)
+          _ErrorCard(
+            message: s.wifiError!,
+            help: reasonHelp(s.wifiErrorReason),
+            attempts: s.wifiAttempts,
+          ),
+        const SizedBox(height: 8),
+        if (s.manualEntry) ...[
+          Text('Other network', style: theme.textTheme.titleLarge),
+          const SizedBox(height: 8),
+          TextField(
+            key: const ValueKey('ssid'),
+            controller: _ssid,
+            autofocus: s.manualSsid.isEmpty,
+            decoration: const InputDecoration(
+              labelText: 'Network name',
+              helperText: 'Exactly as the router shows it, spaces included.',
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Open network (no password)'),
+            value: _open,
+            onChanged: (v) => setState(() => _open = v),
+          ),
+        ] else ...[
+          Row(
+            children: [
+              Icon(_wifiIcon(n!.bars), size: 32),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  n.ssid,
+                  key: const ValueKey('network-title'),
+                  style: theme.textTheme.titleLarge,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          _InfoRow(label: 'Signal', value: '${n.signalLabel} (${n.rssi} dBm)'),
+          _InfoRow(label: 'Security', value: n.open ? 'Open (no password)' : 'Password protected'),
+          const _InfoRow(label: 'Band', value: '2.4 GHz'),
+        ],
+        const SizedBox(height: 8),
+        if (!_open)
+          TextField(
+            key: const ValueKey('password'),
+            controller: _password,
+            focusNode: _passwordFocus,
+            autofocus: !s.manualEntry,
+            obscureText: !_show,
+            enableSuggestions: false,
+            autocorrect: false,
+            decoration: InputDecoration(
+              labelText: 'Wi-Fi password',
+              helperText: 'Case-sensitive, 8 to 63 characters.',
+              errorText: typing && problem != null ? problem : null,
+              suffixIcon: IconButton(
+                tooltip: _show ? 'Hide password' : 'Show password',
+                icon: Icon(_show ? Icons.visibility_off : Icons.visibility),
+                onPressed: () => setState(() => _show = !_show),
+              ),
+            ),
+            onChanged: (_) => setState(() {}),
+            onSubmitted: (_) {
+              if (_problem == null) _connect();
+            },
+          ),
+        const SizedBox(height: 16),
+        FilledButton(
+          onPressed: problem == null ? _connect : null,
+          child: const Text('Connect board'),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'The board tests the network first and saves it only if it can join.',
+          style: theme.textTheme.bodySmall,
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 2),
+    child: Row(
+      children: [
+        SizedBox(width: 80, child: Text(label, style: Theme.of(context).textTheme.labelLarge)),
+        Expanded(child: Text(value)),
+      ],
+    ),
+  );
 }
 
 class _Steps extends StatelessWidget {

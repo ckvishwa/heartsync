@@ -50,6 +50,15 @@ class WifiNetwork {
   final int rssi;
   final bool open;
 
+  /// Signal in words, for the network page.
+  String get signalLabel => switch (bars) {
+    4 => 'Excellent',
+    3 => 'Good',
+    2 => 'Fair',
+    1 => 'Weak',
+    _ => 'Very weak',
+  };
+
   /// 0..4 signal bars.
   int get bars => rssi >= -55
       ? 4
@@ -199,6 +208,19 @@ String? protocolMismatch(int boardProtocol) {
       : 'Update the app: this board uses a newer setup protocol '
             '($boardProtocol, this app knows $setupProtocolVersion).';
 }
+
+/// What to try next after a board status reason, or null.
+String? reasonHelp(String? reason) => switch (reason) {
+  'auth' =>
+    'Passwords are case-sensitive. Check capital letters and any space at the start '
+        'or end, then try again.',
+  'no_ap' =>
+    'Move the board closer to the router, and check the network is 2.4 GHz '
+        '(the board cannot use 5 GHz).',
+  'timeout' => 'The router did not answer in time. Move the board closer and try again.',
+  'bad_creds' => 'Network names are 1 to 32 bytes; passwords are empty or 8 to 63 characters.',
+  _ => null,
+};
 
 /// Message for a board status reason, safe to show.
 String describeReason(String? reason) => switch (reason) {

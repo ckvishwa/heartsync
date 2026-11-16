@@ -181,6 +181,15 @@ void main() {
     expect(() => tokenFrames(''), throwsArgumentError);
   });
 
+  test('signal labels and help text', () {
+    expect(const WifiNetwork(ssid: 'a', rssi: -50, open: false).signalLabel, 'Excellent');
+    expect(const WifiNetwork(ssid: 'a', rssi: -67, open: false).signalLabel, 'Fair');
+    expect(const WifiNetwork(ssid: 'a', rssi: -90, open: false).signalLabel, 'Very weak');
+    expect(reasonHelp('auth'), contains('case-sensitive'));
+    expect(reasonHelp('no_ap'), contains('2.4 GHz'));
+    expect(reasonHelp('nonsense'), isNull);
+  });
+
   test('protocol mismatch says which side to update', () {
     expect(protocolMismatch(setupProtocolVersion), isNull);
     expect(protocolMismatch(1), startsWith('Update the board firmware'));

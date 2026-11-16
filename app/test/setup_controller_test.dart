@@ -60,6 +60,36 @@ void main() {
     expect(state().step, SetupStep.done);
   });
 
+  test('a failed attempt keeps the chosen network and counts tries', () async {
+    await toWifiStep();
+    final home = state().networks.first;
+    controller().selectNetwork(home);
+    boards.link.wifiAnswers = ['auth', 'no_ap', null];
+    await controller().joinWifi('Home', 'wrong-pass');
+    expect(state().step, SetupStep.pickWifi);
+    expect(state().networkPageOpen, isTrue);
+    expect(state().selected?.ssid, 'Home');
+    expect(state().wifiErrorReason, 'auth');
+    expect(state().wifiAttempts, 1);
+    await controller().joinWifi('Home', 'wrong-again');
+    expect(state().wifiErrorReason, 'no_ap');
+    expect(state().wifiAttempts, 2);
+    controller().backToNetworks();
+    expect(state().networkPageOpen, isFalse);
+    expect(state().wifiError, isNull);
+    expect(state().wifiAttempts, 0);
+  });
+
+  test('a typed network name is kept after a failure', () async {
+    await toWifiStep();
+    controller().enterManually();
+    boards.link.wifiAnswers = ['auth'];
+    await controller().joinWifi('Hidden Net', 'wrong-pass');
+    expect(state().manualEntry, isTrue);
+    expect(state().manualSsid, 'Hidden Net');
+    expect(state().wifiError, 'Wrong Wi-Fi password.');
+  });
+
   test('invalid input is refused before anything is sent', () async {
     await toWifiStep();
     await controller().joinWifi('Home', 'short');

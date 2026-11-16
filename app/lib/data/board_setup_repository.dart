@@ -60,7 +60,16 @@ class BluetoothBoardSetupRepository implements BoardSetupRepository {
     if (!await FlutterBluePlus.isSupported) {
       throw const BoardSetupFailure('This phone does not support Bluetooth Low Energy.');
     }
-    if (FlutterBluePlus.adapterStateNow != BluetoothAdapterState.on) {
+    // The first state can be `unknown` for a moment; wait briefly for a real one.
+    var adapter = FlutterBluePlus.adapterStateNow;
+    if (adapter == BluetoothAdapterState.unknown) {
+      adapter = await FlutterBluePlus.adapterState
+          .firstWhere((s) => s != BluetoothAdapterState.unknown)
+          .timeout(const Duration(seconds: 3), onTimeout: () => BluetoothAdapterState.unknown);
+    }
+    // `unauthorized` means the Nearby devices permission is missing, not that
+    // Bluetooth is off: startScan below asks for the permission.
+    if (adapter != BluetoothAdapterState.on && adapter != BluetoothAdapterState.unauthorized) {
       if (defaultTargetPlatform == TargetPlatform.android) {
         try {
           await FlutterBluePlus.turnOn();
@@ -78,6 +87,13 @@ class BluetoothBoardSetupRepository implements BoardSetupRepository {
     try {
       await FlutterBluePlus.startScan(withServices: [Guid(BoardUuids.service)], timeout: timeout);
     } on FlutterBluePlusException catch (e) {
+      final text = '${e.description ?? ''} ${e.code}'.toLowerCase();
+      if (text.contains('permission')) {
+        throw const BoardSetupFailure(
+          'heartsync needs the Nearby devices permission to find boards. Allow it in '
+          'Settings > Apps > heartsync > Permissions, then try again.',
+        );
+      }
       throw BoardSetupFailure('Could not scan for boards (${e.description ?? e.code}).');
     }
     // Results until the scan stops (timeout or stopScan).

@@ -18,7 +18,9 @@ Last updated: 2026-11-16. Read this first in a new session, then `CLAUDE.md`,
   `cloud-rules-auditor`. Bench boards still hold plain owner tokens (no claims).
 - **App:** connection check panel on the home screen; Firebase options come from
   `--dart-define-from-file=config/emulator.json` (git-ignored; copy the example).
-- Everything is committed. Nothing is pushed.
+- Everything is committed and pushed to the private repo github.com/ckvishwa/heartsync
+  (`main`). CI runs on push; the cloud deploy job stays off until a
+  `FIREBASE_PROJECT_ID` repo variable exists.
 
 ## Phase 3 slice: BLE Wi-Fi setup from the app. PLANNED, NOT BUILT
 

@@ -75,8 +75,14 @@ Home network "Peace" refused the boards at the auth step (reason 2) and was not 
 | BOOT on board-A sends a heart, board-B shows it | PASS | user observed |
 | BOOT on board-B sends a heart, board-A shows it | PASS | user observed |
 | App as Bob sends a heart, board-A (Alice) shows it | PASS | 5 events from bob 18:27:39-18:27:58Z, board-A logged 5x `heart from bob` |
-| App as Alice sends a heart, board-B (Bob) shows it | events written (18:27:15Z, 18:28:17Z); board-B display not yet confirmed by user |
+| App as Alice sends a heart, board-B (Bob) shows it | PASS | events 18:27:15Z, 18:28:17Z; user observed on board-B |
 
 Fixes on the way: uid read from the ID token (custom-token sign-in has no
 `localId`); app Firebase options from `--dart-define-from-file` because the
 Android SDK rejected the API key `demo-key` ("Please set a valid API key").
+
+Board-to-board serial evidence: board-B `BOOT button pressed` then `heart sent`,
+board-A `heart from bob`; board-A `heart sent`, board-B `heart from alice`.
+Defect found: board-A's first press logged `sendHeart failed (status -11)` (HTTP
+read timeout, 3 s) although the server created the event (board-B received it),
+so the screen said NOT SENT. Fixed: `sendHeart` now has its own 10 s timeout.

@@ -18,7 +18,7 @@
 
 Phases 1 to 10 are prototypes. Phase 11 is the final build.
 
-## Phase 1: Display (current)
+## Phase 1: Display (current: art and animation items remain)
 
 - [x] Repo scaffold, docs, ADRs
 - [x] `IDisplay` abstraction and `DISPLAY_DRIVER` build flag
@@ -34,13 +34,13 @@ Phases 1 to 10 are prototypes. Phase 11 is the final build.
 - [ ] Simple animations in `Animator` (heartbeat pulse, fade)
 - [ ] Phase 1b: `Hub75Display` driver when the 64x32 P2 panel arrives
 
-## Phase 2: Cloud sync (current)
+## Phase 2: Cloud sync (done on the emulator, 2026-11-16)
 
 - [x] Data model and security rules, tested in the emulator
 - [x] `sendHeart` callable writes an event to the couple's stream
 - [x] App: login and "Send heart" against the emulator
 - [x] Web: device list and placeholder editor grid
-- [ ] Create the real Firebase project; add its config to app, web, and `secrets.h`
+- [ ] Carried over: create the real Firebase project; add its config to app, web, and `secrets.h`
 - [x] Seed the couple and both devices (`tools/seed_couple.py`)
 - [x] `CloudClient`: sign in with the device's custom token
 - [x] `CloudClient`: listen to `couples/{id}/events` from the partner (REST polling, ADR 0008)
@@ -48,7 +48,8 @@ Phases 1 to 10 are prototypes. Phase 11 is the final build.
 - [x] Received `heart` event draws the heart on the other board
 - [x] A button or serial command on board A sends a heart; it appears on board B (BOOT button, both directions)
 - [x] App: connection check (emulator ports, sign-in, pairing, boards online)
-- [ ] Phase 2b: signed OTA download and verify (rollback health check already in place)
+- [x] App to board and board to board hearts, both directions, on real hardware (`docs/hardware/bringup-log.md`)
+- [ ] Carried over: Phase 2b signed OTA download and verify (rollback health check already in place)
 
 ## Phase 3: App
 

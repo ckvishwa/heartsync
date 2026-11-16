@@ -115,6 +115,21 @@ See ADR 0008. The board signs in as its owner and makes only these calls:
 
 The firmware never reads or writes `users/{uid}/private/*`.
 
+### Check-in intervals (firmware `config.h`, app `connection_repository.dart`)
+
+| What | Interval | Constant |
+|------|----------|----------|
+| Event poll | 2 s | `HS_CLOUD_POLL_MS` |
+| Device heartbeat (`lastSeen`, `online`, fw) | 60 s | `HS_CLOUD_HEARTBEAT_MS` |
+| "Online" in the app | `lastSeen` within 150 s (two missed heartbeats) | `DeviceStatus.onlineWindow` |
+| ID token refresh | 5 min before expiry (tokens last 1 h) | `CloudClient::signIn` |
+| Retry after a failed call | 2 s, doubling to 30 s | `HS_CLOUD_RETRY_MIN_MS`, `HS_CLOUD_RETRY_MAX_MS` |
+| HTTP timeout | 3 s; 10 s for `sendHeart` | `HS_CLOUD_HTTP_TIMEOUT_MS`, `HS_CLOUD_CALL_TIMEOUT_MS` |
+| Wi-Fi reconnect | 15 s | `HS_WIFI_RETRY_MS` |
+
+`online` is set to `true` by every heartbeat and never cleared by the board, so
+readers must judge freshness from `lastSeen`.
+
 ## Firmware release manifest
 
 Written by `firmware/tools/sign_firmware.py`:

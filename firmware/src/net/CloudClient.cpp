@@ -5,6 +5,7 @@
 #include <Preferences.h>
 #include <WiFi.h>
 
+#include <algorithm>
 #include <vector>
 
 #include "config.h"
@@ -34,7 +35,7 @@ namespace {
 
 constexpr const char* kNvsNamespace = "hs-cloud";
 constexpr const char* kKeyRefresh = "refresh";
-constexpr const char* kKeyCustom = "custom";
+constexpr const char* kKeyCustom = "custom";  // bench serial path only
 
 std::string nvsGet(const char* key) {
     Preferences p;
@@ -57,6 +58,11 @@ void nvsPut(const char* key, const std::string& value) {
         p.putString(key, value.c_str());
     }
     p.end();
+}
+
+void wipe(std::string& s) {
+    std::fill(s.begin(), s.end(), '\0');
+    s.clear();
 }
 
 bool due(uint32_t now, uint32_t at) { return static_cast<int32_t>(now - at) >= 0; }
@@ -85,8 +91,7 @@ void CloudClient::begin(const char* deviceId) {
 void CloudClient::resetSession(State next) {
     state_ = next;
     session_ = fs::AuthSession{};
-    coupleId_.clear();
-    partnerUid_.clear();
+    claims_ = fs::BoardClaims{};
     cursor_.clear();
     nextActionMs_ = millis();
     backoffMs_ = 0;
@@ -119,12 +124,7 @@ void CloudClient::loop(bool wifiConnected) {
     switch (state_) {
         case State::SignIn:
             if (signIn()) {
-                state_ = coupleId_.empty() ? State::Profile : State::Polling;
-            }
-            break;
-        case State::Profile:
-            if (loadProfile()) {
-                state_ = State::Cursor;
+                state_ = cursor_.empty() ? State::Cursor : State::Polling;
             }
             break;
         case State::Cursor:
@@ -182,15 +182,41 @@ int CloudClient::request(const char* method, const std::string& url, const char*
     return status;
 }
 
+bool CloudClient::adopt(const fs::AuthSession& s) {
+    fs::BoardClaims c;
+    if (!fs::claimsFromIdToken(s.idToken, c) || c.deviceId != deviceId_) {
+        // A person's token, a malformed one, or another board's: never use it.
+        LOGW("cloud", "credentials are not this board's (uid=%s): set the board up again",
+             s.uid.c_str());
+        nvsPut(kKeyRefresh, "");
+        needsSetup_ = true;
+        state_ = State::Disabled;
+        return false;
+    }
+    if (c.coupleId != claims_.coupleId || c.owner != claims_.owner) {
+        cursor_.clear();  // a different couple or owner: start a new cursor
+    }
+    session_ = s;
+    claims_ = c;
+    needsSetup_ = false;
+    nvsPut(kKeyRefresh, s.refreshToken);
+    const uint32_t lifeMs = (s.expiresInS > 600 ? s.expiresInS - 300 : 300) * 1000u;
+    tokenExpiresMs_ = millis() + lifeMs;
+    backoffMs_ = 0;
+    nextActionMs_ = millis();
+    return true;
+}
+
 bool CloudClient::signIn() {
     std::string response;
-    const std::string refresh = session_.refreshToken.empty() ? nvsGet(kKeyRefresh)
-                                                              : session_.refreshToken;
+    std::string refresh = session_.refreshToken.empty() ? nvsGet(kKeyRefresh)
+                                                        : session_.refreshToken;
     fs::AuthSession s;
     if (!refresh.empty()) {
         const int st = request("POST", authUrl("securetoken.googleapis.com/v1/token"),
                                "application/x-www-form-urlencoded", fs::refreshBody(refresh),
                                false, response);
+        wipe(refresh);
         if (st == 200 && fs::parseRefresh(response.c_str(), s)) {
             LOGI("cloud", "token refreshed, uid=%s", s.uid.c_str());
         } else {
@@ -200,58 +226,69 @@ bool CloudClient::signIn() {
             }
             s = fs::AuthSession{};
         }
+        wipe(response);
     }
     if (s.idToken.empty()) {
-        const std::string custom = nvsGet(kKeyCustom);
-        if (custom.empty()) {
-            LOGW("cloud", "no credentials: provision a custom token over serial (`token <jwt>`)");
+#if HS_DEV_SERIAL_TOKEN
+        std::string custom = nvsGet(kKeyCustom);
+        if (!custom.empty()) {
+            const int st = request(
+                "POST", authUrl("identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken"),
+                "application/json", fs::signInBody(custom), false, response);
+            wipe(custom);
+            nvsPut(kKeyCustom, "");  // single use, whatever the outcome
+            if (st != 200 || !fs::parseSignIn(response.c_str(), s)) {
+                wipe(response);
+                fail("custom token sign-in", st);
+                return false;
+            }
+            wipe(response);
+            LOGI("cloud", "signed in with custom token, uid=%s", s.uid.c_str());
+        }
+#endif
+        if (s.idToken.empty()) {
+            LOGW("cloud", "no credentials: hold BOOT 5 s to set the board up");
+            needsSetup_ = true;
             nextActionMs_ = millis() + HS_CLOUD_RETRY_MAX_MS;
             return false;
         }
-        const int st = request(
-            "POST", authUrl("identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken"),
-            "application/json", fs::signInBody(custom), false, response);
-        if (st != 200 || !fs::parseSignIn(response.c_str(), s)) {
-            fail("custom token sign-in", st);
-            return false;
-        }
-        nvsPut(kKeyCustom, "");  // single use: from now on the refresh token is the credential
-        LOGI("cloud", "signed in with custom token, uid=%s", s.uid.c_str());
     }
-    if (!session_.uid.empty() && session_.uid != s.uid) {
-        coupleId_.clear();  // a different owner: reload the profile
-    }
-    session_ = s;
-    nvsPut(kKeyRefresh, s.refreshToken);
-    const uint32_t lifeMs = (s.expiresInS > 600 ? s.expiresInS - 300 : 300) * 1000u;
-    tokenExpiresMs_ = millis() + lifeMs;
-    backoffMs_ = 0;
-    nextActionMs_ = millis();
-    return true;
+    return adopt(s);
 }
 
-bool CloudClient::loadProfile() {
+CloudClient::SignInResult CloudClient::signInWithCustomToken(const std::string& customToken) {
+    if (host_.empty()) {
+        return SignInResult::Disabled;
+    }
     std::string response;
-    int st = request("GET", docsUrl("/users/" + session_.uid), nullptr, "", true, response);
-    if (st != 200 || !fs::parseUserCoupleId(response.c_str(), coupleId_)) {
-        fail("read users/{uid}.coupleId", st);
-        return false;
+    const int st = request(
+        "POST", authUrl("identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken"),
+        "application/json", fs::signInBody(customToken), false, response);
+    fs::AuthSession s;
+    const bool parsed = st == 200 && fs::parseSignIn(response.c_str(), s);
+    wipe(response);
+    if (st <= 0) {
+        LOGW("cloud", "custom token sign-in: no answer (status %d)", st);
+        return SignInResult::Network;
     }
-    st = request("GET", docsUrl("/couples/" + coupleId_), nullptr, "", true, response);
-    if (st != 200 || !fs::parseCouplePartner(response.c_str(), session_.uid, partnerUid_)) {
-        fail("read couple members", st);
-        return false;
+    if (!parsed) {
+        LOGW("cloud", "custom token sign-in refused (status %d)", st);
+        return SignInResult::Rejected;
     }
-    LOGI("cloud", "couple=%s owner=%s partner=%s", coupleId_.c_str(), session_.uid.c_str(),
-         partnerUid_.c_str());
-    backoffMs_ = 0;
-    return true;
+    resetSession(State::SignIn);
+    if (!adopt(s)) {
+        return SignInResult::WrongBoard;
+    }
+    state_ = State::Cursor;
+    LOGI("cloud", "signed in as %s (couple %s, owner %s)", claims_.uid.c_str(),
+         claims_.coupleId.c_str(), claims_.owner.c_str());
+    return SignInResult::Ok;
 }
 
 bool CloudClient::heartbeat(bool setCursor) {
     std::string response;
-    const std::string body = fs::heartbeatBody(HS_FIREBASE_PROJECT_ID, coupleId_, deviceId_,
-                                               session_.uid, HS_FW_VERSION, true);
+    const std::string body = fs::heartbeatBody(HS_FIREBASE_PROJECT_ID, claims_.coupleId,
+                                               deviceId_, claims_.owner, HS_FW_VERSION, true);
     const int st = request("POST", docsUrl(":commit"), "application/json", body, true, response);
     std::string commitTime;
     if (st != 200 || !fs::parseCommitTime(response.c_str(), commitTime)) {
@@ -270,17 +307,19 @@ bool CloudClient::heartbeat(bool setCursor) {
 
 bool CloudClient::poll() {
     std::string response;
-    const int st = request("POST", docsUrl("/couples/" + coupleId_ + ":runQuery"),
-                           "application/json", fs::eventsQueryBody(partnerUid_, cursor_, 5), true,
-                           response);
+    const int st = request("POST", docsUrl("/couples/" + claims_.coupleId + ":runQuery"),
+                           "application/json", fs::eventsQueryBody(cursor_, 5), true, response);
     std::vector<fs::RemoteEvent> events;
-    if (st != 200 || !fs::parseEventsQuery(response.c_str(), session_.uid, events)) {
+    std::string newest;
+    if (st != 200 || !fs::parseEventsQuery(response.c_str(), claims_.owner, events, &newest)) {
         fail("poll events", st);
         return false;
     }
     for (const fs::RemoteEvent& e : events) {
-        cursor_ = e.createdAt;
         bus_.publish(e.event);
+    }
+    if (!newest.empty()) {
+        cursor_ = newest;  // also moves past the owner's own events
     }
     backoffMs_ = 0;
     nextActionMs_ = millis() + HS_CLOUD_POLL_MS;
@@ -305,6 +344,7 @@ bool CloudClient::sendHeart() {
     return true;
 }
 
+#if HS_DEV_SERIAL_TOKEN
 void CloudClient::provisionCustomToken(const char* token) {
     if (token == nullptr || strlen(token) < 20) {
         LOGW("cloud", "token rejected: too short");
@@ -314,9 +354,11 @@ void CloudClient::provisionCustomToken(const char* token) {
     nvsPut(kKeyRefresh, "");
     LOGI("cloud", "custom token stored (%u chars); signing in", (unsigned)strlen(token));
     if (!host_.empty()) {
+        needsSetup_ = false;
         resetSession(State::SignIn);
     }
 }
+#endif
 
 void CloudClient::forget() {
     nvsPut(kKeyCustom, "");
@@ -327,12 +369,15 @@ void CloudClient::forget() {
     }
 }
 
+bool CloudClient::hasCredentials() const { return !nvsGet(kKeyRefresh).empty(); }
+
 void CloudClient::logStatus() const {
-    static const char* kNames[] = {"disabled", "sign-in", "profile", "cursor", "polling"};
-    LOGI("cloud", "state=%s uid=%s couple=%s partner=%s", kNames[static_cast<int>(state_)],
-         session_.uid.empty() ? "-" : session_.uid.c_str(),
-         coupleId_.empty() ? "-" : coupleId_.c_str(),
-         partnerUid_.empty() ? "-" : partnerUid_.c_str());
+    static const char* kNames[] = {"disabled", "sign-in", "cursor", "polling"};
+    LOGI("cloud", "state=%s uid=%s couple=%s owner=%s%s", kNames[static_cast<int>(state_)],
+         claims_.uid.empty() ? "-" : claims_.uid.c_str(),
+         claims_.coupleId.empty() ? "-" : claims_.coupleId.c_str(),
+         claims_.owner.empty() ? "-" : claims_.owner.c_str(),
+         needsSetup_ ? " (needs setup)" : "");
 }
 
 }  // namespace hs

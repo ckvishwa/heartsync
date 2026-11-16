@@ -22,6 +22,8 @@ const char* reasonText(uint8_t r) {
     }
 }
 
+volatile uint8_t gLastReason = 0;
+
 // Logs whether the configured SSID is visible from the board (2.4 GHz only).
 void scanFor(const char* ssid) {
     const int n = WiFi.scanNetworks(false, true);
@@ -47,12 +49,8 @@ void WifiManager::begin(const char* ssid, const char* password) {
         return;
     }
     WiFi.mode(WIFI_STA);
-    WiFi.onEvent(
-        [](WiFiEvent_t, WiFiEventInfo_t info) {
-            const uint8_t r = info.wifi_sta_disconnected.reason;
-            LOGW("wifi", "disconnect reason %u: %s", (unsigned)r, reasonText(r));
-        },
-        ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+    registerEvents();
+    gLastReason = 0;
     scanFor(ssid);
     WiFi.setAutoReconnect(true);
     WiFi.begin(ssid, password);
@@ -85,6 +83,61 @@ void WifiManager::loop() {
     }
 }
 
+void WifiManager::registerEvents() {
+    if (eventsRegistered_) {
+        return;
+    }
+    eventsRegistered_ = true;
+    WiFi.onEvent(
+        [](WiFiEvent_t, WiFiEventInfo_t info) {
+            const uint8_t r = info.wifi_sta_disconnected.reason;
+            gLastReason = r;
+            LOGW("wifi", "disconnect reason %u: %s", (unsigned)r, reasonText(r));
+        },
+        ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+}
+
+void WifiManager::beginIdle() {
+    WiFi.mode(WIFI_STA);
+    WiFi.setAutoReconnect(false);
+    registerEvents();
+    WiFi.disconnect();
+}
+
+void WifiManager::stop() {
+    started_ = false;
+    wasConnected_ = false;
+    WiFi.setAutoReconnect(false);
+    WiFi.disconnect();
+}
+
 bool WifiManager::connected() const { return WiFi.status() == WL_CONNECTED; }
+
+uint8_t WifiManager::lastDisconnectReason() const { return gLastReason; }
+
+bool WifiManager::startScan() {
+    if (WiFi.scanComplete() == WIFI_SCAN_RUNNING) {
+        return true;  // already running
+    }
+    WiFi.scanDelete();
+    return WiFi.scanNetworks(true /* async */, false /* no hidden */) == WIFI_SCAN_RUNNING;
+}
+
+bool WifiManager::scanResults(std::vector<setup::WifiNetwork>& out) {
+    const int n = WiFi.scanComplete();
+    if (n < 0) {
+        return false;  // running, or failed (WIFI_SCAN_FAILED)
+    }
+    out.clear();
+    for (int i = 0; i < n; ++i) {
+        setup::WifiNetwork net;
+        net.ssid = WiFi.SSID(i).c_str();
+        net.rssi = WiFi.RSSI(i);
+        net.open = WiFi.encryptionType(i) == WIFI_AUTH_OPEN;
+        out.push_back(net);
+    }
+    WiFi.scanDelete();
+    return true;
+}
 
 }  // namespace hs

@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pio run)",
+      "Bash(pio run:*)",
+      "Bash(pio test:*)",
+      "Bash(.venv/Scripts/pio run:*)",
+      "Bash(.venv/Scripts/pio test:*)",
+      "Bash(flutter test)",
+      "Bash(flutter test:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(npm test)",
+      "Bash(npm test:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(firebase emulators:*)",
+      "Bash(npx firebase emulators:*)",
+      "Bash(npm run emulators:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)"
+    ],
+    "deny": [
+      "Read(**/secrets.h)",
+      "Edit(**/secrets.h)",
+      "Read(**/.env)",
+      "Edit(**/.env)",
+      "Read(**/.env.*)",
+      "Edit(**/.env.*)",
+      "Read(**/*service-account*.json)",
+      "Edit(**/*service-account*.json)",
+      "Read(**/*serviceAccount*.json)",
+      "Edit(**/*serviceAccount*.json)",
+      "Read(firmware/keys/**)",
+      "Edit(firmware/keys/**)"
+    ]
+  }
+}

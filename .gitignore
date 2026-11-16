@@ -1,0 +1,46 @@
+# Secrets: never commit. Only *.example files are committed.
+secrets.h
+.env
+.env.*
+*service-account*.json
+*serviceAccount*.json
+*.pem
+*.key
+firmware/keys/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# PlatformIO
+.pio/
+firmware/release/
+
+# Node
+node_modules/
+.next/
+out/
+cloud/functions/lib/
+*.tsbuildinfo
+next-env.d.ts
+
+# Firebase
+*-debug.log
+.firebase/
+cloud/emulator/export/
+
+# Flutter (app/.gitignore covers the rest)
+app/build/
+app/.dart_tool/
+
+# CAD exports: git-ignored except files added on purpose for a release tag
+# (use `git add -f cad/exports/<file>` when tagging a release)
+cad/exports/*
+!cad/exports/.gitkeep
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

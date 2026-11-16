@@ -4,10 +4,8 @@
 
 #include <Arduino.h>
 #include <NimBLEDevice.h>
-#include <esp_random.h>
 
 #include <algorithm>
-#include <atomic>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -33,9 +31,12 @@ struct Shared {
     std::mutex m;
     bool connected = false;
     bool disconnected = false;
-    bool pinRequested = false;
+    bool confirmRequested = false;  // numeric comparison: code to show
+    uint16_t confirmHandle = 0;
+    uint32_t confirmCode = 0;
     int auth = -1;  // -1 none, 0 failed, 1 ok
     bool scanRequested = false;
+    int pageRequested = -1;  // wifiScan 0x02 <page>
     bool credsPending = false;
     bool credsBad = false;
     setup::WifiCreds creds;
@@ -46,7 +47,6 @@ struct Shared {
 };
 
 Shared g;
-std::atomic<uint32_t> gPasskey{0};
 NimBLEServer* gServer = nullptr;
 NimBLECharacteristic* gWifiScan = nullptr;
 NimBLECharacteristic* gWifiList = nullptr;
@@ -80,10 +80,13 @@ class ServerCallbacks : public NimBLEServerCallbacks {
         g.tokenComplete = false;
     }
 
-    uint32_t onPassKeyDisplay() override {
+    // Numeric comparison: NimBLE waits for injectConfirmPasskey(). loop() shows
+    // the code and answers it (BOOT tap = accept, timeout = reject).
+    void onConfirmPassKey(NimBLEConnInfo& info, uint32_t code) override {
         std::lock_guard<std::mutex> lock(g.m);
-        g.pinRequested = true;
-        return gPasskey.load();
+        g.confirmRequested = true;
+        g.confirmHandle = info.getConnHandle();
+        g.confirmCode = code;
     }
 
     void onAuthenticationComplete(NimBLEConnInfo& info) override {
@@ -108,7 +111,12 @@ class CharCallbacks : public NimBLECharacteristicCallbacks {
         const NimBLEAttValue v = c->getValue();
         std::lock_guard<std::mutex> lock(g.m);
         if (c == gWifiScan) {
-            g.scanRequested = true;
+            const setup::ScanCommand cmd = setup::parseScanCommand(v.data(), v.size());
+            if (cmd.startScan) {
+                g.scanRequested = true;
+            } else if (cmd.selectPage) {
+                g.pageRequested = cmd.page;
+            }
         } else if (c == gWifiCreds) {
             setup::WifiCreds creds;
             const setup::CredsError err = setup::parseWifiCreds(v.data(), v.size(), creds);
@@ -152,11 +160,41 @@ setup::WifiCreds gTested;  // credentials under test, saved only if they work
 
 }  // namespace
 
-void BleSetup::newPasskey() {
-    // NimBLE asks onPassKeyDisplay() only while the static passkey is left at its
-    // default (123456), so never call setSecurityPasskey(): the callback returns
-    // this value and loop() shows it.
-    gPasskey.store(esp_random() % 1000000u);
+namespace {
+
+std::vector<std::string> gPages;  // Wi-Fi list pages from the last scan (loop() only)
+
+// wifiList notification: one byte, the page now readable. Never the page itself
+// (a notification holds only MTU-3 bytes; the app reads the value).
+void signalPage(uint8_t page) {
+    if (gWifiList != nullptr) {
+        gWifiList->notify(&page, 1);
+    }
+}
+
+}  // namespace
+
+void BleSetup::endConfirm() {
+    confirmPending_ = false;
+    confirmHandle_ = 0;
+}
+
+void BleSetup::confirm(uint32_t pressStartMs) {
+    if (!confirmPending_ || gServer == nullptr) {
+        return;  // nothing waiting: a stray tap does nothing, and is not kept
+    }
+    if (static_cast<int32_t>(pressStartMs - confirmStartMs_) < 0) {
+        LOGW("setup", "BOOT was pressed before the code appeared: tap again");
+        return;
+    }
+    const uint16_t h = confirmHandle_;
+    endConfirm();
+    if (NimBLEDevice::injectConfirmPasskey(gServer->getPeerInfoByHandle(h), true)) {
+        animator_.showSpriteWithText(sprites::kHeart, "PAIRING", true);
+        LOGI("setup", "pairing code confirmed with BOOT");
+    } else {
+        LOGW("setup", "pairing ended before the BOOT tap");
+    }
 }
 
 void BleSetup::begin(const char* deviceId) {
@@ -167,14 +205,14 @@ void BleSetup::begin(const char* deviceId) {
     const std::string name = HS_SETUP_NAME_PREFIX + id.substr(id.size() - 4);
     NimBLEDevice::init(name);
     NimBLEDevice::setMTU(HS_SETUP_MTU);
-    // Bonding on, because Android's standard passkey flow (createBond) expects it,
+    // Bonding on, because Android's standard pairing flow (createBond) expects it,
     // but no bond outlives a setup session: every setup starts by deleting all
-    // bonds, so each phone pairs again with a fresh passkey. The app removes its
-    // stale bond before connecting.
+    // bonds, so each phone pairs again with a fresh code. The app removes its
+    // stale bond before connecting. DisplayYesNo on both sides gives numeric
+    // comparison (LE Secure Connections, MITM-protected); the "yes" is BOOT.
     NimBLEDevice::setSecurityAuth(true /* bond */, true /* mitm */, true /* sc */);
-    NimBLEDevice::setSecurityIOCap(BLE_HS_IO_DISPLAY_ONLY);
+    NimBLEDevice::setSecurityIOCap(BLE_HS_IO_DISPLAY_YESNO);
     NimBLEDevice::deleteAllBonds();
-    newPasskey();
 
     gServer = NimBLEDevice::createServer();
     gServer->setCallbacks(&gServerCallbacks, false);
@@ -186,7 +224,8 @@ void BleSetup::begin(const char* deviceId) {
     gWifiScan = svc->createCharacteristic(HS_SETUP_UUID_WIFI_SCAN, kWrite);
     gWifiList = svc->createCharacteristic(HS_SETUP_UUID_WIFI_LIST,
                                           kRead | NIMBLE_PROPERTY::NOTIFY);
-    gWifiList->setValue("[]");
+    gPages = setup::encodeWifiPages({}, HS_SETUP_WIFI_LIST_MAX);
+    gWifiList->setValue(gPages[0]);
     gWifiCreds = svc->createCharacteristic(HS_SETUP_UUID_WIFI_CREDS, kWrite);
     gToken = svc->createCharacteristic(HS_SETUP_UUID_TOKEN, kWrite);
     gStatus = svc->createCharacteristic(HS_SETUP_UUID_STATUS, kRead | NIMBLE_PROPERTY::NOTIFY);
@@ -232,8 +271,8 @@ void BleSetup::restart(uint32_t nowMs) {
     NimBLEDevice::deleteAllBonds();
     machine_.onBootHold(nowMs);
     setupstore::setFails(0);
-    newPasskey();
-    pinShown_ = false;
+    endConfirm();
+    codeShown_ = false;
     LOGI("setup", "BOOT held: lockout cleared");
     startAdvertising();
     showState();
@@ -315,18 +354,24 @@ void BleSetup::handleWifiTest(uint32_t nowMs) {
 
 void BleSetup::loop(uint32_t nowMs) {
     // Take the queued work.
-    bool connected, disconnected, pinRequested, scanRequested, credsPending, credsBad;
+    bool connected, disconnected, confirmRequested, scanRequested, credsPending, credsBad;
     bool tokenComplete, tokenBad;
-    int auth;
+    int auth, pageRequested;
+    uint16_t confirmHandle;
+    uint32_t confirmCode;
     setup::WifiCreds creds;
     std::string token;
     {
         std::lock_guard<std::mutex> lock(g.m);
         connected = g.connected;
         disconnected = g.disconnected;
-        pinRequested = g.pinRequested;
+        confirmRequested = g.confirmRequested;
+        confirmHandle = g.confirmHandle;
+        confirmCode = g.confirmCode;
+        g.confirmCode = 0;
         auth = g.auth;
         scanRequested = g.scanRequested;
+        pageRequested = g.pageRequested;
         credsPending = g.credsPending;
         credsBad = g.credsBad;
         tokenComplete = g.tokenComplete;
@@ -339,8 +384,9 @@ void BleSetup::loop(uint32_t nowMs) {
         if (tokenComplete) {
             std::swap(token, g.tokenDone);
         }
-        g.connected = g.disconnected = g.pinRequested = false;
+        g.connected = g.disconnected = g.confirmRequested = false;
         g.scanRequested = g.credsPending = g.credsBad = false;
+        g.pageRequested = -1;
         g.tokenComplete = g.tokenBad = false;
         g.auth = -1;
     }
@@ -362,14 +408,29 @@ void BleSetup::loop(uint32_t nowMs) {
         }
         connectedMs_ = nowMs;  // do not repeat until the disconnect lands
     }
-    if (pinRequested) {
-        pinShown_ = true;
-        char text[12];
-        snprintf(text, sizeof(text), "PIN %06u", (unsigned)gPasskey.load());
+    if (confirmRequested) {
+        codeShown_ = true;
+        confirmPending_ = true;
+        confirmHandle_ = confirmHandle;
+        confirmStartMs_ = nowMs;
+        char text[17];  // the OLED line fits 16 characters
+        snprintf(text, sizeof(text), "TAP BOOT %06u", (unsigned)(confirmCode % 1000000u));
         animator_.showTestScreen(text);  // shown, never logged
         memset(text, 0, sizeof(text));
-        shown_ = machine_.state();  // keep the PIN on screen until the state moves on
-        LOGI("setup", "pairing: passkey shown on the display");
+        confirmCode = 0;
+        shown_ = machine_.state();  // keep the code on screen until the state moves on
+        LOGI("setup", "pairing: code shown, waiting for a BOOT tap");
+    }
+    // Nobody tapped BOOT in time: reject. The failed pairing counts as one try.
+    if (confirmPending_ && nowMs - confirmStartMs_ >= HS_SETUP_CONFIRM_MS && gServer != nullptr) {
+        const uint16_t h = confirmHandle_;
+        endConfirm();
+        (void)NimBLEDevice::injectConfirmPasskey(gServer->getPeerInfoByHandle(h), false);
+        LOGW("setup", "pairing not confirmed with BOOT within %u s: rejected",
+             (unsigned)(HS_SETUP_CONFIRM_MS / 1000));
+    }
+    if (auth != -1) {
+        endConfirm();
     }
     if (auth == 1) {
         machine_.onAuth(true, nowMs);
@@ -380,12 +441,12 @@ void BleSetup::loop(uint32_t nowMs) {
         machine_.onAuth(false, nowMs);
         LOGW("setup", "pairing failed (%u of %u)", (unsigned)machine_.fails(),
              (unsigned)HS_SETUP_MAX_FAILS);
-        newPasskey();
-        pinShown_ = false;
+        codeShown_ = false;
     }
     if (disconnected) {
-        if (pinShown_ && machine_.state() == State::Connected) {
-            // Passkey shown but the session ended unpaired: counts as a wrong try.
+        endConfirm();
+        if (codeShown_ && machine_.state() == State::Connected) {
+            // Code shown but the session ended unpaired: counts as a failed try.
             machine_.onAuth(false, nowMs);
             LOGW("setup", "pairing abandoned (%u of %u)", (unsigned)machine_.fails(),
                  (unsigned)HS_SETUP_MAX_FAILS);
@@ -395,9 +456,8 @@ void BleSetup::loop(uint32_t nowMs) {
             wipe(gTested.pass);
         }
         machine_.onDisconnect(nowMs);
-        NimBLEDevice::deleteAllBonds();  // a fresh passkey for every session
-        newPasskey();
-        pinShown_ = false;
+        NimBLEDevice::deleteAllBonds();  // a fresh pairing for every session
+        codeShown_ = false;
         LOGI("setup", "phone disconnected");
         if (machine_.advertising()) {
             startAdvertising();
@@ -414,10 +474,16 @@ void BleSetup::loop(uint32_t nowMs) {
     }
     std::vector<setup::WifiNetwork> nets;
     if (wifi_.scanResults(nets)) {
-        gWifiList->setValue(setup::encodeWifiList(nets, HS_SETUP_WIFI_LIST_MAX));
-        gWifiList->notify();
-        LOGI("setup", "Wi-Fi scan: %u networks", (unsigned)nets.size());
+        gPages = setup::encodeWifiPages(nets, HS_SETUP_WIFI_LIST_MAX);
+        gWifiList->setValue(gPages[0]);
+        signalPage(0);
+        LOGI("setup", "Wi-Fi scan: %u networks, %u pages", (unsigned)nets.size(),
+             (unsigned)gPages.size());
     }
+    if (pageRequested >= 0 && static_cast<size_t>(pageRequested) < gPages.size()) {
+        gWifiList->setValue(gPages[pageRequested]);
+        signalPage(static_cast<uint8_t>(pageRequested));
+    }  // out of range: ignored (the app times out)
 
     if (credsBad) {
         notifyStatus("bad_creds");

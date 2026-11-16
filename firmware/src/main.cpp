@@ -4,8 +4,9 @@
 //   setup   BLE Wi-Fi setup from the app. Entered when no Wi-Fi is stored, or
 //           after BOOT is held 5 s (that also wipes Wi-Fi and tokens).
 //   normal  Wi-Fi from NVS (bench builds: secrets.h as a fallback), cloud sync.
-// BOOT tap sends a heart. GPIO 0 is a strapping pin, so the hold works while
-// running, never at power-up.
+// BOOT in normal mode: a tap sends a heart. BOOT in setup mode: a tap confirms
+// the pairing code on screen (only while one is waiting; never a heart). GPIO 0
+// is a strapping pin, so the hold works while running, never at power-up.
 #include <Arduino.h>
 #include <algorithm>
 #include <esp_mac.h>
@@ -217,7 +218,11 @@ void loop() {
     if (setupMode) {
 #if HS_BLE_SETUP
         bleSetup.loop(now);
-        if (action == hs::LongPress::Action::Hold) {
+        if (action == hs::LongPress::Action::Tap) {
+            // Ignored unless a pairing code is waiting and the press began after
+            // the code appeared.
+            bleSetup.confirm(bootButton.pressStartMs());
+        } else if (action == hs::LongPress::Action::Hold) {
             bleSetup.restart(now);
         }
 #endif

@@ -1,6 +1,9 @@
 // Native tests for the BLE setup codec, state machine and BOOT gestures.
 // Run: pio test -e native
+#include <ArduinoJson.h>
 #include <unity.h>
+
+#include <initializer_list>
 
 #include <string>
 #include <vector>
@@ -50,29 +53,115 @@ void test_wifi_creds() {
     TEST_ASSERT_EQUAL_STRING("keep", untouched.ssid.c_str());  // errors change nothing
 }
 
-void test_wifi_list() {
+// Parses one page and checks its shape; returns the SSIDs in order.
+static std::vector<std::string> pageSsids(const std::string& json, size_t page, size_t pages) {
+    JsonDocument doc;
+    TEST_ASSERT_TRUE(deserializeJson(doc, json) == DeserializationError::Ok);
+    TEST_ASSERT_EQUAL(page, doc["page"].as<size_t>());
+    TEST_ASSERT_EQUAL(pages, doc["pages"].as<size_t>());
+    TEST_ASSERT_TRUE(doc["nets"].is<JsonArray>());
+    std::vector<std::string> out;
+    for (JsonObject n : doc["nets"].as<JsonArray>()) {
+        out.push_back(n["ssid"].as<std::string>());
+    }
+    return out;
+}
+
+static std::vector<std::string> allSsids(const std::vector<std::string>& pages) {
+    std::vector<std::string> out;
+    for (size_t i = 0; i < pages.size(); i++) {
+        TEST_ASSERT_TRUE(pages[i].size() <= kAttrMax);
+        for (const std::string& s : pageSsids(pages[i], i, pages.size())) {
+            out.push_back(s);
+        }
+    }
+    return out;
+}
+
+void test_wifi_pages_basic() {
     std::vector<WifiNetwork> nets = {
         {"Weak", -90, false}, {"", -30, true},  // hidden: dropped
         {"Home", -70, false}, {"Home", -50, false},  // duplicate: strongest kept
         {"Cafe \"Q\"", -60, true},
     };
-    const std::string json = encodeWifiList(nets, 20);
+    const std::vector<std::string> pages = encodeWifiPages(nets, 40);
+    TEST_ASSERT_EQUAL(1, pages.size());
     TEST_ASSERT_EQUAL_STRING(
-        R"([{"ssid":"Home","rssi":-50,"open":false},{"ssid":"Cafe \"Q\"","rssi":-60,"open":true},)"
-        R"({"ssid":"Weak","rssi":-90,"open":false}])",
-        json.c_str());
-    TEST_ASSERT_EQUAL_STRING(R"([{"ssid":"Home","rssi":-50,"open":false}])",
-                             encodeWifiList(nets, 1).c_str());
-    TEST_ASSERT_EQUAL_STRING("[]", encodeWifiList({}, 20).c_str());
+        R"({"page":0,"pages":1,"nets":[{"ssid":"Home","rssi":-50,"open":false},)"
+        R"({"ssid":"Cafe \"Q\"","rssi":-60,"open":true},{"ssid":"Weak","rssi":-90,"open":false}]})",
+        pages[0].c_str());
+    // The cap counts unique networks, strongest first.
+    const std::vector<std::string> one = encodeWifiPages(nets, 1);
+    TEST_ASSERT_EQUAL(1, one.size());
+    TEST_ASSERT_EQUAL_STRING(
+        R"({"page":0,"pages":1,"nets":[{"ssid":"Home","rssi":-50,"open":false}]})", one[0].c_str());
+    // Empty (or only hidden) list: still one page.
+    const std::vector<std::string> none = encodeWifiPages({{"", -40, true}}, 40);
+    TEST_ASSERT_EQUAL(1, none.size());
+    TEST_ASSERT_EQUAL_STRING(R"({"page":0,"pages":1,"nets":[]})", none[0].c_str());
+    TEST_ASSERT_EQUAL(1, encodeWifiPages({}, 40).size());
+}
 
-    // 30 long names never exceed one attribute value.
+void test_wifi_pages_many() {
+    // 60 networks with long names (and 5 weaker duplicates): capped at 40,
+    // strongest first, every page within one attribute value, page/pages right.
     std::vector<WifiNetwork> many;
-    for (int i = 0; i < 30; i++) {
-        many.push_back({std::string(30, 'a' + (i % 26)) + std::to_string(i), -40 - i, false});
+    for (int i = 0; i < 60; i++) {
+        std::string name = std::string(28, static_cast<char>('a' + (i % 26))) + std::to_string(100 + i);
+        many.push_back({name, -30 - i, i % 2 == 0});
     }
-    const std::string big = encodeWifiList(many, 20);
-    TEST_ASSERT_TRUE(big.size() <= kAttrMax);
-    TEST_ASSERT_TRUE(big.find("-40") != std::string::npos);  // strongest kept
+    for (int i = 0; i < 5; i++) {
+        many.push_back({many[i].ssid, -95, false});
+    }
+    const std::vector<std::string> pages = encodeWifiPages(many, 40);
+    TEST_ASSERT_TRUE(pages.size() > 1);
+    const std::vector<std::string> ssids = allSsids(pages);
+    TEST_ASSERT_EQUAL(40, ssids.size());
+    for (size_t i = 0; i < ssids.size(); i++) {
+        TEST_ASSERT_EQUAL_STRING(many[i].ssid.c_str(), ssids[i].c_str());
+    }
+    // 30 networks (about what the bench board sees): all of them arrive.
+    many.resize(30);
+    TEST_ASSERT_EQUAL(30, allSsids(encodeWifiPages(many, 40)).size());
+}
+
+void test_wifi_pages_escaping() {
+    // Trailing space, quotes and backslash kept exactly; control characters are
+    // escaped (\u0001 is 6 bytes each) and every page still fits.
+    std::vector<WifiNetwork> nets = {{"DeltaForce ", -40, true}, {"say \"hi\"\\", -41, false}};
+    std::string ctrl(32, '\x01');
+    for (int i = 0; i < 20; i++) {
+        ctrl[0] = static_cast<char>('A' + i);
+        nets.push_back({ctrl, -50 - i, false});
+    }
+    const std::vector<std::string> pages = encodeWifiPages(nets, 40);
+    TEST_ASSERT_TRUE(pages.size() > 1);
+    TEST_ASSERT_TRUE(pages[0].find("\\u0001") != std::string::npos);
+    const std::vector<std::string> ssids = allSsids(pages);
+    TEST_ASSERT_EQUAL(22, ssids.size());
+    TEST_ASSERT_EQUAL_STRING("DeltaForce ", ssids[0].c_str());
+    TEST_ASSERT_EQUAL_STRING("say \"hi\"\\", ssids[1].c_str());
+    TEST_ASSERT_EQUAL(32, ssids[2].size());
+    TEST_ASSERT_EQUAL('\x01', ssids[2][31]);
+}
+
+static ScanCommand scanCmd(std::initializer_list<uint8_t> bytes) {
+    const std::vector<uint8_t> v(bytes);
+    return parseScanCommand(v.data(), v.size());
+}
+
+void test_scan_command() {
+    ScanCommand c = scanCmd({0x01});
+    TEST_ASSERT_TRUE(c.startScan);
+    TEST_ASSERT_FALSE(c.selectPage);
+    TEST_ASSERT_TRUE(scanCmd({0x7F}).startScan);  // any single byte (proto 1 apps)
+    c = scanCmd({0x02, 3});
+    TEST_ASSERT_TRUE(c.selectPage);
+    TEST_ASSERT_FALSE(c.startScan);
+    TEST_ASSERT_EQUAL(3, c.page);
+    c = parseScanCommand(nullptr, 0);
+    TEST_ASSERT_FALSE(c.startScan);
+    TEST_ASSERT_FALSE(c.selectPage);
 }
 
 void test_info_status_reasons() {
@@ -88,41 +177,112 @@ void test_info_status_reasons() {
     TEST_ASSERT_EQUAL_STRING("other", wifiFailReason(8));
 }
 
-static TokenAssembler::Result chunk(TokenAssembler& t, uint8_t flags, const std::string& s) {
-    std::string b(1, static_cast<char>(flags));
-    b += s;
-    return t.add(reinterpret_cast<const uint8_t*>(b.data()), b.size());
+using R = TokenAssembler::Result;
+
+static R frame(TokenAssembler& t, const std::vector<uint8_t>& f) { return t.add(f.data(), f.size()); }
+
+static std::vector<uint8_t> chunkFrame(uint8_t seq, const std::string& s) {
+    std::vector<uint8_t> f = {kTokenChunk, seq};
+    f.insert(f.end(), s.begin(), s.end());
+    return f;
+}
+
+static std::vector<uint8_t> endFrame(size_t len, uint32_t crc) {
+    return {kTokenEnd,
+            static_cast<uint8_t>(len),
+            static_cast<uint8_t>(len >> 8),
+            static_cast<uint8_t>(crc),
+            static_cast<uint8_t>(crc >> 8),
+            static_cast<uint8_t>(crc >> 16),
+            static_cast<uint8_t>(crc >> 24)};
+}
+
+static uint32_t crcOf(const std::string& s) {
+    return crc32(reinterpret_cast<const uint8_t*>(s.data()), s.size());
+}
+
+// Sends `tok` the way the app does: 180-byte chunks, then the end frame.
+static R sendToken(TokenAssembler& t, const std::string& tok) {
+    uint8_t seq = 0;
+    for (size_t at = 0; at < tok.size(); at += 180) {
+        if (frame(t, chunkFrame(seq++, tok.substr(at, 180))) != R::More) {
+            return R::Error;
+        }
+    }
+    return frame(t, endFrame(tok.size(), crcOf(tok)));
+}
+
+// A ~1 KB token, like a real Firebase custom token (the emulator's are shorter).
+static std::string bigToken() {
+    std::string s = "eyJhbGciOiJSUzI1NiJ9.";
+    while (s.size() < 1000) {
+        s += static_cast<char>('A' + (s.size() * 7) % 26);
+    }
+    return s;
+}
+
+void test_crc32() {
+    TEST_ASSERT_EQUAL_HEX32(0xCBF43926u, crcOf("123456789"));
+    TEST_ASSERT_EQUAL_HEX32(0x00000000u, crc32(nullptr, 0));
 }
 
 void test_token_assembler() {
+    const std::string tok = bigToken();
     TokenAssembler t(1536);
-    TEST_ASSERT_TRUE(chunk(t, 0x01, std::string(500, 'a')) == TokenAssembler::Result::More);
-    TEST_ASSERT_TRUE(chunk(t, 0x00, std::string(500, 'b')) == TokenAssembler::Result::More);
-    TEST_ASSERT_TRUE(chunk(t, 0x02, "end") == TokenAssembler::Result::Complete);
-    TEST_ASSERT_EQUAL(1003, t.token().size());
-    TEST_ASSERT_EQUAL('b', t.token()[999]);
+    TEST_ASSERT_TRUE(sendToken(t, tok) == R::Complete);
+    TEST_ASSERT_EQUAL_STRING(tok.c_str(), t.token().c_str());
     t.clear();
     TEST_ASSERT_TRUE(t.token().empty());
 
-    // Single chunk.
-    TEST_ASSERT_TRUE(chunk(t, 0x03, "abc") == TokenAssembler::Result::Complete);
-    TEST_ASSERT_EQUAL_STRING("abc", t.token().c_str());
-    // Continuation without a first chunk.
-    t.clear();
-    TEST_ASSERT_TRUE(chunk(t, 0x00, "x") == TokenAssembler::Result::Error);
-    TEST_ASSERT_TRUE(chunk(t, 0x02, "x") == TokenAssembler::Result::Error);
-    // A new first chunk restarts.
-    TEST_ASSERT_TRUE(chunk(t, 0x01, "old") == TokenAssembler::Result::More);
-    TEST_ASSERT_TRUE(chunk(t, 0x03, "new") == TokenAssembler::Result::Complete);
+    // Single chunk; a new seq 0 after Complete starts over.
+    TEST_ASSERT_TRUE(sendToken(t, "abc") == R::Complete);
+    TEST_ASSERT_TRUE(sendToken(t, "xyz") == R::Complete);
+    TEST_ASSERT_EQUAL_STRING("xyz", t.token().c_str());
+    // A new seq 0 mid-token restarts.
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(0, "old")) == R::More);
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(0, "new")) == R::More);
+    TEST_ASSERT_TRUE(frame(t, endFrame(3, crcOf("new"))) == R::Complete);
     TEST_ASSERT_EQUAL_STRING("new", t.token().c_str());
-    // Too long.
+}
+
+void test_token_assembler_errors() {
+    const std::string tok = bigToken();
+    TokenAssembler t(1536);
+    // Bad checksum.
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(0, "abc")) == R::More);
+    TEST_ASSERT_TRUE(frame(t, endFrame(3, crcOf("abd"))) == R::Error);
+    TEST_ASSERT_TRUE(t.token().empty());
+    // Wrong length.
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(0, "abc")) == R::More);
+    TEST_ASSERT_TRUE(frame(t, endFrame(4, crcOf("abc"))) == R::Error);
+    // Missing chunk (seq 1 skipped).
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(0, tok.substr(0, 180))) == R::More);
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(2, tok.substr(360, 180))) == R::Error);
+    TEST_ASSERT_TRUE(t.token().empty());
+    // Duplicate chunk.
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(0, "ab")) == R::More);
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(1, "cd")) == R::More);
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(1, "cd")) == R::Error);
+    // Continuation or end without seq 0.
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(1, "x")) == R::Error);
+    TEST_ASSERT_TRUE(frame(t, endFrame(1, crcOf("x"))) == R::Error);
+    // Oversized: 1600 bytes into a 1536-byte buffer.
+    TEST_ASSERT_TRUE(sendToken(t, std::string(1600, 'z')) == R::Error);
+    TEST_ASSERT_TRUE(t.token().empty());
     TokenAssembler small(10);
-    TEST_ASSERT_TRUE(chunk(small, 0x01, "123456") == TokenAssembler::Result::More);
-    TEST_ASSERT_TRUE(chunk(small, 0x02, "78901") == TokenAssembler::Result::Error);
-    TEST_ASSERT_TRUE(small.token().empty());
-    // Empty token, empty write.
-    TEST_ASSERT_TRUE(chunk(small, 0x03, "") == TokenAssembler::Result::Error);
-    TEST_ASSERT_TRUE(small.add(nullptr, 0) == TokenAssembler::Result::Error);
+    TEST_ASSERT_TRUE(frame(small, chunkFrame(0, "123456")) == R::More);
+    TEST_ASSERT_TRUE(frame(small, chunkFrame(1, "78901")) == R::Error);
+    // Chunk over one attribute value, empty chunk, unknown or short frames.
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(0, std::string(kTokenChunkMax + 1, 'a'))) == R::Error);
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(0, "")) == R::Error);
+    TEST_ASSERT_TRUE(frame(t, {0x01, 'a', 'b'}) == R::Error);  // proto 1 first/last flags
+    TEST_ASSERT_TRUE(frame(t, {0x03, 'a', 'b'}) == R::Error);
+    TEST_ASSERT_TRUE(frame(t, {kTokenEnd, 3, 0}) == R::Error);
+    TEST_ASSERT_TRUE(t.add(nullptr, 0) == R::Error);
+    // An error mid-token wipes it: the end frame for the old data then fails.
+    TEST_ASSERT_TRUE(frame(t, chunkFrame(0, "abc")) == R::More);
+    TEST_ASSERT_TRUE(frame(t, {0x99, 0}) == R::Error);
+    TEST_ASSERT_TRUE(frame(t, endFrame(3, crcOf("abc"))) == R::Error);
 }
 
 void test_machine_happy_path() {
@@ -211,6 +371,7 @@ void test_long_press() {
     TEST_ASSERT_EQUAL(200, p.heldMs(300));
     TEST_ASSERT_TRUE(p.update(false, 400) == A::None);
     TEST_ASSERT_TRUE(p.update(false, 430) == A::Tap);
+    TEST_ASSERT_EQUAL(100, p.pressStartMs());  // pairing confirm: press must start after the code
     TEST_ASSERT_EQUAL(0, p.heldMs(500));
 
     // Medium press (2 s): nothing.
@@ -235,14 +396,6 @@ void test_long_press() {
 }
 
 void test_review_gaps() {
-    // TokenAssembler: a new first chunk after Complete starts over; a flag-only
-    // end chunk finishes what was collected.
-    TokenAssembler t(1536);
-    TEST_ASSERT_TRUE(chunk(t, 0x03, "one") == TokenAssembler::Result::Complete);
-    TEST_ASSERT_TRUE(chunk(t, 0x01, "tw") == TokenAssembler::Result::More);
-    TEST_ASSERT_TRUE(chunk(t, 0x02, "") == TokenAssembler::Result::Complete);
-    TEST_ASSERT_EQUAL_STRING("tw", t.token().c_str());
-
     // SetupMachine: auth events after pairing are ignored; disconnect mid Wi-Fi
     // test goes back to advertising; a refused token can be retried.
     SetupMachine m(3, 1000);
@@ -285,9 +438,14 @@ void test_review_gaps() {
 int main(int, char**) {
     UNITY_BEGIN();
     RUN_TEST(test_wifi_creds);
-    RUN_TEST(test_wifi_list);
+    RUN_TEST(test_wifi_pages_basic);
+    RUN_TEST(test_wifi_pages_many);
+    RUN_TEST(test_wifi_pages_escaping);
+    RUN_TEST(test_scan_command);
     RUN_TEST(test_info_status_reasons);
+    RUN_TEST(test_crc32);
     RUN_TEST(test_token_assembler);
+    RUN_TEST(test_token_assembler_errors);
     RUN_TEST(test_machine_happy_path);
     RUN_TEST(test_machine_lockout_and_timeout);
     RUN_TEST(test_long_press);

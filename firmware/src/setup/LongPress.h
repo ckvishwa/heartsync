@@ -42,6 +42,9 @@ public:
 
     bool pressed() const { return stable_; }
 
+    // When the latest press began (debounced). With a Tap, this is the tap's start.
+    uint32_t pressStartMs() const { return downMs_; }
+
     // How long the current press has lasted (0 when released), for a countdown.
     uint32_t heldMs(uint32_t nowMs) const { return stable_ ? nowMs - downMs_ : 0; }
 

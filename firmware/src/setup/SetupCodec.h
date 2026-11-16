@@ -32,10 +32,21 @@ struct WifiNetwork {
     bool open = false;
 };
 
-// wifiList value: [{"ssid","rssi","open"}], strongest first, one entry per SSID
-// (the strongest), hidden networks dropped, at most `maxEntries`, and trimmed
-// so the JSON fits in kAttrMax.
-std::string encodeWifiList(std::vector<WifiNetwork> networks, size_t maxEntries);
+// wifiList pages: {"page":n,"pages":N,"nets":[{"ssid","rssi","open"}]}. Networks
+// are strongest first, one entry per SSID (the strongest), hidden ones dropped,
+// at most `maxEntries` in total. Each page fits in kAttrMax; there is always at
+// least one page (an empty list is one page with no nets). Control characters
+// in SSIDs are escaped as \u00XX so strict JSON parsers accept every page.
+std::vector<std::string> encodeWifiPages(std::vector<WifiNetwork> networks, size_t maxEntries);
+
+// wifiScan write: 0x01 starts a scan (any other single byte too, for
+// compatibility); 0x02 then a page number selects the page wifiList returns.
+struct ScanCommand {
+    bool startScan = false;
+    bool selectPage = false;
+    uint8_t page = 0;
+};
+ScanCommand parseScanCommand(const uint8_t* data, size_t len);
 
 // info value: {"deviceId","fw","proto"}.
 std::string encodeInfo(const char* deviceId, const char* fw, int proto);
@@ -47,12 +58,24 @@ std::string encodeStatus(const char* state, const char* reason = nullptr);
 // "auth" (wrong password), "no_ap" (network not found), or "other".
 const char* wifiFailReason(uint8_t disconnectReason);
 
-// Reassembles the custom token from token-characteristic writes. Each write is
-// one flags byte then up to kAttrMax-1 token bytes:
-//   bit 0 (0x01) first chunk: drop anything collected so far
-//   bit 1 (0x02) last chunk: the token is complete
-// A chunk without "first" before any first chunk, or a token over `maxLen`,
-// is an error and clears the buffer.
+// CRC-32 (IEEE 802.3, the zlib one): crc32("123456789") == 0xCBF43926.
+uint32_t crc32(const uint8_t* data, size_t len);
+
+// Token frames (proto 2). A real custom token is about 1 KB, more than one
+// attribute value (512 bytes), so the app writes it in numbered chunks (the app
+// uses 180 bytes, which fits one plain write at the default iOS MTU; the board
+// accepts up to kTokenChunkMax), then an end frame:
+//   chunk: 0x10, seq, 1..kTokenChunkMax token bytes   (seq 0 starts a token)
+//   end:   0x11, len (uint16 LE), crc32 (uint32 LE)    (exactly 7 bytes)
+constexpr uint8_t kTokenChunk = 0x10;
+constexpr uint8_t kTokenEnd = 0x11;
+constexpr size_t kTokenChunkMax = kAttrMax - 2;
+
+// Reassembles the token in RAM. Seq 0 drops anything collected so far; every
+// other chunk must carry the next seq (no gaps, no repeats). Any bad frame, a
+// token over `maxLen`, or an end frame whose length or CRC does not match is
+// an error and wipes the buffer. The caller wipes it on disconnect and after
+// sign-in (clear()). Never stored in NVS.
 class TokenAssembler {
 public:
     enum class Result { More, Complete, Error };
@@ -67,9 +90,15 @@ public:
     void clear();
 
 private:
+    Result fail() {
+        clear();
+        return Result::Error;
+    }
+
     size_t maxLen_;
     std::string buf_;
     bool started_ = false;
+    uint8_t nextSeq_ = 0;
 };
 
 }  // namespace setup

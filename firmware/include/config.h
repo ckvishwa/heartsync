@@ -131,7 +131,7 @@
 // "BLE provisioning" and in the app (lib/data/board_setup_protocol.dart).
 // UUIDs: one random base, the first group numbers the characteristic.
 // ---------------------------------------------------------------------------
-#define HS_SETUP_PROTO 1
+#define HS_SETUP_PROTO 2   // 2: numeric comparison pairing, paged Wi-Fi list
 #define HS_SETUP_NAME_PREFIX "heartsync-"      // + last 4 hex of the device id
 #define HS_SETUP_UUID_SERVICE "6a350000-4898-4679-a24f-021d40cfd52a"
 #define HS_SETUP_UUID_INFO "6a350001-4898-4679-a24f-021d40cfd52a"
@@ -146,6 +146,8 @@
 #define HS_SETUP_MAX_FAILS 3                   // wrong passkeys before lockout
 #define HS_SETUP_MTU 247
 #define HS_SETUP_TOKEN_MAX 1536                // custom token, bytes
-#define HS_SETUP_WIFI_LIST_MAX 20
+#define HS_SETUP_WIFI_LIST_MAX 40
+#define HS_SETUP_CONFIRM_MS 25000              // time to tap BOOT to confirm the pairing code
+                                               // (under the 30 s SMP timeout, so ours fires)
 #define HS_SETUP_WIFI_CONNECT_MS 20000         // give up on a Wi-Fi test after this
 #define HS_SETUP_REBOOT_DELAY_MS 3000          // after signed_in, then reboot to normal

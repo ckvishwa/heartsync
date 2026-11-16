@@ -43,7 +43,8 @@ abstract class BoardSetupRepository {
   /// Boards in setup mode nearby. Ends after [timeout].
   Stream<List<FoundBoard>> scan({Duration timeout});
 
-  /// Connects and pairs (the phone asks for the PIN shown on the board).
+  /// Connects and pairs. Numeric comparison: the phone shows the same 6-digit
+  /// code as the board; the user taps Pair on the phone and BOOT on the board.
   Future<BoardLink> connect(FoundBoard board);
 }
 
@@ -116,7 +117,8 @@ class BluetoothBoardSetupRepository implements BoardSetupRepository {
       // License: personal, non-commercial use (see docs/adr/0009).
       await device.connect(license: License.nonprofit, mtu: 247);
       if (android) {
-        await device.createBond(); // system dialog: enter the PIN shown on the board
+        // System dialog "Pair? code 123456". The board also waits for a BOOT tap.
+        await device.createBond(timeout: 60);
       }
       final services = await device.discoverServices();
       final service = services.firstWhere(
@@ -142,7 +144,8 @@ class BluetoothBoardSetupRepository implements BoardSetupRepository {
     } on FlutterBluePlusException catch (e) {
       await device.disconnect().catchError((_) {});
       throw BoardSetupFailure(
-        'Could not pair with the board. Check the PIN on its screen (${e.description ?? e.code}).',
+        'Could not pair with the board. Check that the codes matched and tap BOOT '
+        'on the board within 25 seconds (${e.description ?? e.code}).',
       );
     } on TimeoutException {
       await device.disconnect().catchError((_) {});
@@ -179,12 +182,23 @@ class _BluetoothBoardLink implements BoardLink {
   Future<BoardInfo> readInfo() =>
       _guard('reading its id', () async => BoardInfo.decode(await info.read()));
 
+  /// The notification is only a "page n ready" signal (1 byte). The page itself
+  /// is read with a (long) read: a notification holds just MTU-3 bytes.
+  Future<void> _ready(int page, Duration timeout) => wifiList.onValueReceived
+      .firstWhere((v) => v.length == 1 && v[0] == page)
+      .timeout(timeout);
+
   @override
   Future<List<WifiNetwork>> scanWifi() => _guard('scanning Wi-Fi', () async {
     await wifiList.setNotifyValue(true);
-    final next = wifiList.onValueReceived.first.timeout(const Duration(seconds: 15));
-    await wifiScan.write([1]);
-    return WifiNetwork.decodeList(await next);
+    return collectWifiPages((page) async {
+      // Listen before writing so the signal cannot be missed.
+      final ready = _ready(page, Duration(seconds: page == 0 ? 15 : 5));
+      ready.ignore(); // if the write throws, this wait is abandoned
+      await wifiScan.write(page == 0 ? wifiScanStart : wifiSelectPage(page));
+      await ready;
+      return wifiList.read();
+    });
   });
 
   @override
@@ -193,8 +207,8 @@ class _BluetoothBoardLink implements BoardLink {
 
   @override
   Future<void> writeToken(String value) => _guard('sending the board key', () async {
-    for (final chunk in tokenChunks(value, _device.mtuNow - 3)) {
-      await token.write(chunk);
+    for (final frame in tokenFrames(value)) {
+      await token.write(frame); // with response: in order, and errors surface
     }
   });
 

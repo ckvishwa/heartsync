@@ -10,7 +10,7 @@ import '../../data/device_repository.dart';
 enum SetupStep {
   idle,
   scanning,
-  connecting, // includes pairing: the phone asks for the PIN on the board
+  connecting, // includes pairing: codes match on phone and board, BOOT tap
   pickWifi,
   joiningWifi,
   registering,
@@ -127,8 +127,9 @@ class SetupController extends Notifier<SetupState> {
       final link = await _boards.connect(board);
       _link = link;
       final info = await link.readInfo();
-      if (info.protocol != setupProtocolVersion) {
-        _fail('This board needs a newer app (setup protocol ${info.protocol}).');
+      final mismatch = protocolMismatch(info.protocol);
+      if (mismatch != null) {
+        _fail(mismatch); // also disconnects
         return;
       }
       _statusSub = link.status().listen(_statuses.add, onError: (_) {});

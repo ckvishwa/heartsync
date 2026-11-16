@@ -31,7 +31,9 @@ class _SetupBoardScreenState extends ConsumerState<SetupBoardScreen> {
           SetupStep.idle || SetupStep.scanning => _BoardList(state: state, controller: controller),
           SetupStep.connecting => const _Progress(
             title: 'Pairing',
-            detail: 'When your phone asks, enter the 6-digit PIN shown on the board.',
+            detail:
+                'Check that the code on your phone matches the board, tap Pair on the '
+                'phone, then tap the BOOT button on the board.',
           ),
           SetupStep.pickWifi => _WifiForm(state: state, controller: controller),
           SetupStep.joiningWifi ||
@@ -135,8 +137,13 @@ class _WifiFormState extends State<_WifiForm> {
     return ListView(
       children: [
         Text(
-          'Board ${s.info?.deviceId ?? ''} paired. Choose its Wi-Fi (2.4 GHz).',
+          'Board ${s.info?.deviceId ?? ''} paired. Choose its Wi-Fi.',
           style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Only 2.4 GHz networks are shown. Use Other network... for hidden ones.',
+          style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 8),
         if (s.scanningWifi) const LinearProgressIndicator(),
@@ -298,7 +305,8 @@ class _Failed extends StatelessWidget {
         Text(message, textAlign: TextAlign.center),
         const SizedBox(height: 8),
         const Text(
-          'If the board shows LOCKED, hold its BOOT button for 5 seconds.',
+          'If the board shows LOCKED, hold its BOOT button for 5 seconds, then try '
+          'again.',
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 16),

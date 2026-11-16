@@ -17,7 +17,8 @@ class BoardUuids {
   static const status = '6a350006-4898-4679-a24f-021d40cfd52a';
 }
 
-const int setupProtocolVersion = 1;
+/// 2: numeric comparison pairing, paged Wi-Fi list, numbered token chunks + CRC32.
+const int setupProtocolVersion = 2;
 const String boardNamePrefix = 'heartsync-';
 
 class BoardInfo {
@@ -60,15 +61,55 @@ class WifiNetwork {
       ? 1
       : 0;
 
-  static List<WifiNetwork> decodeList(List<int> bytes) {
-    final json = jsonDecode(utf8.decode(bytes));
-    if (json is! List) throw const FormatException('bad Wi-Fi list');
-    return [
-      for (final n in json)
-        if (n is Map && n['ssid'] is String && n['rssi'] is int && n['open'] is bool)
-          WifiNetwork(ssid: n['ssid'] as String, rssi: n['rssi'] as int, open: n['open'] as bool),
-    ];
+  /// One wifiList page: {"page":n,"pages":N,"nets":[{"ssid","rssi","open"}]}.
+  /// SSIDs are kept exactly; malformed entries are skipped.
+  static ({int page, int pages, List<WifiNetwork> nets}) decodePage(List<int> bytes) {
+    // SSIDs are raw bytes and need not be UTF-8: one odd name must not hide the
+    // whole page (it shows with replacement characters instead).
+    final json = jsonDecode(utf8.decode(bytes, allowMalformed: true));
+    if (json is! Map ||
+        json['page'] is! int ||
+        json['pages'] is! int ||
+        json['nets'] is! List ||
+        (json['pages'] as int) < 1 ||
+        (json['page'] as int) < 0 ||
+        (json['page'] as int) >= (json['pages'] as int)) {
+      throw const FormatException('bad Wi-Fi page');
+    }
+    return (
+      page: json['page'] as int,
+      pages: json['pages'] as int,
+      nets: [
+        for (final n in json['nets'] as List)
+          if (n is Map && n['ssid'] is String && n['rssi'] is int && n['open'] is bool)
+            WifiNetwork(ssid: n['ssid'] as String, rssi: n['rssi'] as int, open: n['open'] as bool),
+      ],
+    );
   }
+}
+
+/// wifiScan writes: start a scan, or select the page wifiList returns.
+const List<int> wifiScanStart = [0x01];
+List<int> wifiSelectPage(int page) => [0x02, page];
+
+/// Most pages the app asks for (the board caps the list at 40 networks).
+const int wifiMaxPages = 40;
+
+/// Reads every page of the board's list, in order. [readPage] returns the raw
+/// value of page n (page 0 right after a scan). Throws [FormatException] if a
+/// page is not the one asked for or the page count changes midway.
+Future<List<WifiNetwork>> collectWifiPages(Future<List<int>> Function(int page) readPage) async {
+  final first = WifiNetwork.decodePage(await readPage(0));
+  if (first.page != 0 || first.pages > wifiMaxPages) {
+    throw const FormatException('bad Wi-Fi page');
+  }
+  final nets = [...first.nets];
+  for (var n = 1; n < first.pages; n++) {
+    final p = WifiNetwork.decodePage(await readPage(n));
+    if (p.page != n || p.pages != first.pages) throw const FormatException('bad Wi-Fi page');
+    nets.addAll(p.nets);
+  }
+  return nets;
 }
 
 class BoardStatus {
@@ -102,21 +143,61 @@ String? validateWifi(String ssid, String password) {
 List<int> encodeWifiCreds(String ssid, String password) =>
     utf8.encode(jsonEncode({'ssid': ssid, 'pass': password}));
 
-/// Splits the custom token into token-characteristic writes: one flags byte
-/// (0x01 first, 0x02 last) then up to [maxWrite] - 1 token bytes. A BLE
-/// attribute value is at most 512 bytes, and the token is about 1 KB.
-List<List<int>> tokenChunks(String token, int maxWrite) {
+/// Largest token the board accepts (HS_SETUP_TOKEN_MAX).
+const int tokenMaxBytes = 1536;
+
+/// Token bytes per chunk write. 2 header bytes + 180 = 182 fits one plain
+/// write at the default iOS MTU (185), so no long write is needed.
+const int tokenChunkBytes = 180;
+
+/// CRC-32 (IEEE 802.3, the zlib one): crc32("123456789") == 0xCBF43926.
+int crc32(List<int> data) {
+  var crc = 0xFFFFFFFF;
+  for (final b in data) {
+    crc ^= b & 0xFF;
+    for (var i = 0; i < 8; i++) {
+      crc = (crc & 1) != 0 ? (crc >> 1) ^ 0xEDB88320 : crc >> 1;
+    }
+  }
+  return (~crc) & 0xFFFFFFFF;
+}
+
+/// Splits the custom token into token-characteristic writes (proto 2). A real
+/// custom token is about 1 KB and one BLE attribute value is at most 512 bytes:
+///   chunk: 0x10, seq, up to [tokenChunkBytes] token bytes  (seq 0 first)
+///   end:   0x11, length (uint16 LE), crc32 (uint32 LE)
+/// The board rejects gaps, repeats, a wrong length or a wrong checksum.
+List<List<int>> tokenFrames(String token) {
   final bytes = utf8.encode(token);
   if (bytes.isEmpty) throw ArgumentError('empty token');
-  final size = min(maxWrite, 512) - 1;
-  if (size < 1) throw ArgumentError('write size too small');
-  final chunks = <List<int>>[];
-  for (var at = 0; at < bytes.length; at += size) {
-    final end = min(at + size, bytes.length);
-    final flags = (at == 0 ? 0x01 : 0) | (end == bytes.length ? 0x02 : 0);
-    chunks.add([flags, ...bytes.sublist(at, end)]);
+  if (bytes.length > tokenMaxBytes) throw ArgumentError('token too long for the board');
+  final frames = <List<int>>[];
+  var seq = 0;
+  for (var at = 0; at < bytes.length; at += tokenChunkBytes) {
+    frames.add([0x10, seq++, ...bytes.sublist(at, min(at + tokenChunkBytes, bytes.length))]);
   }
-  return chunks;
+  final len = bytes.length;
+  final crc = crc32(bytes);
+  frames.add([
+    0x11,
+    len & 0xFF,
+    (len >> 8) & 0xFF,
+    crc & 0xFF,
+    (crc >> 8) & 0xFF,
+    (crc >> 16) & 0xFF,
+    (crc >> 24) & 0xFF,
+  ]);
+  return frames;
+}
+
+/// Why a board with another setup protocol cannot be set up, or null.
+String? protocolMismatch(int boardProtocol) {
+  if (boardProtocol == setupProtocolVersion) return null;
+  return boardProtocol < setupProtocolVersion
+      ? 'Update the board firmware: it uses an older setup protocol '
+            '($boardProtocol, this app needs $setupProtocolVersion).'
+      : 'Update the app: this board uses a newer setup protocol '
+            '($boardProtocol, this app knows $setupProtocolVersion).';
 }
 
 /// Message for a board status reason, safe to show.

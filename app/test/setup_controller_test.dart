@@ -93,7 +93,39 @@ void main() {
     expect(state().message, contains('Lost the board'));
   });
 
-  test('pairing failure (wrong PIN, lockout) is shown', () async {
+  test('reads every Wi-Fi page', () async {
+    await toWifiStep();
+    expect(boards.link.pageReads, [0, 1]);
+  });
+
+  test('a ~1 KB token goes over in frames the board accepts', () async {
+    await toWifiStep();
+    devices.token = 'h.${'p' * 1000}';
+    await controller().joinWifi('Home', 'correct horse');
+    expect(state().step, SetupStep.done);
+    expect(boards.link.tokenWrites.every((f) => f.length <= 182), isTrue);
+    expect(boards.link.tokenWrites.length, 7);
+  });
+
+  test('a board on an older setup protocol is refused clearly', () async {
+    boards.link.protocol = 1;
+    await controller().startScan();
+    await controller().choose(state().boards.single);
+    expect(state().step, SetupStep.failed);
+    expect(state().message, startsWith('Update the board firmware'));
+    expect(boards.link.disconnected, isTrue);
+    expect(boards.link.creds, isEmpty);
+  });
+
+  test('a board on a newer setup protocol asks for an app update', () async {
+    boards.link.protocol = setupProtocolVersion + 1;
+    await controller().startScan();
+    await controller().choose(state().boards.single);
+    expect(state().message, startsWith('Update the app'));
+    expect(boards.link.disconnected, isTrue);
+  });
+
+  test('pairing failure (codes not confirmed, lockout) is shown', () async {
     boards.connectFailure = const BoardSetupFailure('Could not pair with the board.');
     await controller().startScan();
     await controller().choose(state().boards.single);

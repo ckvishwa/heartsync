@@ -33,6 +33,7 @@ void main() {
 
     expect(find.textContaining('hs-20500dcd63f4'), findsOneWidget);
     expect(find.text('DeltaForce '), findsOneWidget); // SSID shown exactly
+    expect(find.textContaining('Only 2.4 GHz networks are shown'), findsOneWidget);
     await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const ValueKey('password')), 'correct horse');

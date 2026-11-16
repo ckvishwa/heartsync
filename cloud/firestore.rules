@@ -3,6 +3,9 @@ rules_version = '2';
 // heartsync Firestore rules. Data model: docs/protocol.md. Tests: cloud/test/.
 // Deny by default: any path not matched below is denied.
 // Cloud Functions and CI use the Admin SDK, which bypasses these rules.
+// DEVICE TOKENS: rules are OR-ed across overlapping matches. Every new allow must
+// be gated by isPerson() or be explicitly device-scoped (isDeviceOf + path checks),
+// or it silently opens that path to board tokens. Add a device deny test for it.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -10,8 +13,24 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // A board's token: a custom token minted by registerDevice with the claims
+    // deviceId and coupleId. It acts for its owner (auth.uid) but is scoped to
+    // its couple's events and its own device record. Nothing else.
+    function isDevice() {
+      return signedIn() && request.auth.token.get('deviceId', null) != null;
+    }
+
+    function isPerson() {
+      return signedIn() && !isDevice();
+    }
+
+    // Device token allowed in this couple (claim must match the path).
+    function isDeviceOf(coupleId) {
+      return isDevice() && request.auth.token.get('coupleId', null) == coupleId;
+    }
+
     function isSelf(uid) {
-      return signedIn() && request.auth.uid == uid;
+      return isPerson() && request.auth.uid == uid;
     }
 
     function isMember(coupleId) {
@@ -23,7 +42,7 @@ service cloud.firestore {
     // `coupleId` on a user document is server-set, so it can be trusted.
     function isPartnerOf(uid) {
       let coupleId = get(/databases/$(database)/documents/users/$(uid)).data.get('coupleId', null);
-      return signedIn()
+      return isPerson()
         && request.auth.uid != uid
         && coupleId != null
         && isMember(coupleId);
@@ -57,25 +76,41 @@ service cloud.firestore {
     }
 
     // ---- couples/{coupleId}: created by Cloud Functions or the seed script ----
+    // Device tokens are denied everywhere under users/ because isSelf() and
+    // isPartnerOf() both require a person's token (isPerson()).
     match /couples/{coupleId} {
-      allow read: if signedIn() && request.auth.uid in resource.data.members;
+      allow read: if isPerson() && request.auth.uid in resource.data.members;
       allow write: if false;
 
       // ---- devices: a device writes as its owner ----
       match /devices/{deviceId} {
-        allow read: if isMember(coupleId);
-        allow create: if isMember(coupleId)
-          && request.resource.data.owner == request.auth.uid;
-        allow update: if isMember(coupleId)
+        // A person may act on any device record of the couple (as owner for
+        // writes). A device token only on its own record.
+        function mayActOnDevice() {
+          return isMember(coupleId)
+            && (isPerson()
+                || (isDeviceOf(coupleId) && request.auth.token.deviceId == deviceId));
+        }
+        allow read: if mayActOnDevice();
+        allow create: if mayActOnDevice()
+          && request.resource.data.owner == request.auth.uid
+          && request.resource.data.keys().hasOnly(
+               ['owner', 'firmwareVersion', 'lastSeen', 'battery', 'online']);
+        allow update: if mayActOnDevice()
           && resource.data.owner == request.auth.uid
-          && request.resource.data.owner == request.auth.uid;
+          && request.resource.data.owner == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+               ['firmwareVersion', 'lastSeen', 'battery', 'online']);
         allow delete: if false;
       }
 
       // ---- events: immutable, and only ever written as yourself ----
       match /events/{eventId} {
-        allow read: if isMember(coupleId);
-        allow create: if isMember(coupleId)
+        function mayUseEvents() {
+          return isMember(coupleId) && (isPerson() || isDeviceOf(coupleId));
+        }
+        allow read: if mayUseEvents();
+        allow create: if mayUseEvents()
           && request.resource.data.keys().hasOnly(['type', 'from', 'payload', 'createdAt'])
           && request.resource.data.keys().hasAll(['type', 'from', 'payload', 'createdAt'])
           && request.resource.data.from == request.auth.uid
@@ -87,8 +122,10 @@ service cloud.firestore {
     }
 
     // ---- releases/{version}: firmware release records, written by CI only ----
+    // Device tokens are denied for now; OTA (Phase 2b) must add an explicit,
+    // tested exception if boards read release records directly.
     match /releases/{version} {
-      allow read: if signedIn();
+      allow read: if isPerson();
       allow write: if false;
     }
   }

@@ -6,7 +6,7 @@
     "build": "npm --prefix functions run build",
     "emulators": "npm run build && firebase emulators:start",
     "seed": "node emulator/seed.mjs",
-    "test": "npm run build && firebase emulators:exec --only auth,firestore,functions,storage \"npm run test:run\"",
+    "test": "npm run build && firebase emulators:exec --config firebase.test.json --only auth,firestore,functions,storage \"npm run test:run\"",
     "test:run": "node --test --test-concurrency=1 test/functions.test.mjs test/rules.test.mjs"
   },
   "devDependencies": {

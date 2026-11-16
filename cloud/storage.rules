@@ -4,8 +4,15 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
+    // Board tokens (deviceId claim) get no Storage access at all. OTA (Phase 2b)
+    // must add an explicit, tested exception for firmware/ if boards download
+    // from Storage directly.
+    function isPerson() {
+      return request.auth != null && request.auth.token.get('deviceId', null) == null;
+    }
+
     function isMember(coupleId) {
-      return request.auth != null
+      return isPerson()
         && request.auth.uid in
            firestore.get(/databases/(default)/documents/couples/$(coupleId)).data.members;
     }
@@ -20,7 +27,7 @@ service firebase.storage {
 
     // Signed firmware binaries: uploaded by CI (Admin SDK) only.
     match /firmware/{allPaths=**} {
-      allow read: if request.auth != null;
+      allow read: if isPerson();
       allow write: if false;
     }
   }

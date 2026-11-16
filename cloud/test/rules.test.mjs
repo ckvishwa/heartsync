@@ -12,6 +12,7 @@ import {
 import {
   addDoc,
   collection,
+  collectionGroup,
   deleteDoc,
   doc,
   getDoc,
@@ -262,5 +263,154 @@ describe("storage", () => {
     await assertSucceeds(getBytes(ref(storageAs("alice"), "firmware/0.1.0/firmware.bin")));
     await assertFails(uploadString(ref(storageAs("alice"), "firmware/0.1.0/firmware.bin"), "evil"));
     await assertFails(uploadString(ref(storageAs("alice"), "elsewhere/x.txt"), "hi"));
+  });
+});
+
+// Board tokens: custom tokens minted by registerDevice carry deviceId and coupleId
+// claims. They act for the owner (uid) but may only use their couple's events and
+// their own device record. See docs/protocol.md "Device tokens".
+describe("device-scoped tokens", () => {
+  const claims = { deviceId: "hs-a", coupleId: "c1" };
+  const device = (uid = "alice", c = claims) => env.authenticatedContext(uid, c).firestore();
+  const deviceStorage = (uid = "alice", c = claims) => env.authenticatedContext(uid, c).storage();
+
+  test("a board can read its couple's events and post as its owner", async () => {
+    await assertSucceeds(getDocs(collection(device(), "couples/c1/events")));
+    await assertSucceeds(addDoc(collection(device(), "couples/c1/events"), heartFrom("alice")));
+    await assertFails(addDoc(collection(device(), "couples/c1/events"), heartFrom("bob")));
+  });
+
+  test("a board can read and heartbeat its own device record only", async () => {
+    await assertSucceeds(getDoc(doc(device(), "couples/c1/devices/hs-a")));
+    await assertSucceeds(
+      updateDoc(doc(device(), "couples/c1/devices/hs-a"), { online: true, lastSeen: serverTimestamp() }),
+    );
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "couples/c1/devices/hs-b"), { owner: "alice", online: false });
+    });
+    // Same owner, other board: still denied.
+    await assertFails(getDoc(doc(device(), "couples/c1/devices/hs-b")));
+    await assertFails(updateDoc(doc(device(), "couples/c1/devices/hs-b"), { online: true }));
+    await assertFails(setDoc(doc(device(), "couples/c1/devices/hs-new"), { owner: "alice" }));
+    await assertFails(getDocs(collection(device(), "couples/c1/devices")));
+  });
+
+  test("a board cannot read or write anything under users/, cycle data included", async () => {
+    await assertFails(getDoc(doc(device(), "users/alice")));
+    await assertFails(getDoc(doc(device(), "users/bob")));
+    await assertFails(updateDoc(doc(device(), "users/alice"), { displayName: "x" }));
+    // Partner's cycle data is readable by the partner person while sharing is on,
+    // but never by a board, whichever owner it belongs to.
+    await assertSucceeds(getDoc(doc(as("bob"), "users/alice/private/cycle")));
+    await assertFails(getDoc(doc(device("bob", { deviceId: "hs-b", coupleId: "c1" }), "users/alice/private/cycle")));
+    await assertFails(getDoc(doc(device(), "users/alice/private/cycle")));
+    await assertFails(setDoc(doc(device(), "users/alice/private/cycle"), { sharingEnabled: false }));
+    await assertFails(getDoc(doc(device(), "users/alice/private/other")));
+    await assertFails(setDoc(doc(device(), "users/alice/private/other"), { note: "z" }));
+  });
+
+  test("a board cannot read the couple document, releases, or other couples", async () => {
+    await assertFails(getDoc(doc(device(), "couples/c1")));
+    await assertFails(getDoc(doc(device(), "releases/0.1.0")));
+    await assertFails(getDocs(collection(device(), "couples/c2/events")));
+  });
+
+  test("the coupleId claim must match the path", async () => {
+    const wrong = { deviceId: "hs-a", coupleId: "c2" };
+    await assertFails(getDocs(collection(device("alice", wrong), "couples/c1/events")));
+    await assertFails(getDoc(doc(device("alice", wrong), "couples/c1/devices/hs-a")));
+    const none = { deviceId: "hs-a" };
+    await assertFails(getDocs(collection(device("alice", none), "couples/c1/events")));
+  });
+
+  test("a board has no Storage access", async () => {
+    await assertFails(getBytes(ref(deviceStorage(), "couples/c1/art/a.txt")));
+    await assertFails(uploadString(ref(deviceStorage(), "couples/c1/art/d.txt"), "x"));
+    await assertFails(getBytes(ref(deviceStorage(), "firmware/0.1.0/firmware.bin")));
+  });
+
+  test("people's tokens are unchanged", async () => {
+    await assertSucceeds(getDoc(doc(as("alice"), "couples/c1")));
+    await assertSucceeds(getDocs(collection(as("alice"), "couples/c1/devices")));
+    await assertSucceeds(getDoc(doc(as("alice"), "users/alice/private/other")));
+  });
+
+  // Gaps listed by cloud-rules-auditor.
+  test("a board creates its own record as its owner, with allowed fields only", async () => {
+    const newBoard = device("alice", { deviceId: "hs-new", coupleId: "c1" });
+    await assertSucceeds(
+      setDoc(doc(newBoard, "couples/c1/devices/hs-new"), { owner: "alice", online: true, firmwareVersion: "0.1.0" }),
+    );
+    const other = device("alice", { deviceId: "hs-n2", coupleId: "c1" });
+    await assertFails(setDoc(doc(other, "couples/c1/devices/hs-n2"), { owner: "bob" }));
+    await assertFails(setDoc(doc(other, "couples/c1/devices/hs-n2"), { owner: "alice", coupleId: "c9" }));
+  });
+
+  test("a board cannot change owner, extra fields, or another owner's record, nor delete", async () => {
+    await assertFails(updateDoc(doc(device(), "couples/c1/devices/hs-a"), { owner: "bob" }));
+    await assertFails(updateDoc(doc(device(), "couples/c1/devices/hs-a"), { coupleId: "c2" }));
+    const bobAsHsA = device("bob", { deviceId: "hs-a", coupleId: "c1" });
+    await assertFails(updateDoc(doc(bobAsHsA, "couples/c1/devices/hs-a"), { online: false }));
+    await assertFails(deleteDoc(doc(device(), "couples/c1/devices/hs-a")));
+  });
+
+  test("a board whose owner is not a member gets nothing in that couple", async () => {
+    const m = device("mallory", { deviceId: "hs-m", coupleId: "c1" });
+    await assertFails(getDocs(collection(m, "couples/c1/events")));
+    await assertFails(addDoc(collection(m, "couples/c1/events"), heartFrom("mallory")));
+    await assertFails(setDoc(doc(m, "couples/c1/devices/hs-m"), { owner: "mallory" }));
+  });
+
+  test("writes also need the coupleId claim to match", async () => {
+    for (const c of [{ deviceId: "hs-a", coupleId: "c2" }, { deviceId: "hs-a" }]) {
+      const d = device("alice", c);
+      await assertFails(addDoc(collection(d, "couples/c1/events"), heartFrom("alice")));
+      await assertFails(updateDoc(doc(d, "couples/c1/devices/hs-a"), { online: true }));
+      await assertFails(setDoc(doc(d, "couples/c1/devices/hs-x"), { owner: "alice" }));
+    }
+  });
+
+  test("a board cannot change, delete, or malform events", async () => {
+    await assertFails(updateDoc(doc(device(), "couples/c1/events/e1"), { type: "touch" }));
+    await assertFails(deleteDoc(doc(device(), "couples/c1/events/e1")));
+    await assertFails(
+      addDoc(collection(device(), "couples/c1/events"), { ...heartFrom("alice"), extra: 1 }),
+    );
+    await assertFails(
+      addDoc(collection(device(), "couples/c1/events"), { ...heartFrom("alice"), createdAt: new Date(0) }),
+    );
+  });
+
+  test("a board cannot create, list, or delete anything under users/", async () => {
+    await assertFails(setDoc(doc(device("carol", { deviceId: "hs-c", coupleId: "c1" }), "users/carol"), { displayName: "C" }));
+    await assertFails(getDocs(collection(device(), "users/alice/private")));
+    await assertFails(deleteDoc(doc(device(), "users/alice/private/cycle")));
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "users/alice/private/cycle"), { sharingEnabled: false });
+    });
+    await assertFails(updateDoc(doc(device(), "users/alice/private/cycle"), { sharingEnabled: true }));
+  });
+
+  test("a board cannot run collection-group queries", async () => {
+    await assertFails(getDocs(collectionGroup(device(), "events")));
+    await assertFails(getDocs(collectionGroup(device(), "private")));
+    await assertFails(getDocs(collectionGroup(device(), "cycle")));
+  });
+
+  test("a board cannot write the couple document or releases", async () => {
+    await assertFails(setDoc(doc(device(), "couples/c1"), { members: ["alice", "mallory"] }));
+    await assertFails(setDoc(doc(device(), "releases/0.1.0"), { version: "0.1.0" }));
+  });
+
+  test("a board cannot upload to firmware/ or unmatched Storage paths", async () => {
+    await assertFails(uploadString(ref(deviceStorage(), "firmware/0.1.0/firmware.bin"), "evil"));
+    await assertFails(uploadString(ref(deviceStorage(), "elsewhere/x.txt"), "x"));
+  });
+
+  test("only the deviceId claim switches a token into board mode", async () => {
+    const admin = env.authenticatedContext("alice", { admin: true }).firestore();
+    await assertSucceeds(getDoc(doc(admin, "users/alice")));
+    await assertSucceeds(getDoc(doc(admin, "couples/c1")));
+    await assertSucceeds(getDoc(doc(admin, "users/alice/private/other")));
   });
 });

@@ -38,7 +38,16 @@ before(async () => {
     disableWarnings: true,
   });
   const functions = getFunctions(app, "us-central1");
-  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+  // Ask the emulator hub where Functions runs: npm test uses firebase.test.json,
+  // whose ports differ from the dev emulators so both can run at once.
+  // Never fall back silently: that could hit the dev emulators instead.
+  const hubHost = process.env.FIREBASE_EMULATOR_HUB;
+  if (!hubHost) throw new Error("FIREBASE_EMULATOR_HUB not set: run through `npm test`");
+  const res = await fetch(`http://${hubHost}/emulators`);
+  if (!res.ok) throw new Error(`emulator hub lookup failed: HTTP ${res.status}`);
+  const fn = (await res.json()).functions;
+  if (!fn?.port) throw new Error("emulator hub lists no Functions emulator");
+  connectFunctionsEmulator(functions, fn.host ?? "127.0.0.1", fn.port);
   sendHeart = httpsCallable(functions, "sendHeart");
 });
 

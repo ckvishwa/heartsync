@@ -32,7 +32,7 @@ class FirebaseEventRepository implements EventRepository {
         'failed-precondition' => 'You are not paired with a partner yet.',
         'unauthenticated' => 'Please sign in again.',
         'unavailable' => 'Cannot reach the server. Are the Firebase emulators running?',
-        _ => 'Could not send the heart (${e.code}).',
+        _ => 'Could not send the heart (${e.code}: ${e.message ?? 'no details'}).',
       });
     }
   }

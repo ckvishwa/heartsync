@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme.dart';
 import '../../data/auth_repository.dart';
 import '../../data/event_repository.dart';
+import '../connection/connection_panel.dart';
 
 class SendHeartScreen extends ConsumerStatefulWidget {
   const SendHeartScreen({super.key});
@@ -45,17 +46,23 @@ class _SendHeartScreenState extends ConsumerState<SendHeartScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: FilledButton.icon(
-          onPressed: _busy ? null : _sendHeart,
-          style: FilledButton.styleFrom(
-            backgroundColor: heartRed,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+      body: ListView(
+        children: [
+          const ConnectionPanel(),
+          const SizedBox(height: 24),
+          Center(
+            child: FilledButton.icon(
+              onPressed: _busy ? null : _sendHeart,
+              style: FilledButton.styleFrom(
+                backgroundColor: heartRed,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+              ),
+              icon: const Icon(Icons.favorite),
+              label: Text(_busy ? 'Sending...' : 'Send heart'),
+            ),
           ),
-          icon: const Icon(Icons.favorite),
-          label: Text(_busy ? 'Sending...' : 'Send heart'),
-        ),
+        ],
       ),
     );
   }

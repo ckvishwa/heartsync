@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heartsync/core/routing.dart';
 import 'package:heartsync/data/auth_repository.dart';
+import 'package:heartsync/data/connection_repository.dart';
 import 'package:heartsync/data/event_repository.dart';
 
 class FakeAuthRepository implements AuthRepository {
@@ -40,18 +41,28 @@ class FakeEventRepository implements EventRepository {
   }
 }
 
+class FakeConnectionRepository implements ConnectionRepository {
+  ConnectionReport report = const ConnectionReport(checks: [], devices: [], uid: 'alice');
+
+  @override
+  Future<ConnectionReport> check() async => report;
+}
+
 void main() {
   late FakeAuthRepository auth;
   late FakeEventRepository events;
+  late FakeConnectionRepository connection;
 
   Future<void> pumpApp(WidgetTester tester) async {
     auth = FakeAuthRepository();
     events = FakeEventRepository();
+    connection = FakeConnectionRepository();
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           authRepositoryProvider.overrideWithValue(auth),
           eventRepositoryProvider.overrideWithValue(events),
+          connectionRepositoryProvider.overrideWithValue(connection),
         ],
         child: const MaterialApp(home: AuthGate()),
       ),
@@ -107,5 +118,58 @@ void main() {
     await tester.tap(find.byTooltip('Sign out'));
     await tester.pumpAndSettle();
     expect(find.text('Sign in'), findsOneWidget);
+  });
+
+  testWidgets('the home screen shows the connection check and both boards', (tester) async {
+    await pumpApp(tester);
+    final now = DateTime.now();
+    connection.report = ConnectionReport(
+      uid: 'alice',
+      checks: const [
+        CheckResult(label: 'Functions', ok: true, detail: '10.0.0.1:5001 reachable'),
+        CheckResult(label: 'Paired', ok: true, detail: 'Couple demo-couple'),
+      ],
+      devices: [
+        DeviceStatus(
+          deviceId: 'hs-aaaaaaaaaaaa',
+          ownerUid: 'alice',
+          firmwareVersion: '0.1.0',
+          lastSeen: now.subtract(const Duration(seconds: 20)),
+        ),
+        DeviceStatus(
+          deviceId: 'hs-bbbbbbbbbbbb',
+          ownerUid: 'bob',
+          firmwareVersion: '0.1.0',
+          lastSeen: now.subtract(const Duration(minutes: 10)),
+        ),
+      ],
+    );
+    await signIn(tester);
+    expect(find.text('Connection check'), findsOneWidget);
+    expect(find.text('Functions'), findsOneWidget);
+    expect(find.text('Your board hs-aaaaaaaaaaaa'), findsOneWidget);
+    expect(find.text("Partner's board hs-bbbbbbbbbbbb"), findsOneWidget);
+    expect(find.textContaining('online, seen'), findsOneWidget);
+    expect(find.textContaining('offline, seen 10m ago'), findsOneWidget);
+  });
+
+  test('a board is online only within two missed heartbeats', () {
+    final now = DateTime(2026, 11, 16, 12);
+    DeviceStatus seen(Duration ago) => DeviceStatus(
+      deviceId: 'hs-x',
+      ownerUid: 'a',
+      firmwareVersion: '0.1.0',
+      lastSeen: now.subtract(ago),
+    );
+    expect(seen(const Duration(seconds: 59)).isOnline(now), isTrue);
+    expect(seen(const Duration(seconds: 150)).isOnline(now), isTrue);
+    expect(seen(const Duration(seconds: 151)).isOnline(now), isFalse);
+    const never = DeviceStatus(
+      deviceId: 'hs-y',
+      ownerUid: 'a',
+      firmwareVersion: '0.1.0',
+      lastSeen: null,
+    );
+    expect(never.isOnline(now), isFalse);
   });
 }

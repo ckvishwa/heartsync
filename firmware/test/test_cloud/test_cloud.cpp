@@ -63,10 +63,10 @@ void test_decode_empty_and_bad_query() {
 }
 
 void test_events_query_body() {
-    const std::string body = hs::fs::eventsQueryBody("bob", "2026-11-16T10:00:00Z", 5);
+    const std::string body = hs::fs::eventsQueryBody("2026-11-16T10:00:00Z", 5);
     TEST_ASSERT_NOT_EQUAL(std::string::npos, body.find("\"collectionId\":\"events\""));
-    TEST_ASSERT_NOT_EQUAL(std::string::npos,
-                          body.find("\"fieldPath\":\"from\"},\"op\":\"EQUAL\",\"value\":{\"stringValue\":\"bob\"}"));
+    // Any sender: a board cannot read the couple document to learn the partner.
+    TEST_ASSERT_EQUAL(std::string::npos, body.find("\"fieldPath\":\"from\""));
     TEST_ASSERT_NOT_EQUAL(std::string::npos, body.find("\"op\":\"GREATER_THAN\""));
     TEST_ASSERT_NOT_EQUAL(std::string::npos, body.find("\"timestampValue\":\"2026-11-16T10:00:00Z\""));
     TEST_ASSERT_NOT_EQUAL(std::string::npos, body.find("\"direction\":\"ASCENDING\""));
@@ -111,22 +111,66 @@ void test_sign_in_without_local_id_reads_uid_from_token() {
     TEST_ASSERT_TRUE(hs::fs::uidFromIdToken("a.!!!.b").empty());
 }
 
-void test_user_and_couple_documents() {
-    std::string couple;
-    TEST_ASSERT_TRUE(hs::fs::parseUserCoupleId(
-        R"({"name":"x/users/alice","fields":{"displayName":{"stringValue":"Alice"},"coupleId":{"stringValue":"demo-couple"}}})",
-        couple));
-    TEST_ASSERT_EQUAL_STRING("demo-couple", couple.c_str());
-    TEST_ASSERT_FALSE(hs::fs::parseUserCoupleId(R"({"fields":{}})", couple));
+void test_board_claims_from_id_token() {
+    // Payload {"sub":"dev_hs-0000000000a1","user_id":"dev_hs-0000000000a1",
+    //          "deviceId":"hs-0000000000a1","coupleId":"c1","owner":"alice"}
+    const std::string good =
+        "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0."
+        "eyJzdWIiOiJkZXZfaHMtMDAwMDAwMDAwMGExIiwidXNlcl9pZCI6ImRldl9ocy0wMDAwMDAwMDAwYTEiLCJkZXZp"
+        "Y2VJZCI6ImhzLTAwMDAwMDAwMDBhMSIsImNvdXBsZUlkIjoiYzEiLCJvd25lciI6ImFsaWNlIn0.";
+    hs::fs::BoardClaims c;
+    TEST_ASSERT_TRUE(hs::fs::claimsFromIdToken(good, c));
+    TEST_ASSERT_EQUAL_STRING("dev_hs-0000000000a1", c.uid.c_str());
+    TEST_ASSERT_EQUAL_STRING("hs-0000000000a1", c.deviceId.c_str());
+    TEST_ASSERT_EQUAL_STRING("c1", c.coupleId.c_str());
+    TEST_ASSERT_EQUAL_STRING("alice", c.owner.c_str());
 
-    const char* coupleDoc =
-        R"({"fields":{"members":{"arrayValue":{"values":[{"stringValue":"alice"},{"stringValue":"bob"}]}}}})";
-    std::string partner;
-    TEST_ASSERT_TRUE(hs::fs::parseCouplePartner(coupleDoc, "alice", partner));
-    TEST_ASSERT_EQUAL_STRING("bob", partner.c_str());
-    TEST_ASSERT_TRUE(hs::fs::parseCouplePartner(coupleDoc, "bob", partner));
-    TEST_ASSERT_EQUAL_STRING("alice", partner.c_str());
-    TEST_ASSERT_FALSE(hs::fs::parseCouplePartner(coupleDoc, "mallory", partner));  // not a member
+    // uid is the owner's, not dev_<deviceId>: refused.
+    const std::string ownerUid =
+        "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0."
+        "eyJ1c2VyX2lkIjoiYWxpY2UiLCJkZXZpY2VJZCI6ImhzLTAwMDAwMDAwMDBhMSIsImNvdXBsZUlkIjoiYzEiLCJv"
+        "d25lciI6ImFsaWNlIn0.";
+    TEST_ASSERT_FALSE(hs::fs::claimsFromIdToken(ownerUid, c));
+    // No owner claim: refused.
+    const std::string noOwner =
+        "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0."
+        "eyJ1c2VyX2lkIjoiZGV2X2hzLTAwMDAwMDAwMDBhMSIsImRldmljZUlkIjoiaHMtMDAwMDAwMDAwMGExIiwiY291"
+        "cGxlSWQiOiJjMSJ9.";
+    TEST_ASSERT_FALSE(hs::fs::claimsFromIdToken(noOwner, c));
+    // A person's token (no claims) and garbage: refused.
+    TEST_ASSERT_FALSE(hs::fs::claimsFromIdToken(
+        "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJib2IiLCJ1c2VyX2lkIjoiYm9iIn0.", c));
+    TEST_ASSERT_FALSE(hs::fs::claimsFromIdToken("garbage", c));
+}
+
+void test_cursor_moves_past_own_events() {
+    // Five of the owner's own events fill the page: nothing to show, but the
+    // cursor must still advance, or the next poll fetches the same page forever.
+    std::string json = "[";
+    for (int i = 1; i <= 5; i++) {
+        json += std::string(i > 1 ? "," : "") +
+                R"({"document":{"name":"x/events/o)" + std::to_string(i) +
+                R"(","fields":{"type":{"stringValue":"heart"},"from":{"stringValue":"alice"},)"
+                R"("createdAt":{"timestampValue":"2026-11-16T10:00:0)" + std::to_string(i) +
+                R"(Z"}}}})";
+    }
+    json += "]";
+    std::vector<hs::fs::RemoteEvent> events;
+    std::string newest = "unchanged";
+    TEST_ASSERT_TRUE(hs::fs::parseEventsQuery(json.c_str(), "alice", events, &newest));
+    TEST_ASSERT_EQUAL(0, events.size());
+    TEST_ASSERT_EQUAL_STRING("2026-11-16T10:00:05Z", newest.c_str());
+
+    // An empty page leaves the cursor alone.
+    newest = "unchanged";
+    TEST_ASSERT_TRUE(hs::fs::parseEventsQuery("[{\"readTime\":\"x\"}]", "alice", events, &newest));
+    TEST_ASSERT_EQUAL_STRING("unchanged", newest.c_str());
+
+    // Mixed page: the partner's event is returned, the cursor ends at the newest.
+    std::vector<hs::fs::RemoteEvent> mixed;
+    TEST_ASSERT_TRUE(hs::fs::parseEventsQuery(kQueryResponse, "alice", mixed, &newest));
+    TEST_ASSERT_EQUAL(2, mixed.size());
+    TEST_ASSERT_EQUAL_STRING("2026-11-16T10:00:03Z", newest.c_str());
 }
 
 void test_heartbeat_body_and_commit_time() {
@@ -175,7 +219,8 @@ int main(int, char**) {
     RUN_TEST(test_events_query_body);
     RUN_TEST(test_sign_in_and_refresh);
     RUN_TEST(test_sign_in_without_local_id_reads_uid_from_token);
-    RUN_TEST(test_user_and_couple_documents);
+    RUN_TEST(test_board_claims_from_id_token);
+    RUN_TEST(test_cursor_moves_past_own_events);
     RUN_TEST(test_heartbeat_body_and_commit_time);
     RUN_TEST(test_debouncer);
     return UNITY_END();

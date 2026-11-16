@@ -4,7 +4,9 @@
 //
 // Calls (see docs/adr/0008-device-sync-rest-polling.md):
 //   Auth   accounts:signInWithCustomToken, securetoken token refresh
-//   Store  GET users/{uid}, GET couples/{id}, :commit (heartbeat), :runQuery (events)
+//   Store  :commit (heartbeat), :runQuery (events)
+// Board tokens (ADR 0009) cannot read users/ or the couple document: the couple
+// and owner come from the ID token's claims.
 #pragma once
 
 #include <stdint.h>
@@ -28,6 +30,18 @@ struct AuthSession {
 // check: the token came straight from the Auth server over our own request.
 std::string uidFromIdToken(const std::string& idToken);
 
+// Claims of a board's ID token (ADR 0009).
+struct BoardClaims {
+    std::string uid;       // always "dev_" + deviceId
+    std::string deviceId;
+    std::string coupleId;
+    std::string owner;     // the person the board acts for
+};
+
+// Reads the board claims from an ID token. False unless deviceId, coupleId and
+// owner are all set and the uid is "dev_" + deviceId.
+bool claimsFromIdToken(const std::string& idToken, BoardClaims& out);
+
 // Response of accounts:signInWithCustomToken (camelCase fields). The uid comes
 // from localId when present, else from the ID token.
 bool parseSignIn(const char* json, AuthSession& out);
@@ -38,11 +52,6 @@ std::string signInBody(const std::string& customToken);
 // application/x-www-form-urlencoded body for the refresh call.
 std::string refreshBody(const std::string& refreshToken);
 
-// users/{uid} document -> coupleId. False if missing.
-bool parseUserCoupleId(const char* json, std::string& coupleId);
-// couples/{id} document -> the member that is not `ownerUid`. False if not found.
-bool parseCouplePartner(const char* json, const std::string& ownerUid, std::string& partnerUid);
-
 // :commit body for the device heartbeat. Sets owner, firmwareVersion, online,
 // and lastSeen to the server time.
 std::string heartbeatBody(const std::string& projectId, const std::string& coupleId,
@@ -51,10 +60,9 @@ std::string heartbeatBody(const std::string& projectId, const std::string& coupl
 // :commit response -> commitTime (RFC 3339, server clock). False if missing.
 bool parseCommitTime(const char* json, std::string& commitTime);
 
-// :runQuery body (run on couples/{id}): events from `fromUid` created after
-// `afterTimestamp`, oldest first.
-std::string eventsQueryBody(const std::string& fromUid, const std::string& afterTimestamp,
-                            uint8_t limit);
+// :runQuery body (run on couples/{id}): events from anyone created after
+// `afterTimestamp`, oldest first. The caller drops its owner's own events.
+std::string eventsQueryBody(const std::string& afterTimestamp, uint8_t limit);
 
 struct RemoteEvent {
     Event event;
@@ -65,8 +73,11 @@ struct RemoteEvent {
 // :runQuery response -> events. Skips entries that are not documents, events
 // with an unknown type, and any event from `ownerUid` (a device never reacts to
 // its own owner). Returns false only if the JSON is not a query response.
+// `newestCreatedAt`, if given, gets the newest createdAt of every returned
+// document, skipped ones included, so the cursor moves past the owner's own
+// events instead of fetching them again forever.
 bool parseEventsQuery(const char* json, const std::string& ownerUid,
-                      std::vector<RemoteEvent>& out);
+                      std::vector<RemoteEvent>& out, std::string* newestCreatedAt = nullptr);
 
 }  // namespace fs
 }  // namespace hs

@@ -126,6 +126,11 @@ def main() -> int:
         for person in args.person:
             # Same identity registerDevice mints (ADR 0009): the board's own uid
             # dev_<deviceId>, never the owner's, with the owner as a claim.
+            # Like registerDevice, end the board's older sessions first.
+            try:
+                auth.revoke_refresh_tokens(f"dev_{person['device_id']}")
+            except auth.UserNotFoundError:
+                pass
             token = auth.create_custom_token(
                 f"dev_{person['device_id']}",
                 {

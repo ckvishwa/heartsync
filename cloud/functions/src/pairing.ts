@@ -29,7 +29,7 @@ import { DEVICE_ID_RE, boardUid, resolveCaller } from "./caller";
  * caller's own phone sessions into board mode).
  */
 export const registerDevice = onCall(async (request) => {
-  if (request.auth?.token?.deviceId !== undefined) {
+  if (request.auth && "deviceId" in request.auth.token) {
     throw new HttpsError("permission-denied", "Boards cannot register boards.");
   }
   const data = request.data as { deviceId?: unknown } | undefined;

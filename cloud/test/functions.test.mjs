@@ -231,3 +231,21 @@ test("sendHeart refuses malformed or mismatched board tokens", async () => {
     await assert.rejects(board.sendHeart(), { code: "functions/permission-denied" }, JSON.stringify(claims));
   }
 });
+
+test("a token with a null deviceId claim is treated as a board", async () => {
+  const t = await boardSession(await mint("fn-alice", { deviceId: null }));
+  await assert.rejects(t.registerDevice({ deviceId: BOARD2 }), { code: "functions/permission-denied" });
+  await assert.rejects(t.sendHeart(), { code: "functions/permission-denied" });
+});
+
+test("a board whose owner left the couple can no longer send", async () => {
+  const board = await boardSession(
+    await mint(`dev_${BOARD}`, { deviceId: BOARD, coupleId: COUPLE, owner: "fn-alice" }),
+  );
+  await db.doc(`couples/${COUPLE}`).set({ members: ["fn-bob"] });
+  try {
+    await assert.rejects(board.sendHeart(), { code: "functions/permission-denied" });
+  } finally {
+    await db.doc(`couples/${COUPLE}`).set({ members: ["fn-alice", "fn-bob"] });
+  }
+});

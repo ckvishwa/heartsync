@@ -36,7 +36,9 @@ Read: members. Write: server only.
 | `online`          | bool      |                                    |
 
 `deviceId` is `hs-` plus the 12 hex digits of the MAC.
-Read: members. Create/update: a member, only as `owner == self`. Delete: server only.
+Read: members. Create: `registerDevice` (server), or the board itself for its own id;
+people cannot create records, so nobody can pre-claim a partner's board. Update: the owner
+(person or board), owner unchanged. Delete: server only.
 
 ### `couples/{coupleId}/events/{eventId}`
 

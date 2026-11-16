@@ -140,9 +140,14 @@ describe("devices", () => {
     await assertFails(getDocs(collection(as("mallory"), "couples/c1/devices")));
   });
 
-  test("a device can be written as its owner", async () => {
+  test("a device can be updated by its owner", async () => {
     await assertSucceeds(updateDoc(doc(as("alice"), "couples/c1/devices/hs-a"), { online: false }));
-    await assertSucceeds(setDoc(doc(as("bob"), "couples/c1/devices/hs-b"), { owner: "bob" }));
+  });
+
+  test("people cannot create device records (registerDevice does)", async () => {
+    // Otherwise a partner could pre-create the other's board id and lock them out.
+    await assertFails(setDoc(doc(as("bob"), "couples/c1/devices/hs-b"), { owner: "bob" }));
+    await assertFails(setDoc(doc(as("alice"), "couples/c1/devices/hs-a1"), { owner: "alice" }));
   });
 
   test("a device cannot be written as someone else", async () => {
@@ -448,6 +453,20 @@ describe("device-scoped tokens", () => {
       await assertFails(getDoc(doc(d, "couples/c1/devices/hs-a")));
       await assertFails(getDoc(doc(d, "users/alice")));
     }
+  });
+
+  test("malformed board tokens get no Storage either", async () => {
+    for (const opts of [{ uid: "alice" }, { owner: null }, { coupleId: null }]) {
+      await assertFails(getBytes(ref(deviceStorage(opts), "couples/c1/art/a.txt")));
+      await assertFails(uploadString(ref(deviceStorage(opts), "couples/c1/art/z.txt"), "x"));
+      await assertFails(getBytes(ref(deviceStorage(opts), "firmware/0.1.0/firmware.bin")));
+    }
+  });
+
+  test("a null deviceId claim is still board mode", async () => {
+    const t = env.authenticatedContext("alice", { deviceId: null });
+    await assertFails(getDoc(doc(t.firestore(), "users/alice")));
+    await assertFails(getBytes(ref(t.storage(), "firmware/0.1.0/firmware.bin")));
   });
 
   test("deviceRegistry is server-only", async () => {

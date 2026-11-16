@@ -37,7 +37,7 @@ export async function resolveCaller(request: CallableRequest<unknown>): Promise<
 
   let personUid = auth.uid;
   let deviceId: string | undefined;
-  if (token.deviceId !== undefined) {
+  if ("deviceId" in token) {
     const claimed = token.deviceId;
     const owner = token.owner;
     if (

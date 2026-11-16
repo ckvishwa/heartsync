@@ -19,7 +19,7 @@ service cloud.firestore {
     // events and its own device record. Nothing else. Any token with a deviceId
     // claim is in board mode; it gets access only if every claim is well formed.
     function isDevice() {
-      return signedIn() && request.auth.token.get('deviceId', null) != null;
+      return signedIn() && 'deviceId' in request.auth.token;
     }
 
     function isPerson() {
@@ -111,7 +111,11 @@ service cloud.firestore {
                 || (isDeviceOf(coupleId) && request.auth.token.deviceId == deviceId));
         }
         allow read: if mayActOnDevice();
-        allow create: if mayActOnDevice()
+        // Create: only the board itself (registerDevice creates records for
+        // people). A person creating records could squat on the partner's board.
+        allow create: if isDeviceOf(coupleId)
+          && request.auth.token.deviceId == deviceId
+          && isMember(coupleId)
           && actsAs(request.resource.data.owner)
           && request.resource.data.keys().hasOnly(
                ['owner', 'firmwareVersion', 'lastSeen', 'battery', 'online']);

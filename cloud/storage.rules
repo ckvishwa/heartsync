@@ -8,7 +8,7 @@ service firebase.storage {
     // must add an explicit, tested exception for firmware/ if boards download
     // from Storage directly.
     function isPerson() {
-      return request.auth != null && request.auth.token.get('deviceId', null) == null;
+      return request.auth != null && !('deviceId' in request.auth.token);
     }
 
     function isMember(coupleId) {

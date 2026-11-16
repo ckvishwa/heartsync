@@ -9,10 +9,10 @@ and the next step. Update it at the end of every session that changes the plan.
 
 Two matching pixel-art devices for a couple, paired through Firebase and controlled
 by a Flutter app and a small Next.js dashboard. **Phase 2 (cloud sync) is done on
-the emulator; Phase 1 art items remain.** The bench display is an SSD1306 OLED
-(ADR 0007). The next slice, Phase 3 BLE Wi-Fi setup, is planned in
-`docs/handoff.md` but **must not be built until the user says "go"** and answers
-its open decisions. Do not build beyond that.
+the emulator. The Phase 3 BLE Wi-Fi setup slice is built (ADR 0009) and waits for
+its hardware test with the user** (steps in `docs/handoff.md`). The bench display
+is an SSD1306 OLED (ADR 0007). Do not start new slices beyond that without the
+user's go.
 
 ## Repo map
 
@@ -55,6 +55,12 @@ PlatformIO is installed in the repo-local `.venv` (activate it, or call `.venv/S
 Cycle data (`users/{uid}/private/cycle`) is health data. Any change touching it must
 be reviewed against the rules in `docs/protocol.md` (owner-only write, partner read
 only while `sharingEnabled` is true). Never log it, on any platform.
+
+## Picking skills and agents
+
+Match the kind of work to the right skill or agent using the table in
+`docs/how-to-use.md` section 0 (planning, UI design, frontend, backend, firmware,
+review, shipping). Run the matching reviewer skill after changes in its area.
 
 ## Definition of done
 

@@ -1,6 +1,6 @@
 # Handoff: where we are and what to do next
 
-Last updated: 2026-11-16. Read this first in a new session, then `CLAUDE.md`,
+Last updated: 2026-11-16 (Phase 3 BLE slice built). Read this first in a new session, then `CLAUDE.md`,
 `docs/phases.md`, and the package `CLAUDE.md` for the area you touch.
 
 ## State
@@ -12,86 +12,64 @@ Last updated: 2026-11-16. Read this first in a new session, then `CLAUDE.md`,
   polling (ADR 0008), app and BOOT-button hearts pass in both directions on real
   hardware. Results: `docs/hardware/bringup-log.md`. Carried over: real Firebase
   project, Phase 2b OTA download and verify.
-- **Board tokens hardened (before Phase 3):** Firestore and Storage rules scope any
-  token with a `deviceId` claim to its couple's events and its own device record
-  (`docs/protocol.md` "Device tokens"). 51 cloud tests pass. Reviewed by
-  `cloud-rules-auditor`. Bench boards still hold plain owner tokens (no claims).
+- **Phase 3 slice, BLE Wi-Fi setup: BUILT, hardware test pending** (ADR 0009).
+  - Cloud:
+    - Boards have their own uid `dev_<deviceId>` with claims
+      `{deviceId, coupleId, owner}`.
+    - `registerDevice` callable, a server-only `deviceRegistry`, board-aware
+      `sendHeart`.
+    - Rules use `token.owner` in board mode. People cannot create device records.
+    - 68 cloud tests pass. Audited by `cloud-rules-auditor`; fixes applied.
+  - Firmware:
+    - Setup mode with a NimBLE GATT service. Passkey on the OLED, LE SC only,
+      lockout after 3 tries, 60 s pairing deadline, 15 min window.
+    - Wi-Fi is tested before it is saved. The token is held in RAM and used once.
+    - `CloudClient` reads couple and owner from claims (no `users/` reads).
+    - BOOT tap sends a heart; a 5 s hold wipes and re-enters setup.
+    - 47 native tests pass. Reviewed by `firmware-reviewer`; fixes applied.
+    - esp32dev at 62.7% flash, 18.4% static RAM.
+  - App:
+    - "Set up a board" screen (flutter_blue_plus): scan, pair, Wi-Fi list or
+      manual entry, register, send key, wait for `signed_in`.
+    - Android BLE permissions, iOS usage string. 31 tests pass, analyze clean.
 - **App:** connection check panel on the home screen; Firebase options come from
   `--dart-define-from-file=config/emulator.json` (git-ignored; copy the example).
-- Everything is committed and pushed to the private repo github.com/ckvishwa/heartsync
-  (`main`). CI runs on push; the cloud deploy job stays off until a
-  `FIREBASE_PROJECT_ID` repo variable exists.
+- Repo: private github.com/ckvishwa/heartsync (`main`). CI runs on push; the cloud
+  deploy job stays off until a `FIREBASE_PROJECT_ID` repo variable exists.
 
-## Phase 3 slice: BLE Wi-Fi setup from the app. PLANNED, NOT BUILT
+## Next: hardware test of BLE setup (needs the user)
 
-**Do not start building until the user says "go" and answers decisions A, B, C.**
+Nothing is flashed yet. The boards still run the Phase 2 firmware with plain owner
+tokens. The new firmware refuses those tokens and shows `SETUP NEEDED`.
 
-### User decisions already made
+1. The user starts the emulators (`cd cloud && npm run emulators`, then `npm run seed`)
+   and confirms `HS_FIREBASE_EMULATOR_HOST` in `secrets.h` is the PC's current IP.
+2. Flash board-B over USB (`pio run -e esp32dev -t upload --upload-port COMx`). Check
+   the MAC with esptool first.
+3. On the phone: install the app (`flutter run ... --dart-define=EMULATOR_HOST=<PC IP>`),
+   sign in as Bob, and choose **Set up a board**.
+4. On board-B: hold BOOT 5 s. It shows SET UP. Pair: PIN on the OLED, typed on the
+   phone. Then Wi-Fi (the hotspot SSID with a trailing space), registration, and
+   `signed_in`. The board restarts.
+5. Check the serial log: uid `dev_hs-20500dcd63f4`, couple `demo-couple`, owner
+   `bob`, and no secrets anywhere. Run `status`, which prints free and minimum heap.
+6. Run the tests:
+   - wrong PIN 3 times gives LOCKED, and a BOOT hold clears it
+   - a wrong Wi-Fi password shows "Wrong Wi-Fi password." on the phone
+   - change networks: hold, then set up again
+   - hearts both ways (app to board, BOOT tap)
+7. Repeat for board-A as Alice. Record results in `docs/hardware/bringup-log.md` and
+   tick the Phase 3 hardware item.
+8. If pairing misbehaves on Android, check first: the `removeBond`/`createBond` flow
+   in `board_setup_repository.dart`, and NimBLE `onAuthenticationComplete`.
 
-1. Passkey on the OLED: random per pairing session, LE Secure Connections only,
-   every setup characteristic needs an encrypted, authenticated link, lock out
-   after 3 wrong attempts.
-2. The board scans Wi-Fi; the app shows the list (2.4 GHz only) plus manual entry
-   for hidden networks.
-3. Partner invites stay on the seed scripts for this slice.
-4. `registerDevice` must not give the board the owner's own token: mint a
-   short-lived custom token with a `deviceId` claim; the board exchanges it for a
-   refresh token immediately.
-5. Never log Wi-Fi credentials, tokens, or the passkey.
+### Open decisions and known risks (ADR 0009)
 
-### Decisions still open (ask the user)
-
-- **A. Board identity (auditor finding, HIGH).** A board signed in with the owner's
-  uid can call Firebase Auth account APIs (set a password, delete the account) that
-  rules never see. Recommended: each board gets its own uid `dev_<deviceId>` with an
-  `owner` claim; rules switch to `token.owner` in board mode. Alternative: keep the
-  owner uid and record the risk in ADR 0009.
-- **B. Token lifetime.** Firebase custom tokens always live 1 h and cannot be
-  shortened. Mitigation: app hands it over BLE within seconds; the board exchanges
-  it at once and erases it. Acceptable?
-- **C. Secrets at rest.** Wi-Fi password and refresh token sit unencrypted in NVS
-  until flash encryption is enabled (one-way per chip; planned for the final build).
-  Accept for the bench?
-
-### Plan (order: cloud, firmware, app; one small commit per package)
-
-**Cloud: `registerDevice` callable** (`cloud/functions/src/pairing.ts`)
-- Caller must be a person (reject `deviceId` tokens). Validate `deviceId`
-  (`hs-` + 12 hex). Couple from `users/{uid}.coupleId`, membership re-checked.
-  Refuse a board already registered to another owner.
-- Write `couples/{c}/devices/{deviceId}` (owner, firmwareVersion, online, lastSeen).
-- Mint with `createCustomToken(uid, {deviceId, coupleId[, owner]})`. Never
-  `setCustomUserClaims` (it would turn the owner's phone sessions into board tokens).
-- `sendHeart`: for board callers, reject a `coupleId` claim that does not match the
-  couple (auditor finding 2); post as `token.owner` if decision A is "own uid".
-  Add the functions test with a mismatched claim.
-- If A = own uid: rules use `token.owner` for `from`, `owner`, and membership in
-  board mode; update tests.
-
-**Firmware**
-- Provisioning mode only when no Wi-Fi is stored, or BOOT held 5 s at power-up.
-- NimBLE GATT service: `deviceId` (read), `wifiList` (read/notify, board's own
-  scan), `wifiCreds` (write), `token` (long write, about 1 KB), `status`
-  (read/notify). All encrypted plus authenticated; LE Secure Connections only;
-  random passkey on the OLED; 3 wrong passkeys stop BLE until BOOT is held again.
-- Store Wi-Fi and the refresh token in NVS; exchange and erase the custom token.
-- `CloudClient`: board tokens can no longer read `users/` or the couple doc, so take
-  `coupleId` and owner from the ID token claims and poll events newer than the
-  cursor, skipping the owner's own.
-- `secrets.h` Wi-Fi becomes a dev-only fallback.
-- Native tests: characteristic decoding, provisioning state machine, lockout, claims.
-- Size check done: NimBLE adds about 248 KB flash on esp32dev (47% to 61%) and
-  187 KB on S3 (45% to 55%); static RAM +6 to +10 KB. Measure runtime heap on the
-  board in the first firmware step.
-
-**App:** "Set up a board" screen with `flutter_blue_plus` (Android 12+ BLE
-permissions, iOS usage string): scan `heartsync-*`, pair (OS passkey prompt),
-read `deviceId` and `wifiList` (or manual entry), call `registerDevice`, write
-credentials and token, follow `status` to signed in. Repository plus fake, widget
-tests, no secrets in logs.
-
-**Docs:** ADR 0009 (BLE provisioning and board identity), `protocol.md`
-"BLE provisioning", `phases.md`.
+- Board-id squatting: needs proof of possession plus an unregister path (open).
+- Re-pairing an owner to a new couple cannot re-register their board yet.
+- flutter_blue_plus uses `License.nonprofit`. Commercial use needs a paid license.
+- Revocation stops refreshes only; an ID token already issued lives up to 1 h.
+- The Auth emulator does not enforce revocation on refresh (production does).
 
 ## Bench setup (to resume testing)
 
@@ -108,7 +86,7 @@ tests, no secrets in logs.
 - Emulators: `cd cloud && npm run emulators`, then `npm run seed`. Bound to
   `0.0.0.0`; Windows firewall rule "heartsync emulators (LAN)" allows 9099, 8080,
   5001 from the local subnet. Tests: `npm test` (separate ports, runs alongside).
-- Board tokens (until Phase 3): `python tools/seed_couple.py --couple-id demo-couple
+- Bench serial fallback (esp32dev builds only, `HS_DEV_SERIAL_TOKEN`): `python tools/seed_couple.py --couple-id demo-couple
   --person alice@example.com:Alice:hs-20500dcdfd18 --person
   bob@example.com:Bob:hs-20500dcd63f4 --mint-tokens`, then
   `python tools/provision_device.py --port COMx --device-id hs-...` within 1 h.
@@ -116,11 +94,13 @@ tests, no secrets in logs.
 - App on the phone: `cd app && flutter run -d <device>
   --dart-define-from-file=config/emulator.json --dart-define=EMULATOR_HOST=<PC IP>`.
   Logins: `alice@example.com` / `bob@example.com`, password `heartsync`.
-- Serial: 115200; commands `status`, `heart`, `token <jwt>`, `forget`.
+- Serial: 115200; commands `status`, `heart`, `token <jwt>` (bench builds), `forget`.
+- BOOT: tap sends a heart; hold 5 s while running wipes Wi-Fi and tokens and enters
+  BLE setup. Never hold it at power-up (that is ROM download mode).
 
 ## Known gaps (not blocking Phase 3 work on the emulator)
 
-1. Pairing callables are stubs (Phase 3; `registerDevice` is the first one).
+1. Partner invite callables are still stubs (seed scripts until then).
 2. No real Firebase project: board talks plain HTTP to the emulator only; app needs
    real options; HTTPS and root CA on the board.
 3. OTA download and signature verification (Phase 2b); device tokens currently have

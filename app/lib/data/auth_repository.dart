@@ -7,6 +7,9 @@ abstract class AuthRepository {
   /// Emits the signed-in user's uid, or null when signed out.
   Stream<String?> uidChanges();
 
+  /// Emits the signed-in user's email (for the account badge), or null.
+  Stream<String?> emailChanges();
+
   /// Throws [AuthFailure] with a message that is safe to show.
   Future<void> signIn({required String email, required String password});
 
@@ -27,6 +30,9 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Stream<String?> uidChanges() => _auth.authStateChanges().map((user) => user?.uid);
+
+  @override
+  Stream<String?> emailChanges() => _auth.authStateChanges().map((user) => user?.email);
 
   @override
   Future<void> signIn({required String email, required String password}) async {
@@ -54,4 +60,8 @@ final authRepositoryProvider = Provider<AuthRepository>(
 
 final currentUidProvider = StreamProvider<String?>(
   (ref) => ref.watch(authRepositoryProvider).uidChanges(),
+);
+
+final currentEmailProvider = StreamProvider<String?>(
+  (ref) => ref.watch(authRepositoryProvider).emailChanges(),
 );

@@ -19,6 +19,12 @@ class FakeAuthRepository implements AuthRepository {
   }
 
   @override
+  Stream<String?> emailChanges() async* {
+    yield lastEmail;
+    yield* _controller.stream.map((uid) => uid == null ? null : lastEmail);
+  }
+
+  @override
   Future<void> signIn({required String email, required String password}) async {
     if (password != 'heartsync') throw const AuthFailure('Wrong email or password.');
     lastEmail = email;
@@ -110,6 +116,18 @@ void main() {
     await tester.pumpAndSettle();
     expect(events.hearts, 0);
     expect(find.text('You are not paired with a partner yet.'), findsOneWidget);
+  });
+
+  testWidgets('the app bar shows the signed-in account as a letter', (tester) async {
+    await pumpApp(tester);
+    await signIn(tester);
+    final badge = find.byKey(const ValueKey('account-badge'));
+    expect(badge, findsOneWidget);
+    expect(find.descendant(of: badge, matching: find.text('A')), findsOneWidget);
+    expect(find.byTooltip('Signed in as alice@example.com'), findsOneWidget);
+    await tester.tap(badge);
+    await tester.pump();
+    expect(find.text('Signed in as alice@example.com'), findsOneWidget);
   });
 
   testWidgets('signing out returns to the login screen', (tester) async {

@@ -71,6 +71,8 @@ class _SendHeartScreenState extends ConsumerState<SendHeartScreen> {
             icon: const Icon(Icons.logout),
             onPressed: () => ref.read(authRepositoryProvider).signOut(),
           ),
+          const _AccountBadge(),
+          const SizedBox(width: 8),
         ],
       ),
       body: ListView(
@@ -143,6 +145,49 @@ class _BoardSetupSection extends ConsumerWidget {
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The signed-in account as a circle with its first letter (top right). Each
+/// account gets its own colour, so two copies of the app (e.g. a dual app) are
+/// easy to tell apart. Tap it to see the full email.
+class _AccountBadge extends ConsumerWidget {
+  const _AccountBadge();
+
+  static const _colors = [
+    Color(0xFF1E88E5),
+    Color(0xFF8E24AA),
+    Color(0xFF00897B),
+    Color(0xFFF4511E),
+    Color(0xFF3949AB),
+    Color(0xFF6D4C41),
+  ];
+
+  /// Stable per account (not String.hashCode, which may vary between runs).
+  static Color colorFor(String email) =>
+      _colors[email.codeUnits.fold<int>(0, (a, c) => (a * 31 + c) & 0x7fffffff) % _colors.length];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final email = ref.watch(currentEmailProvider).value;
+    if (email == null || email.isEmpty) return const SizedBox.shrink();
+    final letter = email.characters.first.toUpperCase();
+    return Tooltip(
+      message: 'Signed in as $email',
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: () => ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text('Signed in as $email'))),
+        child: CircleAvatar(
+          key: const ValueKey('account-badge'),
+          radius: 16,
+          backgroundColor: colorFor(email),
+          foregroundColor: Colors.white,
+          child: Text(letter, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ),
       ),
     );
   }

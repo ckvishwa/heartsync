@@ -1,0 +1,60 @@
+name: cloud
+
+on:
+  pull_request:
+    paths: ["cloud/**", ".github/workflows/cloud.yml"]
+  push:
+    branches: [main]
+    paths: ["cloud/**", ".github/workflows/cloud.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cloud
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            cloud/package-lock.json
+            cloud/functions/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm --prefix functions ci
+      - name: Rules and functions tests (emulators)
+        run: npm test
+
+  # Deploys happen only here, never from a laptop. Disabled until the real
+  # Firebase project exists: set the repository variable FIREBASE_PROJECT_ID and
+  # the secret FIREBASE_SERVICE_ACCOUNT, then this job runs on pushes to main.
+  deploy:
+    if: github.event_name == 'push' && vars.FIREBASE_PROJECT_ID != ''
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: cloud
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm --prefix functions ci
+      - name: Write credentials
+        run: echo "$SERVICE_ACCOUNT" > "$RUNNER_TEMP/sa.json"
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - name: Deploy rules, indexes, and functions
+        run: npx firebase deploy --only firestore,storage,functions --project "$PROJECT_ID" --non-interactive
+        env:
+          PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json

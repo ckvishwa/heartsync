@@ -1,0 +1,95 @@
+rules_version = '2';
+
+// heartsync Firestore rules. Data model: docs/protocol.md. Tests: cloud/test/.
+// Deny by default: any path not matched below is denied.
+// Cloud Functions and CI use the Admin SDK, which bypasses these rules.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isMember(coupleId) {
+      return signedIn()
+        && request.auth.uid in get(/databases/$(database)/documents/couples/$(coupleId)).data.members;
+    }
+
+    // True if the signed-in user is the other member of `uid`'s couple.
+    // `coupleId` on a user document is server-set, so it can be trusted.
+    function isPartnerOf(uid) {
+      let coupleId = get(/databases/$(database)/documents/users/$(uid)).data.get('coupleId', null);
+      return signedIn()
+        && request.auth.uid != uid
+        && coupleId != null
+        && isMember(coupleId);
+    }
+
+    // ---- users/{uid}: profile, avatar spec, notification token ----
+    match /users/{uid} {
+      allow get: if isSelf(uid) || isPartnerOf(uid);
+      allow list: if false;
+      // coupleId is server-set only: a client can neither set nor change it.
+      allow create: if isSelf(uid) && !('coupleId' in request.resource.data);
+      allow update: if isSelf(uid)
+        && request.resource.data.get('coupleId', null) == resource.data.get('coupleId', null);
+      allow delete: if false;
+
+      // ---- users/{uid}/private/cycle: HEALTH DATA ----
+      // Owner-only write. Partner can read only while sharingEnabled is true.
+      match /private/cycle {
+        allow get: if isSelf(uid)
+          || (isPartnerOf(uid) && resource.data.sharingEnabled == true);
+        allow list: if isSelf(uid);
+        allow create, update: if isSelf(uid) && request.resource.data.sharingEnabled is bool;
+        allow delete: if isSelf(uid);
+      }
+
+      // Any other private document: owner only. (Rules are OR-ed across
+      // matches, so `cycle` is excluded here to keep its validation.)
+      match /private/{docId} {
+        allow read, write: if isSelf(uid) && docId != 'cycle';
+      }
+    }
+
+    // ---- couples/{coupleId}: created by Cloud Functions or the seed script ----
+    match /couples/{coupleId} {
+      allow read: if signedIn() && request.auth.uid in resource.data.members;
+      allow write: if false;
+
+      // ---- devices: a device writes as its owner ----
+      match /devices/{deviceId} {
+        allow read: if isMember(coupleId);
+        allow create: if isMember(coupleId)
+          && request.resource.data.owner == request.auth.uid;
+        allow update: if isMember(coupleId)
+          && resource.data.owner == request.auth.uid
+          && request.resource.data.owner == request.auth.uid;
+        allow delete: if false;
+      }
+
+      // ---- events: immutable, and only ever written as yourself ----
+      match /events/{eventId} {
+        allow read: if isMember(coupleId);
+        allow create: if isMember(coupleId)
+          && request.resource.data.keys().hasOnly(['type', 'from', 'payload', 'createdAt'])
+          && request.resource.data.keys().hasAll(['type', 'from', 'payload', 'createdAt'])
+          && request.resource.data.from == request.auth.uid
+          && request.resource.data.type in ['heart', 'touch', 'art', 'mood', 'voice']
+          && request.resource.data.payload is map
+          && request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
+    }
+
+    // ---- releases/{version}: firmware release records, written by CI only ----
+    match /releases/{version} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+  }
+}

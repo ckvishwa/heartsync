@@ -1,0 +1,12 @@
+{
+  "projectId": "demo-heartsync",
+  "users": [
+    { "uid": "alice", "email": "alice@example.com", "password": "heartsync", "displayName": "Alice" },
+    { "uid": "bob", "email": "bob@example.com", "password": "heartsync", "displayName": "Bob" }
+  ],
+  "couple": { "id": "demo-couple", "members": ["alice", "bob"] },
+  "devices": [
+    { "id": "hs-000000000001", "owner": "alice", "firmwareVersion": "0.1.0", "online": true, "battery": null },
+    { "id": "hs-000000000002", "owner": "bob", "firmwareVersion": "0.1.0", "online": false, "battery": null }
+  ]
+}

@@ -120,6 +120,7 @@ TokenAssembler::Result TokenAssembler::add(const uint8_t* data, size_t len) {
     if (flags & 0x01) {
         clear();
         started_ = true;
+        buf_.reserve(maxLen_);  // no reallocation: no stray copies of the token
     } else if (!started_) {
         clear();
         return Result::Error;

@@ -234,6 +234,54 @@ void test_long_press() {
     TEST_ASSERT_FALSE(p.pressed());
 }
 
+void test_review_gaps() {
+    // TokenAssembler: a new first chunk after Complete starts over; a flag-only
+    // end chunk finishes what was collected.
+    TokenAssembler t(1536);
+    TEST_ASSERT_TRUE(chunk(t, 0x03, "one") == TokenAssembler::Result::Complete);
+    TEST_ASSERT_TRUE(chunk(t, 0x01, "tw") == TokenAssembler::Result::More);
+    TEST_ASSERT_TRUE(chunk(t, 0x02, "") == TokenAssembler::Result::Complete);
+    TEST_ASSERT_EQUAL_STRING("tw", t.token().c_str());
+
+    // SetupMachine: auth events after pairing are ignored; disconnect mid Wi-Fi
+    // test goes back to advertising; a refused token can be retried.
+    SetupMachine m(3, 1000);
+    m.begin(0, 0);
+    m.onConnect();
+    m.onAuth(true, 1);
+    m.onAuth(false, 2);
+    TEST_ASSERT_TRUE(m.state() == State::Ready);
+    TEST_ASSERT_EQUAL(0, m.fails());
+    TEST_ASSERT_TRUE(m.onCreds());
+    m.onDisconnect(3);
+    TEST_ASSERT_TRUE(m.advertising());
+    m.onWifiResult(true);  // a late result is ignored
+    TEST_ASSERT_TRUE(m.advertising());
+
+    SetupMachine r(3, 1000);
+    r.begin(0, 0);
+    r.onConnect();
+    r.onAuth(true, 1);
+    r.onCreds();
+    r.onWifiResult(true);
+    for (int i = 0; i < 3; i++) {
+        TEST_ASSERT_TRUE(r.onToken());
+        r.onSignInResult(false);
+        TEST_ASSERT_TRUE(r.state() == State::WifiOk);
+    }
+
+    // LongPress: bounce during a hold neither taps nor fires the hold again.
+    using A = hs::LongPress::Action;
+    hs::LongPress p(30, 1000, 5000);
+    p.update(true, 0);
+    p.update(true, 30);
+    TEST_ASSERT_TRUE(p.update(true, 5000) == A::Hold);
+    TEST_ASSERT_TRUE(p.update(false, 6000) == A::None);  // 10 ms bounce
+    TEST_ASSERT_TRUE(p.update(true, 6010) == A::None);
+    TEST_ASSERT_TRUE(p.update(true, 12000) == A::None);
+    TEST_ASSERT_TRUE(p.pressed());
+}
+
 int main(int, char**) {
     UNITY_BEGIN();
     RUN_TEST(test_wifi_creds);
@@ -243,5 +291,6 @@ int main(int, char**) {
     RUN_TEST(test_machine_happy_path);
     RUN_TEST(test_machine_lockout_and_timeout);
     RUN_TEST(test_long_press);
+    RUN_TEST(test_review_gaps);
     return UNITY_END();
 }

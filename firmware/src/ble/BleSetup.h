@@ -45,6 +45,8 @@ private:
     setup::SetupMachine machine_{HS_SETUP_MAX_FAILS, HS_SETUP_WINDOW_MS};
     setup::State shown_ = setup::State::TimedOut;
     bool pinShown_ = false;
+    static constexpr uint32_t kPairingDeadlineMs = 60000;
+    uint32_t connectedMs_ = 0;
     uint32_t wifiStartMs_ = 0;
     uint32_t signedInMs_ = 0;
 };

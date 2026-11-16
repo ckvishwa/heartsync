@@ -42,6 +42,7 @@ struct Shared {
     bool tokenComplete = false;
     bool tokenBad = false;
     setup::TokenAssembler token{HS_SETUP_TOKEN_MAX};
+    std::string tokenDone;  // a finished token, moved out of the assembler at once
 };
 
 Shared g;
@@ -54,9 +55,12 @@ NimBLECharacteristic* gToken = nullptr;
 NimBLECharacteristic* gStatus = nullptr;
 
 void clearValue(NimBLECharacteristic* c) {
-    // Do not leave secrets in the attribute's own buffer.
-    static const uint8_t kZero[1] = {0};
-    c->setValue(kZero, 0);
+    // Do not leave secrets in the attribute's own buffer: overwrite the old bytes
+    // first (setting length 0 alone keeps them), then empty it.
+    static const uint8_t kZeros[setup::kAttrMax] = {0};
+    const size_t len = c->getValue().size();
+    c->setValue(kZeros, len < sizeof(kZeros) ? len : sizeof(kZeros));
+    c->setValue(kZeros, 0);
 }
 
 class ServerCallbacks : public NimBLEServerCallbacks {
@@ -72,6 +76,7 @@ class ServerCallbacks : public NimBLEServerCallbacks {
         g.creds = {};
         g.credsPending = false;
         g.token.clear();
+        wipe(g.tokenDone);
         g.tokenComplete = false;
     }
 
@@ -119,6 +124,9 @@ class CharCallbacks : public NimBLECharacteristicCallbacks {
         } else if (c == gToken) {
             switch (g.token.add(v.data(), v.size())) {
                 case setup::TokenAssembler::Result::Complete:
+                    wipe(g.tokenDone);
+                    g.tokenDone = g.token.token();
+                    g.token.clear();
                     g.tokenComplete = true;
                     break;
                 case setup::TokenAssembler::Result::Error:
@@ -145,8 +153,10 @@ setup::WifiCreds gTested;  // credentials under test, saved only if they work
 }  // namespace
 
 void BleSetup::newPasskey() {
+    // NimBLE asks onPassKeyDisplay() only while the static passkey is left at its
+    // default (123456), so never call setSecurityPasskey(): the callback returns
+    // this value and loop() shows it.
     gPasskey.store(esp_random() % 1000000u);
-    NimBLEDevice::setSecurityPasskey(gPasskey.load());
 }
 
 void BleSetup::begin(const char* deviceId) {
@@ -157,8 +167,11 @@ void BleSetup::begin(const char* deviceId) {
     const std::string name = HS_SETUP_NAME_PREFIX + id.substr(id.size() - 4);
     NimBLEDevice::init(name);
     NimBLEDevice::setMTU(HS_SETUP_MTU);
-    // Bonding off: every setup pairs again with a fresh passkey.
-    NimBLEDevice::setSecurityAuth(false /* bond */, true /* mitm */, true /* sc */);
+    // Bonding on, because Android's standard passkey flow (createBond) expects it,
+    // but no bond outlives a setup session: every setup starts by deleting all
+    // bonds, so each phone pairs again with a fresh passkey. The app removes its
+    // stale bond before connecting.
+    NimBLEDevice::setSecurityAuth(true /* bond */, true /* mitm */, true /* sc */);
     NimBLEDevice::setSecurityIOCap(BLE_HS_IO_DISPLAY_ONLY);
     NimBLEDevice::deleteAllBonds();
     newPasskey();
@@ -211,6 +224,12 @@ void BleSetup::stopAdvertising() {
 }
 
 void BleSetup::restart(uint32_t nowMs) {
+    stopAdvertising();  // also drops any connected phone
+    if (machine_.state() == State::WifiConnecting) {
+        wifi_.stop();
+    }
+    wipe(gTested.pass);
+    NimBLEDevice::deleteAllBonds();
     machine_.onBootHold(nowMs);
     setupstore::setFails(0);
     newPasskey();
@@ -278,7 +297,10 @@ void BleSetup::handleWifiTest(uint32_t nowMs) {
         return;
     }
     const uint32_t elapsed = nowMs - wifiStartMs_;
-    const uint8_t reason = wifi_.lastDisconnectReason();
+    uint8_t reason = wifi_.lastDisconnectReason();
+    if (reason == 8) {
+        reason = 0;  // ASSOC_LEAVE: our own disconnect before this test, not a verdict
+    }
     // Give a first transient disconnect a few seconds before failing on it.
     if ((reason != 0 && elapsed >= 8000) || elapsed >= HS_SETUP_WIFI_CONNECT_MS) {
         const char* why = reason != 0 ? setup::wifiFailReason(reason) : "timeout";
@@ -315,8 +337,7 @@ void BleSetup::loop(uint32_t nowMs) {
             g.creds = {};
         }
         if (tokenComplete) {
-            token = g.token.token();
-            g.token.clear();
+            std::swap(token, g.tokenDone);
         }
         g.connected = g.disconnected = g.pinRequested = false;
         g.scanRequested = g.credsPending = g.credsBad = false;
@@ -328,7 +349,18 @@ void BleSetup::loop(uint32_t nowMs) {
 
     if (connected) {
         machine_.onConnect();
+        connectedMs_ = nowMs;
         LOGI("setup", "phone connected");
+    }
+    // A phone that connects and never pairs must not hold the board forever.
+    if (machine_.state() == State::Connected && nowMs - connectedMs_ >= kPairingDeadlineMs &&
+        gServer != nullptr) {
+        LOGW("setup", "no pairing within %u s: disconnecting",
+             (unsigned)(kPairingDeadlineMs / 1000));
+        for (uint16_t h : gServer->getPeerDevices()) {
+            gServer->disconnect(h);
+        }
+        connectedMs_ = nowMs;  // do not repeat until the disconnect lands
     }
     if (pinRequested) {
         pinShown_ = true;
@@ -363,6 +395,7 @@ void BleSetup::loop(uint32_t nowMs) {
             wipe(gTested.pass);
         }
         machine_.onDisconnect(nowMs);
+        NimBLEDevice::deleteAllBonds();  // a fresh passkey for every session
         newPasskey();
         pinShown_ = false;
         LOGI("setup", "phone disconnected");
@@ -397,7 +430,7 @@ void BleSetup::loop(uint32_t nowMs) {
             wifiStartMs_ = nowMs;
             notifyStatus();
             showState();
-            wifi_.begin(gTested.ssid.c_str(), gTested.pass.c_str());
+            wifi_.beginTest(gTested.ssid.c_str(), gTested.pass.c_str());
         } else {
             notifyStatus("not_ready");
         }

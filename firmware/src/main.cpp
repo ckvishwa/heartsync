@@ -65,6 +65,7 @@ void sendHeart() {
     animator.showSpriteWithText(hs::sprites::kHeart, ok ? "SENT" : "NOT SENT", false);
 }
 
+#if HS_BLE_SETUP
 // BOOT held 5 s: wipe Wi-Fi and tokens and restart into setup mode.
 void resetToSetup() {
     LOGW("input", "BOOT held: wiping Wi-Fi and tokens, restarting into setup");
@@ -92,6 +93,7 @@ void showHoldCountdown(uint32_t heldMs) {
         animator.showTestScreen(text);
     }
 }
+#endif  // HS_BLE_SETUP
 
 // Serial commands, one per line. Tokens are never echoed.
 //   token <jwt>   bench only: store a board token (tools/provision_device.py)
@@ -184,6 +186,9 @@ void setup() {
     if (setupMode) {
 #if HS_BLE_SETUP
         LOGI("boot", "mode: setup (%s)", forced ? "BOOT reset" : "no Wi-Fi stored");
+        // Stay in setup until sign-in succeeds, even if Wi-Fi gets saved first
+        // and power drops before the token arrives.
+        hs::setupstore::setForced(true);
         bleSetup.begin(deviceId);
 #endif
     } else if (haveWifi) {
@@ -219,12 +224,18 @@ void loop() {
     } else {
         wifi.loop();
         cloud.loop(wifi.connected());
+#if HS_BLE_SETUP
         showHoldCountdown(bootButton.heldMs(now));
+#endif
         if (action == hs::LongPress::Action::Tap) {
             LOGI("input", "BOOT tap: sending heart");
             sendHeart();
         } else if (action == hs::LongPress::Action::Hold) {
+#if HS_BLE_SETUP
             resetToSetup();
+#else
+            LOGW("input", "BOOT held: this build has no BLE setup; nothing wiped");
+#endif
         }
         static bool setupHintShown = false;
         if (cloud.needsSetup() && !setupHintShown) {

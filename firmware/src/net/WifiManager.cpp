@@ -97,6 +97,19 @@ void WifiManager::registerEvents() {
         ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
 }
 
+void WifiManager::beginTest(const char* ssid, const char* password) {
+    WiFi.mode(WIFI_STA);
+    registerEvents();
+    WiFi.scanDelete();
+    gLastReason = 0;
+    WiFi.setAutoReconnect(true);
+    WiFi.begin(ssid, password);
+    started_ = true;
+    wasConnected_ = false;
+    lastAttemptMs_ = millis();
+    LOGI("wifi", "testing \"%s\"", ssid);  // SSID only; never log the password
+}
+
 void WifiManager::beginIdle() {
     WiFi.mode(WIFI_STA);
     WiFi.setAutoReconnect(false);

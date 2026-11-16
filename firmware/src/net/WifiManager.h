@@ -16,6 +16,10 @@ public:
     // whether the SSID is visible). Never logs the password.
     void begin(const char* ssid, const char* password);
 
+    // Setup mode: try credentials without the logging scan (it would block loop()
+    // and throw away a running async scan). Returns immediately.
+    void beginTest(const char* ssid, const char* password);
+
     // Setup mode: station mode on, not connected, ready to scan.
     void beginIdle();
 

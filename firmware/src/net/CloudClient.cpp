@@ -219,12 +219,15 @@ bool CloudClient::signIn() {
         wipe(refresh);
         if (st == 200 && fs::parseRefresh(response.c_str(), s)) {
             LOGI("cloud", "token refreshed, uid=%s", s.uid.c_str());
-        } else {
-            LOGW("cloud", "refresh failed (status %d)", st);
-            if (st == 400) {
-                nvsPut(kKeyRefresh, "");  // revoked or from another emulator run
-            }
+        } else if (st == 400) {
+            LOGW("cloud", "refresh refused (status 400): credentials revoked");
+            nvsPut(kKeyRefresh, "");  // revoked or from another emulator run
             s = fs::AuthSession{};
+        } else {
+            // Network down or server error: keep the credentials and retry later.
+            wipe(response);
+            fail("token refresh", st);
+            return false;
         }
         wipe(response);
     }

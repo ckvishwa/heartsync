@@ -97,6 +97,20 @@ void test_sign_in_and_refresh() {
                              hs::fs::refreshBody("{\"a\":1}").c_str());
 }
 
+void test_sign_in_without_local_id_reads_uid_from_token() {
+    // Header {"alg":"none","typ":"JWT"}, payload {"sub":"bob","user_id":"bob"} (base64url).
+    const std::string idToken =
+        "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJib2IiLCJ1c2VyX2lkIjoiYm9iIn0.";
+    TEST_ASSERT_EQUAL_STRING("bob", hs::fs::uidFromIdToken(idToken).c_str());
+    hs::fs::AuthSession s;
+    const std::string json = "{\"kind\":\"identitytoolkit#VerifyCustomTokenResponse\",\"idToken\":\"" +
+                             idToken + "\",\"refreshToken\":\"RT\",\"expiresIn\":\"3600\",\"isNewUser\":false}";
+    TEST_ASSERT_TRUE(hs::fs::parseSignIn(json.c_str(), s));
+    TEST_ASSERT_EQUAL_STRING("bob", s.uid.c_str());
+    TEST_ASSERT_TRUE(hs::fs::uidFromIdToken("garbage").empty());
+    TEST_ASSERT_TRUE(hs::fs::uidFromIdToken("a.!!!.b").empty());
+}
+
 void test_user_and_couple_documents() {
     std::string couple;
     TEST_ASSERT_TRUE(hs::fs::parseUserCoupleId(
@@ -160,6 +174,7 @@ int main(int, char**) {
     RUN_TEST(test_decode_empty_and_bad_query);
     RUN_TEST(test_events_query_body);
     RUN_TEST(test_sign_in_and_refresh);
+    RUN_TEST(test_sign_in_without_local_id_reads_uid_from_token);
     RUN_TEST(test_user_and_couple_documents);
     RUN_TEST(test_heartbeat_body_and_commit_time);
     RUN_TEST(test_debouncer);

@@ -24,7 +24,12 @@ struct AuthSession {
     uint32_t expiresInS = 0;
 };
 
-// Response of accounts:signInWithCustomToken (camelCase fields).
+// uid ("user_id", else "sub") from a Firebase ID token's payload. No signature
+// check: the token came straight from the Auth server over our own request.
+std::string uidFromIdToken(const std::string& idToken);
+
+// Response of accounts:signInWithCustomToken (camelCase fields). The uid comes
+// from localId when present, else from the ID token.
 bool parseSignIn(const char* json, AuthSession& out);
 // Response of securetoken.googleapis.com/v1/token (snake_case fields).
 bool parseRefresh(const char* json, AuthSession& out);

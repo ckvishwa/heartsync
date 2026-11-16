@@ -37,6 +37,35 @@ std::string formEncode(const std::string& in) {
     return out;
 }
 
+int b64Value(char c) {
+    if (c >= 'A' && c <= 'Z') return c - 'A';
+    if (c >= 'a' && c <= 'z') return c - 'a' + 26;
+    if (c >= '0' && c <= '9') return c - '0' + 52;
+    if (c == '-' || c == '+') return 62;
+    if (c == '_' || c == '/') return 63;
+    return -1;
+}
+
+// base64url without padding, as used in JWTs. Stops at the first invalid char.
+std::string base64UrlDecode(const std::string& in) {
+    std::string out;
+    uint32_t acc = 0;
+    int bits = 0;
+    for (char c : in) {
+        const int v = b64Value(c);
+        if (v < 0) {
+            break;
+        }
+        acc = (acc << 6) | static_cast<uint32_t>(v);
+        bits += 6;
+        if (bits >= 8) {
+            bits -= 8;
+            out += static_cast<char>((acc >> bits) & 0xFF);
+        }
+    }
+    return out;
+}
+
 const char* stringField(JsonVariantConst fields, const char* name) {
     return fields[name]["stringValue"].as<const char*>();
 }
@@ -64,6 +93,23 @@ std::string mapValueToJson(JsonVariantConst mapValue) {
 
 }  // namespace
 
+std::string uidFromIdToken(const std::string& idToken) {
+    const size_t a = idToken.find('.');
+    const size_t b = a == std::string::npos ? a : idToken.find('.', a + 1);
+    if (b == std::string::npos) {
+        return {};
+    }
+    JsonDocument payload;
+    if (deserializeJson(payload, base64UrlDecode(idToken.substr(a + 1, b - a - 1))) !=
+            DeserializationError::Ok ||
+        !payload.is<JsonObject>()) {
+        return {};
+    }
+    const char* uid = payload["user_id"].is<const char*>() ? payload["user_id"].as<const char*>()
+                                                           : payload["sub"].as<const char*>();
+    return uid != nullptr ? uid : "";
+}
+
 bool parseSignIn(const char* json, AuthSession& out) {
     JsonDocument doc;
     if (!parse(json, doc)) {
@@ -71,8 +117,13 @@ bool parseSignIn(const char* json, AuthSession& out) {
     }
     const char* id = doc["idToken"];
     const char* refresh = doc["refreshToken"];
-    const char* uid = doc["localId"];
-    if (id == nullptr || refresh == nullptr || uid == nullptr || *id == '\0' || *uid == '\0') {
+    if (id == nullptr || refresh == nullptr || *id == '\0') {
+        return false;
+    }
+    // signInWithCustomToken returns no localId: the uid is inside the ID token.
+    const std::string uid = doc["localId"].is<const char*>() ? doc["localId"].as<const char*>()
+                                                             : uidFromIdToken(id);
+    if (uid.empty()) {
         return false;
     }
     out.idToken = id;

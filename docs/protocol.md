@@ -75,19 +75,27 @@ Payloads:
 
 ## Device tokens (from Phase 3 provisioning)
 
-A board signs in with a custom token minted by `registerDevice` (Phase 3) for its
-owner's uid, with custom claims:
+A board has its **own uid**, `dev_<deviceId>`, never its owner's (ADR 0009). It
+signs in with a custom token minted by `registerDevice` for that uid, with custom
+claims:
 
 | Claim      | Value                         |
 |------------|-------------------------------|
 | `deviceId` | `hs-` + 12 hex digits of the MAC |
 | `coupleId` | the owner's couple at mint time |
+| `owner`    | uid of the person who set the board up |
 
 The board exchanges it for a refresh token immediately; custom claims carry over
-to every ID token refreshed from it. A token with a `deviceId` claim may only:
+to every ID token refreshed from it. Because the uid is the board's own, a board
+token can never use Firebase Auth account APIs on the owner's account.
 
-- read and create `couples/{coupleId}/events` (create still needs `from == uid`), and
-- read, create and update `couples/{coupleId}/devices/{deviceId}` for its own `deviceId`,
+Any token with a `deviceId` claim is in board mode. A board token is valid only if
+`uid == "dev_" + deviceId` and `owner` is present, and the owner is a member of
+the couple. It may only:
+
+- read and create `couples/{coupleId}/events` (create needs `from == owner`), and
+- read, create and update `couples/{coupleId}/devices/{deviceId}` for its own
+  `deviceId`, with `owner == token.owner`,
 
 where `coupleId` must equal the claim. It is denied everything else: all of
 `users/**` (profile, `private/**`, cycle data), the couple document, other device

@@ -13,9 +13,11 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // A board's token: a custom token minted by registerDevice with the claims
-    // deviceId and coupleId. It acts for its owner (auth.uid) but is scoped to
-    // its couple's events and its own device record. Nothing else.
+    // A board's token: a custom token minted by registerDevice for the board's own
+    // uid "dev_<deviceId>", with the claims deviceId, coupleId and owner (the
+    // person who set it up). It acts for its owner but is scoped to its couple's
+    // events and its own device record. Nothing else. Any token with a deviceId
+    // claim is in board mode; it gets access only if every claim is well formed.
     function isDevice() {
       return signedIn() && request.auth.token.get('deviceId', null) != null;
     }
@@ -24,18 +26,35 @@ service cloud.firestore {
       return signedIn() && !isDevice();
     }
 
-    // Device token allowed in this couple (claim must match the path).
+    // A well-formed board token: own uid and an owner claim.
+    function isBoard() {
+      return isDevice()
+        && request.auth.token.deviceId is string
+        && request.auth.token.get('owner', null) is string
+        && request.auth.uid == 'dev_' + request.auth.token.deviceId;
+    }
+
+    // Board token allowed in this couple (claim must match the path).
     function isDeviceOf(coupleId) {
-      return isDevice() && request.auth.token.get('coupleId', null) == coupleId;
+      return isBoard() && request.auth.token.get('coupleId', null) == coupleId;
     }
 
     function isSelf(uid) {
       return isPerson() && request.auth.uid == uid;
     }
 
+    // The caller is `uid`: a person signed in as uid, or a board owned by uid.
+    function actsAs(uid) {
+      return (isPerson() && request.auth.uid == uid)
+        || (isBoard() && request.auth.token.owner == uid);
+    }
+
+    // The caller belongs to the couple: a person member, or a board whose owner
+    // is a member.
     function isMember(coupleId) {
-      return signedIn()
-        && request.auth.uid in get(/databases/$(database)/documents/couples/$(coupleId)).data.members;
+      let members = get(/databases/$(database)/documents/couples/$(coupleId)).data.members;
+      return (isPerson() && request.auth.uid in members)
+        || (isBoard() && request.auth.token.owner in members);
     }
 
     // True if the signed-in user is the other member of `uid`'s couple.
@@ -82,7 +101,7 @@ service cloud.firestore {
       allow read: if isPerson() && request.auth.uid in resource.data.members;
       allow write: if false;
 
-      // ---- devices: a device writes as its owner ----
+      // ---- devices: a board writes as its owner (token.owner) ----
       match /devices/{deviceId} {
         // A person may act on any device record of the couple (as owner for
         // writes). A device token only on its own record.
@@ -93,12 +112,12 @@ service cloud.firestore {
         }
         allow read: if mayActOnDevice();
         allow create: if mayActOnDevice()
-          && request.resource.data.owner == request.auth.uid
+          && actsAs(request.resource.data.owner)
           && request.resource.data.keys().hasOnly(
                ['owner', 'firmwareVersion', 'lastSeen', 'battery', 'online']);
         allow update: if mayActOnDevice()
-          && resource.data.owner == request.auth.uid
-          && request.resource.data.owner == request.auth.uid
+          && actsAs(resource.data.owner)
+          && actsAs(request.resource.data.owner)
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
                ['firmwareVersion', 'lastSeen', 'battery', 'online']);
         allow delete: if false;
@@ -113,7 +132,7 @@ service cloud.firestore {
         allow create: if mayUseEvents()
           && request.resource.data.keys().hasOnly(['type', 'from', 'payload', 'createdAt'])
           && request.resource.data.keys().hasAll(['type', 'from', 'payload', 'createdAt'])
-          && request.resource.data.from == request.auth.uid
+          && actsAs(request.resource.data.from)
           && request.resource.data.type in ['heart', 'touch', 'art', 'mood', 'voice']
           && request.resource.data.payload is map
           && request.resource.data.createdAt == request.time;

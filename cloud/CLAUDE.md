@@ -10,7 +10,7 @@ The CLI is a local devDependency: use `npx firebase ...` or the npm scripts.
   (Auth 9099, Firestore 8080, Functions 5001, Storage 9199, UI 4000).
 - `npm run seed`: load `emulator/seed.json` into the running emulators.
 - `npm test`: build, start emulators from `firebase.test.json`, run `test/*.test.mjs`.
-  Test ports (Auth 19099, Firestore 18080, Functions 15001, Storage 19199, hub 14400)
+  Test ports (Auth 19099, Firestore 18080, Functions 15001, Storage 19199, hub 14400, logging 19500)
   differ from the dev ports, so tests run beside `npm run emulators`. **Change
   `firebase.json` and `firebase.test.json` together** (rules, functions, storage blocks).
 

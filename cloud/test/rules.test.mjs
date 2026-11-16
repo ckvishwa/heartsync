@@ -266,13 +266,19 @@ describe("storage", () => {
   });
 });
 
-// Board tokens: custom tokens minted by registerDevice carry deviceId and coupleId
-// claims. They act for the owner (uid) but may only use their couple's events and
-// their own device record. See docs/protocol.md "Device tokens".
+// Board tokens: custom tokens minted by registerDevice for uid "dev_<deviceId>" with
+// the claims deviceId, coupleId and owner. They act for the owner but may only use
+// their couple's events and their own device record. See docs/protocol.md
+// "Device tokens". Pass null to leave a claim out; `uid` overrides the board uid.
 describe("device-scoped tokens", () => {
-  const claims = { deviceId: "hs-a", coupleId: "c1" };
-  const device = (uid = "alice", c = claims) => env.authenticatedContext(uid, c).firestore();
-  const deviceStorage = (uid = "alice", c = claims) => env.authenticatedContext(uid, c).storage();
+  const boardCtx = ({ owner = "alice", deviceId = "hs-a", coupleId = "c1", uid } = {}) => {
+    const claims = { deviceId };
+    if (coupleId !== null) claims.coupleId = coupleId;
+    if (owner !== null) claims.owner = owner;
+    return env.authenticatedContext(uid ?? `dev_${deviceId}`, claims);
+  };
+  const device = (opts) => boardCtx(opts).firestore();
+  const deviceStorage = (opts) => boardCtx(opts).storage();
 
   test("a board can read its couple's events and post as its owner", async () => {
     await assertSucceeds(getDocs(collection(device(), "couples/c1/events")));
@@ -302,7 +308,7 @@ describe("device-scoped tokens", () => {
     // Partner's cycle data is readable by the partner person while sharing is on,
     // but never by a board, whichever owner it belongs to.
     await assertSucceeds(getDoc(doc(as("bob"), "users/alice/private/cycle")));
-    await assertFails(getDoc(doc(device("bob", { deviceId: "hs-b", coupleId: "c1" }), "users/alice/private/cycle")));
+    await assertFails(getDoc(doc(device({ owner: "bob", deviceId: "hs-b" }), "users/alice/private/cycle")));
     await assertFails(getDoc(doc(device(), "users/alice/private/cycle")));
     await assertFails(setDoc(doc(device(), "users/alice/private/cycle"), { sharingEnabled: false }));
     await assertFails(getDoc(doc(device(), "users/alice/private/other")));
@@ -316,11 +322,11 @@ describe("device-scoped tokens", () => {
   });
 
   test("the coupleId claim must match the path", async () => {
-    const wrong = { deviceId: "hs-a", coupleId: "c2" };
-    await assertFails(getDocs(collection(device("alice", wrong), "couples/c1/events")));
-    await assertFails(getDoc(doc(device("alice", wrong), "couples/c1/devices/hs-a")));
-    const none = { deviceId: "hs-a" };
-    await assertFails(getDocs(collection(device("alice", none), "couples/c1/events")));
+    const wrong = { coupleId: "c2" };
+    await assertFails(getDocs(collection(device(wrong), "couples/c1/events")));
+    await assertFails(getDoc(doc(device(wrong), "couples/c1/devices/hs-a")));
+    const none = { coupleId: null };
+    await assertFails(getDocs(collection(device(none), "couples/c1/events")));
   });
 
   test("a board has no Storage access", async () => {
@@ -337,11 +343,11 @@ describe("device-scoped tokens", () => {
 
   // Gaps listed by cloud-rules-auditor.
   test("a board creates its own record as its owner, with allowed fields only", async () => {
-    const newBoard = device("alice", { deviceId: "hs-new", coupleId: "c1" });
+    const newBoard = device({ deviceId: "hs-new" });
     await assertSucceeds(
       setDoc(doc(newBoard, "couples/c1/devices/hs-new"), { owner: "alice", online: true, firmwareVersion: "0.1.0" }),
     );
-    const other = device("alice", { deviceId: "hs-n2", coupleId: "c1" });
+    const other = device({ deviceId: "hs-n2" });
     await assertFails(setDoc(doc(other, "couples/c1/devices/hs-n2"), { owner: "bob" }));
     await assertFails(setDoc(doc(other, "couples/c1/devices/hs-n2"), { owner: "alice", coupleId: "c9" }));
   });
@@ -349,21 +355,21 @@ describe("device-scoped tokens", () => {
   test("a board cannot change owner, extra fields, or another owner's record, nor delete", async () => {
     await assertFails(updateDoc(doc(device(), "couples/c1/devices/hs-a"), { owner: "bob" }));
     await assertFails(updateDoc(doc(device(), "couples/c1/devices/hs-a"), { coupleId: "c2" }));
-    const bobAsHsA = device("bob", { deviceId: "hs-a", coupleId: "c1" });
+    const bobAsHsA = device({ owner: "bob" });
     await assertFails(updateDoc(doc(bobAsHsA, "couples/c1/devices/hs-a"), { online: false }));
     await assertFails(deleteDoc(doc(device(), "couples/c1/devices/hs-a")));
   });
 
   test("a board whose owner is not a member gets nothing in that couple", async () => {
-    const m = device("mallory", { deviceId: "hs-m", coupleId: "c1" });
+    const m = device({ owner: "mallory", deviceId: "hs-m" });
     await assertFails(getDocs(collection(m, "couples/c1/events")));
     await assertFails(addDoc(collection(m, "couples/c1/events"), heartFrom("mallory")));
     await assertFails(setDoc(doc(m, "couples/c1/devices/hs-m"), { owner: "mallory" }));
   });
 
   test("writes also need the coupleId claim to match", async () => {
-    for (const c of [{ deviceId: "hs-a", coupleId: "c2" }, { deviceId: "hs-a" }]) {
-      const d = device("alice", c);
+    for (const c of [{ coupleId: "c2" }, { coupleId: null }]) {
+      const d = device(c);
       await assertFails(addDoc(collection(d, "couples/c1/events"), heartFrom("alice")));
       await assertFails(updateDoc(doc(d, "couples/c1/devices/hs-a"), { online: true }));
       await assertFails(setDoc(doc(d, "couples/c1/devices/hs-x"), { owner: "alice" }));
@@ -382,7 +388,7 @@ describe("device-scoped tokens", () => {
   });
 
   test("a board cannot create, list, or delete anything under users/", async () => {
-    await assertFails(setDoc(doc(device("carol", { deviceId: "hs-c", coupleId: "c1" }), "users/carol"), { displayName: "C" }));
+    await assertFails(setDoc(doc(device({ owner: "carol", deviceId: "hs-c" }), "users/carol"), { displayName: "C" }));
     await assertFails(getDocs(collection(device(), "users/alice/private")));
     await assertFails(deleteDoc(doc(device(), "users/alice/private/cycle")));
     await env.withSecurityRulesDisabled(async (ctx) => {
@@ -412,5 +418,42 @@ describe("device-scoped tokens", () => {
     await assertSucceeds(getDoc(doc(admin, "users/alice")));
     await assertSucceeds(getDoc(doc(admin, "couples/c1")));
     await assertSucceeds(getDoc(doc(admin, "users/alice/private/other")));
+  });
+  test("a board's owner claim decides who it acts for", async () => {
+    // Events must be from the owner: not the board uid, not the partner.
+    await assertFails(addDoc(collection(device(), "couples/c1/events"), heartFrom("dev_hs-a")));
+    await assertFails(addDoc(collection(device(), "couples/c1/events"), heartFrom("bob")));
+    await assertSucceeds(
+      addDoc(collection(device({ owner: "bob", deviceId: "hs-b" }), "couples/c1/events"), heartFrom("bob")),
+    );
+    // A record owned by the board uid is refused.
+    await assertFails(
+      setDoc(doc(device({ deviceId: "hs-z" }), "couples/c1/devices/hs-z"), { owner: "dev_hs-z" }),
+    );
+  });
+
+  test("a board without an owner claim gets nothing", async () => {
+    const d = device({ owner: null });
+    await assertFails(getDocs(collection(d, "couples/c1/events")));
+    await assertFails(addDoc(collection(d, "couples/c1/events"), heartFrom("alice")));
+    await assertFails(getDoc(doc(d, "couples/c1/devices/hs-a")));
+    await assertFails(updateDoc(doc(d, "couples/c1/devices/hs-a"), { online: true }));
+  });
+
+  test("a board whose uid is not dev_<deviceId> gets nothing", async () => {
+    for (const uid of ["alice", "dev_hs-b", "hs-a", "dev_"]) {
+      const d = device({ uid });
+      await assertFails(getDocs(collection(d, "couples/c1/events")));
+      await assertFails(addDoc(collection(d, "couples/c1/events"), heartFrom("alice")));
+      await assertFails(getDoc(doc(d, "couples/c1/devices/hs-a")));
+      await assertFails(getDoc(doc(d, "users/alice")));
+    }
+  });
+
+  test("a board cannot use a person's own paths even with the owner's uid", async () => {
+    // A token for uid alice with board claims stays in board mode (no person access).
+    const d = device({ uid: "alice" });
+    await assertFails(getDoc(doc(d, "users/alice")));
+    await assertFails(getDoc(doc(d, "couples/c1")));
   });
 });

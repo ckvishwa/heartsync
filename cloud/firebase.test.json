@@ -42,7 +42,7 @@
       "port": 14400
     },
     "logging": {
-      "port": 14500
+      "port": 19500
     },
     "eventarc": {
       "port": 19299

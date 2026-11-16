@@ -122,5 +122,6 @@
 #define HS_CLOUD_POLL_MS 2000          // event poll interval
 #define HS_CLOUD_HEARTBEAT_MS 60000    // device heartbeat interval
 #define HS_CLOUD_HTTP_TIMEOUT_MS 3000
+#define HS_CLOUD_CALL_TIMEOUT_MS 10000  // sendHeart: a cold function can take several seconds
 #define HS_CLOUD_RETRY_MIN_MS 2000
 #define HS_CLOUD_RETRY_MAX_MS 30000

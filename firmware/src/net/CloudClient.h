@@ -18,6 +18,7 @@
 #include <string>
 
 #include "cloud/FirestoreCodec.h"
+#include "config.h"
 #include "events/EventBus.h"
 
 namespace hs {
@@ -55,7 +56,8 @@ private:
     std::string authUrl(const char* path) const;
     std::string docsUrl(const std::string& path) const;
     int request(const char* method, const std::string& url, const char* contentType,
-                const std::string& body, bool auth, std::string& response);
+                const std::string& body, bool auth, std::string& response,
+                uint32_t timeoutMs = HS_CLOUD_HTTP_TIMEOUT_MS);
 
     EventBus& bus_;
     const char* deviceId_ = nullptr;

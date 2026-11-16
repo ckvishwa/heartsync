@@ -157,11 +157,12 @@ std::string CloudClient::docsUrl(const std::string& path) const {
 }
 
 int CloudClient::request(const char* method, const std::string& url, const char* contentType,
-                         const std::string& body, bool auth, std::string& response) {
+                         const std::string& body, bool auth, std::string& response,
+                         uint32_t timeoutMs) {
     WiFiClient client;
     HTTPClient http;
     http.setConnectTimeout(HS_CLOUD_HTTP_TIMEOUT_MS);
-    http.setTimeout(HS_CLOUD_HTTP_TIMEOUT_MS);
+    http.setTimeout(timeoutMs);
     if (!http.begin(client, url.c_str())) {
         return -1;
     }
@@ -294,7 +295,8 @@ bool CloudClient::sendHeart() {
     std::string response;
     const std::string url = "http://" + host_ + ":" + std::to_string(HS_EMU_PORT_FUNCTIONS) + "/" +
                             HS_FIREBASE_PROJECT_ID + "/" + HS_FUNCTIONS_REGION + "/sendHeart";
-    const int st = request("POST", url, "application/json", "{\"data\":{}}", true, response);
+    const int st = request("POST", url, "application/json", "{\"data\":{}}", true, response,
+                           HS_CLOUD_CALL_TIMEOUT_MS);
     if (st != 200) {
         LOGW("cloud", "sendHeart failed (status %d)", st);
         return false;

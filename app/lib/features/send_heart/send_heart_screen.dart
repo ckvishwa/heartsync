@@ -5,6 +5,7 @@ import '../../core/theme.dart';
 import '../../data/auth_repository.dart';
 import '../../data/event_repository.dart';
 import '../connection/connection_panel.dart';
+import '../pairing/setup_board_screen.dart';
 
 class SendHeartScreen extends ConsumerStatefulWidget {
   const SendHeartScreen({super.key});
@@ -60,6 +61,19 @@ class _SendHeartScreenState extends ConsumerState<SendHeartScreen> {
               ),
               icon: const Icon(Icons.favorite),
               label: Text(_busy ? 'Sending...' : 'Send heart'),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Center(
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                await Navigator.of(
+                  context,
+                ).push(MaterialPageRoute<void>(builder: (_) => const SetupBoardScreen()));
+                ref.invalidate(connectionReportProvider);
+              },
+              icon: const Icon(Icons.bluetooth_searching),
+              label: const Text('Set up a board'),
             ),
           ),
         ],

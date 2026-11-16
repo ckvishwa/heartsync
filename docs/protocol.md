@@ -125,19 +125,71 @@ service. UUIDs share the base `6a35xxxx-4898-4679-a24f-021d40cfd52a`
 | Characteristic | UUID prefix | Access | Value (UTF-8 JSON unless noted) |
 |---|---|---|---|
 | service   | `6a350000` | | |
-| `info`      | `6a350001` | read | `{"deviceId","fw","proto":1}` |
-| `wifiScan`  | `6a350002` | write | any byte: start a scan |
-| `wifiList`  | `6a350003` | read, notify | `[{"ssid","rssi","open"}]`, strongest first, one per SSID, no hidden, at most 20, fits 512 bytes |
+| `info`      | `6a350001` | read | `{"deviceId","fw","proto":2}` |
+| `wifiScan`  | `6a350002` | write | `0x01`: start a scan. `0x02 <n>`: make page `n` the `wifiList` value (out of range: ignored) |
+| `wifiList`  | `6a350003` | read, notify | one page, see below |
 | `wifiCreds` | `6a350004` | write | `{"ssid","pass"}`: SSID 1..32 bytes kept exactly (spaces too), pass empty (open) or 8..63 bytes |
-| `token`     | `6a350005` | write | chunks: 1 flags byte (`0x01` first, `0x02` last) + token bytes; one chunk fits one write and 512 bytes; token at most 1536 bytes |
+| `token`     | `6a350005` | write | token frames, see below |
 | `status`    | `6a350006` | read, notify | `{"state","reason"?}` |
 
+**Protocol version.** `proto` is 2 (`HS_SETUP_PROTO`, `setupProtocolVersion`).
+Proto 1 had passkey entry, a single list value and first/last token flags. The
+app reads `info` right after pairing; if `proto` differs it shows "Update the
+board firmware" (board older) or "Update the app" (board newer) and disconnects.
+A proto 2 board also refuses proto 1 token writes (`bad_token`).
+
+**Wi-Fi list pages.** `{"page":n,"pages":N,"nets":[{"ssid","rssi","open"}]}`.
+- Strongest first, one entry per SSID (the strongest), hidden networks dropped,
+  at most 40 networks (`HS_SETUP_WIFI_LIST_MAX`) over all pages.
+- Each page is at most 512 bytes (one attribute value). There is always at least
+  one page; an empty list is `{"page":0,"pages":1,"nets":[]}`.
+- Control characters in SSIDs are escaped as `\u00XX`. SSID bytes that are not
+  valid UTF-8 are passed through; the app decodes leniently, so such a name shows
+  with replacement characters (use "Other network..." for it).
+- The board sees only 2.4 GHz networks; 5 GHz names never appear.
+
+**Notify is only a signal.** A notification carries at most MTU-3 bytes (about
+244 here, about 182 on a default iOS link), so a page never travels in one.
+After a scan, and after each `0x02 <n>`, the board notifies `wifiList` with one
+byte: the page number now readable. The app then reads the value (a long read,
+up to 512 bytes). App order: enable notify, write `0x01`, wait for the `0`
+signal (15 s), read page 0; for each further page write `0x02 n`, wait for `n`
+(5 s), read; then merge in order. The app never asks for a new scan while
+paging, so a page read does not race a new list.
+
+**Token frames.** A real Firebase custom token is about 900 to 1,000 bytes, more
+than one attribute value. (Emulator tokens are shorter, so emulator tests alone
+would hide this.) The app writes, each with response:
+- chunk: `0x10, seq, data`, seq 0, 1, 2, ..., 180 data bytes each (182 bytes in
+  all fits one plain write at the default iOS MTU of 185; the board accepts up to
+  510).
+- end: `0x11, len (uint16 LE), crc32 (uint32 LE)`, exactly 7 bytes. CRC-32 is the
+  IEEE/zlib one (`crc32("123456789") = 0xCBF43926`).
+
+The board reassembles into a RAM-only buffer (never NVS), at most 1536 bytes
+(`HS_SETUP_TOKEN_MAX`). Seq 0 starts over. A gap, a repeat, an unknown frame, an
+oversized token, or an end frame whose length or CRC does not match wipes the
+buffer and reports `bad_token`. The buffer is also wiped on disconnect and after
+sign-in.
+
 **Security.** Every characteristic requires an encrypted and authenticated link:
-- LE Secure Connections only.
-- The board is DisplayOnly: the phone enters the 6-digit passkey shown on the OLED.
-- A new passkey per session. Bonds are deleted at every setup start and after each
-  session.
-- 3 failed pairings lock BLE (stored in NVS) until BOOT is held 5 s.
+- LE Secure Connections only (`CONFIG_BT_NIMBLE_SM_SC_ONLY`, plus a 16-byte key
+  check).
+- Numeric comparison (both sides DisplayYesNo, MITM-protected). The same 6-digit
+  code shows on the OLED (`TAP BOOT 123456`) and on the phone. The user compares
+  them, taps Pair on the phone, then taps BOOT on the board.
+- The BOOT tap is the board's "yes". It counts only while a pairing is waiting
+  and only for a press that began after the code appeared; a tap with nothing
+  waiting does nothing and is not remembered. The tap proves someone is at the
+  board, so nobody nearby can pair without touching it. It only protects if the
+  user really compares the codes: a blind tap would accept a stranger's request.
+- No BOOT tap within 25 s (`HS_SETUP_CONFIRM_MS`, under the 30 s SMP timeout)
+  rejects the pairing.
+- Bonds are deleted at every setup start and after each session.
+- A failed pairing, or a code shown in a session that ends unpaired, is one try.
+  3 tries lock BLE (stored in NVS) until BOOT is held 5 s. Someone nearby can
+  burn the 3 tries on purpose (a lock-out nuisance, no access); the BOOT hold
+  clears it. Accepted.
 - A connection that does not pair within 60 s is dropped.
 - Advertising stops after 15 min without a connection.
 
@@ -154,11 +206,12 @@ Other reasons that can appear: `bad_creds`, `bad_token`, `not_ready`,
 in any value the board sends.
 
 **Order:**
-1. The app connects and pairs, then reads `info`.
-2. It writes `wifiScan` and reads the list (or lets the user type a hidden SSID).
+1. The app connects and pairs (codes compared, Pair on the phone, BOOT on the
+   board), then reads `info` and checks `proto`.
+2. It writes `wifiScan` and reads every page (or lets the user type a hidden SSID).
 3. It writes `wifiCreds`. The board tests the network and saves it only if it joins.
 4. It waits for `wifi_ok`.
-5. It calls `registerDevice({deviceId})` and writes the token chunks.
+5. It calls `registerDevice({deviceId})` and writes the token frames.
 6. The board signs in once (token in RAM only), stores the refresh token, reports
    `signed_in`, and restarts into normal mode after 3 s.
 
@@ -203,7 +256,7 @@ takes `coupleId` and `owner` from its ID token claims. It makes only these calls
 
 | Call | Path | Purpose |
 |------|------|---------|
-| Auth `signInWithCustomToken` | - | once, with the token from BLE setup (bench builds: serial) |
+| Auth `signInWithCustomToken` | - | once, with the token from BLE setup (bench builds: serial). The token itself is reusable for 1 h; the board uses it once and wipes it |
 | Auth `securetoken` refresh | - | every boot and before the ID token expires (refresh token in NVS) |
 | Firestore `:commit` | `couples/{coupleId}/devices/{deviceId}` | heartbeat: `owner` (the claim), `firmwareVersion`, `online`, `lastSeen` (server time) every 60 s |
 | Firestore `:runQuery` | `couples/{coupleId}/events` | `createdAt > cursor`, any sender, every 2 s; the board drops its owner's own events and moves the cursor past them |

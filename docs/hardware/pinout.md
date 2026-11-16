@@ -28,7 +28,10 @@ Power from 3V3, never 5V.
 `HS_PIN_BUTTON` = GPIO 0, on-board BOOT button, active low. Input only (strapping
 pin: never drive it).
 
-- **Tap** (released within `HS_SETUP_TAP_MAX_MS`, 1 s): send a heart.
+- **Tap** (released within `HS_SETUP_TAP_MAX_MS`, 1 s): in normal mode, send a
+  heart. In setup mode, confirm the pairing code on the OLED (`TAP BOOT 123456`),
+  only while a pairing is waiting and only for a press that began after the code
+  appeared; otherwise the tap does nothing (never a heart in setup mode).
 - **Hold 5 s while running** (`HS_SETUP_LONG_PRESS_MS`): the OLED counts down,
   then the board wipes Wi-Fi and tokens and restarts into BLE setup (ADR 0009). In
   setup mode a hold clears the pairing lockout.

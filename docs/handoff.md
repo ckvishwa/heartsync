@@ -1,6 +1,6 @@
 # Handoff: where we are and what to do next
 
-Last updated: 2026-11-16 (Phase 3 BLE slice built). Read this first in a new session, then `CLAUDE.md`,
+Last updated: 2026-11-16 (Phase 3 BLE slice built; setup protocol 2 committed, hardware test pending). Read this first in a new session, then `CLAUDE.md`,
 `docs/phases.md`, and the package `CLAUDE.md` for the area you touch.
 
 ## State
@@ -20,55 +20,79 @@ Last updated: 2026-11-16 (Phase 3 BLE slice built). Read this first in a new ses
       `sendHeart`.
     - Rules use `token.owner` in board mode. People cannot create device records.
     - 68 cloud tests pass. Audited by `cloud-rules-auditor`; fixes applied.
+  - **Setup protocol 2** (user feedback, 2026-11-16), firmware and app:
+    - Numeric comparison: same code on the OLED (`TAP BOOT 123456`) and the phone;
+      tap Pair on the phone, then BOOT on the board within 25 s. A tap counts only
+      while a pairing waits and only if pressed after the code appeared.
+    - Paged Wi-Fi list (up to 40, each page <= 512 bytes); the notify is a 1-byte
+      "page ready" signal and the app reads each page.
+    - Token in numbered 180-byte chunks plus a length/CRC32 end frame (a real
+      custom token is ~1 KB; emulator tokens are short and hid this).
+    - Proto mismatch: the app says "Update the board firmware" / "Update the app".
+    - The installed phone app and board-B are still proto 1: rebuild both.
   - Firmware:
-    - Setup mode with a NimBLE GATT service. Passkey on the OLED, LE SC only,
-      lockout after 3 tries, 60 s pairing deadline, 15 min window.
+    - Setup mode with a NimBLE GATT service. Numeric comparison + BOOT confirm,
+      LE SC only, lockout after 3 tries, 60 s pairing deadline, 15 min window.
     - Wi-Fi is tested before it is saved. The token is held in RAM and used once.
     - `CloudClient` reads couple and owner from claims (no `users/` reads).
     - BOOT tap sends a heart; a 5 s hold wipes and re-enters setup.
-    - 47 native tests pass. Reviewed by `firmware-reviewer`; fixes applied.
-    - esp32dev at 62.7% flash, 18.4% static RAM.
+    - 52 native tests pass. Reviewed by `firmware-reviewer` (proto 2 too); fixes applied.
+    - esp32dev at 62.8% flash, 18.4% static RAM.
   - App:
     - "Set up a board" screen (flutter_blue_plus): scan, pair, Wi-Fi list or
       manual entry, register, send key, wait for `signed_in`.
-    - Android BLE permissions, iOS usage string. 31 tests pass, analyze clean.
+    - Android BLE permissions, iOS usage string. 40 tests pass, analyze clean.
 - **App:** connection check panel on the home screen; Firebase options come from
   `--dart-define-from-file=config/emulator.json` (git-ignored; copy the example).
 - Repo: private github.com/ckvishwa/heartsync (`main`). CI runs on push; the cloud
   deploy job stays off until a `FIREBASE_PROJECT_ID` repo variable exists.
 
-## Next: hardware test of BLE setup (needs the user)
+## Next: hardware test of BLE setup, proto 2 (needs the user's go)
 
-Nothing is flashed yet. The boards still run the Phase 2 firmware with plain owner
-tokens. The new firmware refuses those tokens and shows `SETUP NEEDED`.
+Before starting: run `ipconfig` and confirm the PC IP (last `10.143.236.144`; it is
+DHCP). The user sets `HS_FIREBASE_EMULATOR_HOST` in `secrets.h` to it (agents never
+touch that file; last seen value was a stale `10.143.236.90`).
 
-1. The user starts the emulators (`cd cloud && npm run emulators`, then `npm run seed`)
-   and confirms `HS_FIREBASE_EMULATOR_HOST` in `secrets.h` is the PC's current IP.
-2. Flash board-B over USB (`pio run -e esp32dev -t upload --upload-port COMx`). Check
-   the MAC with esptool first.
-3. On the phone: install the app (`flutter run ... --dart-define=EMULATOR_HOST=<PC IP>`),
-   sign in as Bob, and choose **Set up a board**.
-4. On board-B: hold BOOT 5 s. It shows SET UP. Pair: PIN on the OLED, typed on the
-   phone. Then Wi-Fi (the hotspot SSID with a trailing space), registration, and
-   `signed_in`. The board restarts.
-5. Check the serial log: uid `dev_hs-20500dcd63f4`, couple `demo-couple`, owner
-   `bob`, and no secrets anywhere. Run `status`, which prints free and minimum heap.
-6. Run the tests:
-   - wrong PIN 3 times gives LOCKED, and a BOOT hold clears it
-   - a wrong Wi-Fi password shows "Wrong Wi-Fi password." on the phone
-   - change networks: hold, then set up again
-   - hearts both ways (app to board, BOOT tap)
-7. Repeat for board-A as Alice. Record results in `docs/hardware/bringup-log.md` and
-   tick the Phase 3 hardware item.
-8. If pairing misbehaves on Android, check first: the `removeBond`/`createBond` flow
-   in `board_setup_repository.dart`, and NimBLE `onAuthenticationComplete`.
+1. Emulators running and seeded (`cd cloud && npm run emulators`, `npm run seed`).
+2. Check the MAC (`python ~/.platformio/packages/tool-esptoolpy/esptool.py --port COMx
+   read_mac`), then `cd firmware && ../.venv/Scripts/pio run -e esp32dev -t upload
+   --upload-port COMx` for board-B.
+3. `cd app && flutter build apk --debug --dart-define-from-file=config/emulator.json
+   --dart-define=EMULATOR_HOST=<PC IP>`, then `adb -s <device> install -r
+   build/app/outputs/flutter-apk/app-debug.apk`.
+4. Sign in as Bob. Hold BOOT 5 s while running; the board shows SET UP. App: Set up
+   a board, heartsync-63f4, compare codes, Pair on the phone, tap BOOT, full Wi-Fi
+   list, password, Connect board, done.
+5. Serial at 115200 (reset via RTS only, GPIO 0 untouched): uid
+   `dev_hs-20500dcd63f4`, couple `demo-couple`, owner `bob`. Grep serial and
+   `adb logcat` for the password, token and code: none. `status` prints heap.
+6. Tests: no BOOT tap (pairing times out, one try); a BOOT tap with nothing pending
+   does nothing; 3 failures give LOCKED and a BOOT hold clears it; wrong Wi-Fi
+   password; a proto 1 board is refused by the app with a clear message; change
+   networks; hearts both ways in normal mode; all ~30 networks the board sees
+   appear in the app.
+7. Repeat on board-A as Alice. Record in `docs/hardware/bringup-log.md` (also the
+   Wi-Fi scan and connect with a BLE link up on esp32dev), tick the Phase 3 hardware
+   item, update this file.
+8. If pairing misbehaves on Android: `removeBond`/`createBond` in
+   `board_setup_repository.dart`, NimBLE `onConfirmPassKey` and
+   `onAuthenticationComplete` in `BleSetup.cpp`.
 
 ### Open decisions and known risks (ADR 0009)
 
 - Board-id squatting: needs proof of possession plus an unregister path (open).
 - Re-pairing an owner to a new couple cannot re-register their board yet.
 - flutter_blue_plus uses `License.nonprofit`. Commercial use needs a paid license.
-- Revocation stops refreshes only; an ID token already issued lives up to 1 h.
+- Revocation stops refreshes only; an ID token already issued lives up to 1 h
+  (rules do not check revocation). Custom tokens are reusable for their 1 h.
+- Someone nearby can burn the 3 pairing tries on purpose (lock-out nuisance; a
+  BOOT hold clears it). Accepted.
+- iOS build path (a Mac or cloud build, an Apple developer account). Pairing must
+  be tested on an iPhone before Phase 3 counts as done.
+- Mood and cycle data must never appear in event payloads (the board reads all
+  couple events): confirm with a rules or function test.
+- Wi-Fi scan and connect while BLE is up on esp32dev: no spike result is recorded
+  in the bring-up log yet; record it in the hardware test, and test again on the S3.
 - The Auth emulator does not enforce revocation on refresh (production does).
 
 ## Bench setup (to resume testing)
@@ -95,8 +119,9 @@ tokens. The new firmware refuses those tokens and shows `SETUP NEEDED`.
   --dart-define-from-file=config/emulator.json --dart-define=EMULATOR_HOST=<PC IP>`.
   Logins: `alice@example.com` / `bob@example.com`, password `heartsync`.
 - Serial: 115200; commands `status`, `heart`, `token <jwt>` (bench builds), `forget`.
-- BOOT: tap sends a heart; hold 5 s while running wipes Wi-Fi and tokens and enters
-  BLE setup. Never hold it at power-up (that is ROM download mode).
+- BOOT: tap sends a heart (in setup mode it confirms the pairing code instead);
+  hold 5 s while running wipes Wi-Fi and tokens and enters BLE setup. Never hold it
+  at power-up (that is ROM download mode).
 
 ## Known gaps (not blocking Phase 3 work on the emulator)
 

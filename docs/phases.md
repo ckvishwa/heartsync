@@ -54,9 +54,11 @@ Phases 1 to 10 are prototypes. Phase 11 is the final build.
 ## Phase 3: App
 
 - [x] Board identity `dev_<deviceId>` with owner claims; rules, `registerDevice`, board-aware `sendHeart` (ADR 0009)
-- [x] Firmware BLE setup mode: passkey on OLED, LE SC only, lockout, Wi-Fi test, one-time token
+- [x] Firmware BLE setup mode: LE SC only, lockout, Wi-Fi test, token used once from RAM
+- [x] Setup protocol 2: numeric comparison + BOOT confirm, paged Wi-Fi list, numbered token chunks with CRC32 (firmware and app)
 - [x] App "Set up a board": scan, pair, Wi-Fi list or manual entry, register, send key
-- [ ] BLE setup tested on both bench boards (pairing, wrong PIN lockout, wrong Wi-Fi password, change networks)
+- [ ] BLE setup tested on both bench boards (numeric comparison + BOOT, confirm timeout and lockout, full Wi-Fi list, wrong Wi-Fi password, proto mismatch, change networks)
+- [ ] Pairing tested on an iPhone (needs a Mac or cloud build and an Apple developer account)
 - [ ] Board-id proof of possession (squatting, ADR 0009) and an unregister path
 - [ ] Partner invites in the app (seed scripts until then)
 - [ ] Push notifications

@@ -86,3 +86,31 @@ board-A `heart from bob`; board-A `heart sent`, board-B `heart from alice`.
 Defect found: board-A's first press logged `sendHeart failed (status -11)` (HTTP
 read timeout, 3 s) although the server created the event (board-B received it),
 so the screen said NOT SENT. Fixed: `sendHeart` now has its own 10 s timeout.
+
+## Phase 3 BLE setup, protocol 2 (2026-11-16, partial)
+
+Firmware `5f39d40` (numeric comparison + BOOT confirm, paged Wi-Fi list, token
+frames with CRC32) flashed over USB: board-B on COM3 (MAC `20:50:0d:cd:63:f4`
+checked first), board-A on COM7 (MAC `20:50:0d:cd:fd:18` checked first). App
+`91e1da2` and later on the Samsung S24, main profile and Dual App profile (user
+95). PC 10.143.236.144; emulators re-seeded at 22:05Z after a restart had wiped
+Auth.
+
+| Test | Result | Evidence |
+|------|--------|----------|
+| App proto 2 refuses a proto 1 board | PASS | before board-B was reflashed, the app showed "Update the board firmware: it uses an older setup protocol (1, this app needs 2)" and disconnected; the board went back to SET UP |
+| Board-B (new firmware) in setup mode shows the code and waits for BOOT | PASS | serial `pairing: code shown, waiting for a BOOT tap`; emulator host 10.143.236.144 |
+| Registry refuses another person's board | PASS (by accident) | phone signed in as Alice, chose board-B: "This board is registered to someone else."; Auth emulator showed Alice as the last login |
+| Board-B set up as Bob: pair (codes, Pair, BOOT), Wi-Fi list, password, register, key, sign-in | PASS (outcome) | user report; serial afterwards `mode=normal wifi=1 heap=158208 min=149664`; device doc heartbeating |
+| Board-A set up as Alice | PASS (outcome only) | **setup not captured on serial** (it finished before the capture began); verified by outcome: `mode=normal wifi=1`, `heartbeat ok (online, fw 0.1.0)` |
+| App as Bob sends hearts, board-A shows them | PASS | board-A serial: 16x `heart from bob` |
+| BOOT tap on board-A sends a heart | PASS | board-A `BOOT tap: sending heart`, `heart sent`; 15 events from alice in the cloud (last 22:33:06Z) |
+| Board-B shows Alice's hearts | NOT CAPTURED | events exist in the cloud; board-B serial was not being read at the time |
+| No secrets in board-A serial | PASS | no `eyJ` (token), no password text in a 100 s capture |
+| Heap with Wi-Fi up after setup | PASS | board-A 158240 free, min 148252; board-B 158208, min 149664 |
+
+Not yet run (remaining Phase 3 checks): Wi-Fi list count against the board's
+scan, wrong Wi-Fi password, BOOT tap with nothing pending, no BOOT tap (25 s
+reject), change networks, proto mismatch with the new firmware, lockout. Also not
+yet recorded: Wi-Fi scan and connect while a BLE link is up (the setups above
+show it works on esp32dev, but the scan count was not compared).

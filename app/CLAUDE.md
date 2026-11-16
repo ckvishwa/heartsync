@@ -4,8 +4,9 @@ Flutter app for iOS and Android. One codebase, Riverpod for state.
 
 ## Commands (run in `app/`)
 
-- `flutter run`: run on a device or emulator. Needs the Firebase emulators
-  running (`npm run emulators` then `npm run seed` in `cloud/`).
+- `flutter run --dart-define-from-file=config/emulator.json`: run on a device or emulator.
+  First `cp config/emulator.example.json config/emulator.json` (git-ignored). Needs the
+  Firebase emulators running (`npm run emulators` then `npm run seed` in `cloud/`).
 - `flutter test`: widget tests with fake repositories (no emulator needed).
 - `flutter analyze`: must be clean before finishing.
 
@@ -27,7 +28,11 @@ Flutter app for iOS and Android. One codebase, Riverpod for state.
 
 ## Emulator setup
 
-- `lib/core/firebase_init.dart` uses project `demo-heartsync` and the emulators by default.
+- `lib/core/firebase_init.dart` uses the emulators by default. Firebase options come from
+  `--dart-define-from-file` (`lib/core/firebase_config.dart`); startup fails loudly on a bad
+  or missing value. The Android SDK rejects API keys not shaped `AIza` + 35 characters, even
+  on the emulator, so the placeholder key keeps that shape.
+- The real project refuses the emulator placeholder key and any `demo-` project id.
 - Android emulator reaches the host at `10.0.2.2` (handled). iOS simulator uses `localhost`.
 - Physical phone: `flutter run --dart-define=EMULATOR_HOST=<your PC's LAN IP>` and start
   the emulators bound to `0.0.0.0` (`host` in `cloud/firebase.json`).

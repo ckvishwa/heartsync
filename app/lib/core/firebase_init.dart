@@ -4,12 +4,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
+import 'firebase_config.dart';
+
 /// Phases 1 and 2 run against the local Firebase emulators only
 /// (project id `demo-heartsync`, see cloud/CLAUDE.md).
 ///
-/// When the real Firebase project exists: run `flutterfire configure`, pass
-/// `DefaultFirebaseOptions.currentPlatform` below, and build with
-/// `--dart-define=USE_EMULATOR=false`.
+/// Options come from `--dart-define-from-file` (see firebase_config.dart):
+///   `flutter run --dart-define-from-file=config/emulator.json --dart-define=EMULATOR_HOST=<PC IP>`
+/// The real project uses its own git-ignored file with `"USE_EMULATOR": "false"`;
+/// startup refuses the emulator placeholder key or a demo- project there.
 const bool useEmulator = bool.fromEnvironment('USE_EMULATOR', defaultValue: true);
 
 /// Host of the machine running the emulators. Override for a physical phone:
@@ -27,15 +30,8 @@ String get emulatorHost {
 }
 
 Future<void> initFirebase() async {
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: 'demo-key',
-      appId: '1:1234567890:android:0000000000000000',
-      messagingSenderId: '1234567890',
-      projectId: 'demo-heartsync',
-      storageBucket: 'demo-heartsync.appspot.com',
-    ),
-  );
+  final config = FirebaseConfig.fromEnvironment()..validate(emulator: useEmulator);
+  await Firebase.initializeApp(options: config.toOptions());
   if (useEmulator) {
     final host = emulatorHost;
     await FirebaseAuth.instance.useAuthEmulator(host, 9099);

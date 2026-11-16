@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase config for --dart-define-from-file (only *.example.json is committed)
+/config/*.json
+!/config/*.example.json

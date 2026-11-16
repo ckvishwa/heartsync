@@ -19,7 +19,8 @@ to a service-account file that lives OUTSIDE the repo):
 
 New users get a random temporary password, printed once. Change it in the app.
 
-Device custom tokens (so a device can sign in as its owner):
+Device custom tokens (a board signs in as its own uid dev_<deviceId>, acting for its
+owner through the `owner` claim; same as registerDevice, ADR 0009):
   --mint-tokens writes one custom token per device to tools/.device-tokens/<id>.token
   (git-ignored; tokens are never printed). Load each into its board over serial with
   tools/provision_device.py within one hour (custom tokens expire); the board then
@@ -29,6 +30,7 @@ Requires: pip install firebase-admin
 """
 import argparse
 import os
+import re
 import secrets
 import sys
 
@@ -38,8 +40,8 @@ def parse_person(text: str) -> dict:
     if len(parts) != 3 or not all(parts):
         raise argparse.ArgumentTypeError("expected email:DisplayName:device-id")
     email, name, device_id = parts
-    if not device_id.startswith("hs-"):
-        raise argparse.ArgumentTypeError(f"device id must start with hs-, got {device_id!r}")
+    if not re.fullmatch(r"hs-[0-9a-f]{12}", device_id):
+        raise argparse.ArgumentTypeError(f"device id must be hs- and 12 hex digits, got {device_id!r}")
     return {"email": email, "name": name, "device_id": device_id}
 
 
@@ -109,12 +111,29 @@ def main() -> int:
                 "lastSeen": None,
             }
         )
+        # Same server-only registry that registerDevice keeps (docs/protocol.md).
+        db.document(f"deviceRegistry/{person['device_id']}").set(
+            {
+                "owner": person["uid"],
+                "coupleId": args.couple_id,
+                "registeredAt": firestore.SERVER_TIMESTAMP,
+            }
+        )
         print(f"device: {person['device_id']} (owner {person['email']})")
 
     if args.mint_tokens:
         os.makedirs(args.token_dir, exist_ok=True)
         for person in args.person:
-            token = auth.create_custom_token(person["uid"])
+            # Same identity registerDevice mints (ADR 0009): the board's own uid
+            # dev_<deviceId>, never the owner's, with the owner as a claim.
+            token = auth.create_custom_token(
+                f"dev_{person['device_id']}",
+                {
+                    "deviceId": person["device_id"],
+                    "coupleId": args.couple_id,
+                    "owner": person["uid"],
+                },
+            )
             if isinstance(token, bytes):
                 token = token.decode("ascii")
             path = os.path.join(args.token_dir, f"{person['device_id']}.token")

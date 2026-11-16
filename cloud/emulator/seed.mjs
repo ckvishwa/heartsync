@@ -46,6 +46,11 @@ for (const { id, ...device } of seed.devices) {
   await db
     .doc(`couples/${seed.couple.id}/devices/${id}`)
     .set({ ...device, lastSeen: FieldValue.serverTimestamp() });
+  await db.doc(`deviceRegistry/${id}`).set({
+    owner: device.owner,
+    coupleId: seed.couple.id,
+    registeredAt: FieldValue.serverTimestamp(),
+  });
   console.log(`device ${id} (owner ${device.owner})`);
 }
 

@@ -450,6 +450,18 @@ describe("device-scoped tokens", () => {
     }
   });
 
+  test("deviceRegistry is server-only", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "deviceRegistry/hs-a"), { owner: "alice", coupleId: "c1" });
+    });
+    for (const db of [as("alice"), device()]) {
+      await assertFails(getDoc(doc(db, "deviceRegistry/hs-a")));
+      await assertFails(getDocs(collection(db, "deviceRegistry")));
+      await assertFails(setDoc(doc(db, "deviceRegistry/hs-b"), { owner: "alice", coupleId: "c1" }));
+      await assertFails(deleteDoc(doc(db, "deviceRegistry/hs-a")));
+    }
+  });
+
   test("a board cannot use a person's own paths even with the owner's uid", async () => {
     // A token for uid alice with board claims stays in board mode (no person access).
     const d = device({ uid: "alice" });

@@ -73,6 +73,17 @@ Payloads:
 - Read: owner always; partner **only while `sharingEnabled == true`**.
 - Never logged, never put in notifications, never copied into other documents.
 
+### `deviceRegistry/{deviceId}` (server only)
+
+| Field          | Type      | Notes                                   |
+|----------------|-----------|-----------------------------------------|
+| `owner`        | string    | uid of the person who registered it     |
+| `coupleId`     | string    | that person's couple at registration    |
+| `registeredAt` | timestamp | server time                             |
+
+Written only by `registerDevice` (Admin SDK). No client rule: people and boards are
+denied. It stops one couple from claiming, or revoking, a board another couple owns.
+
 ## Device tokens (from Phase 3 provisioning)
 
 A board has its **own uid**, `dev_<deviceId>`, never its owner's (ADR 0009). It
@@ -107,8 +118,10 @@ plain owner tokens (no claims) until they are re-provisioned.
 
 1. Deny by default.
 2. Only members of a couple can read or write that couple's data.
-3. A device can only write as its owner (`owner == request.auth.uid`).
-4. No one can write another person's events (`from == request.auth.uid`).
+3. A device can only write as its owner (`owner == request.auth.uid`, or
+   `token.owner` for a board).
+4. No one can write another person's events (`from == request.auth.uid`, or
+   `token.owner` for a board).
 5. Membership (`coupleId`, `members`) is server-set only.
 6. Storage objects are scoped by couple: `couples/{coupleId}/...`.
 7. Firmware binaries (`firmware/...`) are readable by signed-in people, written only by CI.
@@ -118,7 +131,8 @@ plain owner tokens (no claims) until they are re-provisioned.
 
 | Name        | Input | Effect                                                             | Phase |
 |-------------|-------|--------------------------------------------------------------------|-------|
-| `sendHeart` | none  | Writes `{type: heart, from: caller}` to the caller's couple events | 2     |
+| `sendHeart` | none  | Writes `{type: heart, from: caller}` to the caller's couple events. A board posts as its `owner` claim; its `coupleId` claim must equal the owner's couple. | 2, 3 |
+| `registerDevice` | `{deviceId}` | People only. Records the board (`deviceRegistry`, `couples/{c}/devices/{deviceId}`), refuses a board owned by anyone else, revokes the board's old sessions, returns `{token}`: a custom token for `dev_<deviceId>` with claims `{deviceId, coupleId, owner}`. | 3 |
 
 ## Device wire format
 

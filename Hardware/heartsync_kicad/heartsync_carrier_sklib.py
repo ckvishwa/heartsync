@@ -6,7 +6,7 @@ from skidl.pin import pin_types
 SKIDL_lib_version = '0.0.1'
 
 heartsync_carrier = SchLib(tool=SKIDL).add_parts(*[
-        Part(**{ 'name':'ESP32-S3-WROOM-1', 'dest':TEMPLATE, 'tool':SKIDL, 'aliases':Alias({'ESP32-S3-WROOM-1'}), 'ref_prefix':'U', 'fplist':None, 'footprint':'heartsync:ESP32-S3-WROOM-1_NoVias', 'keywords':None, 'description':'', 'datasheet':None, 'pins':[
+        Part(**{ 'name':'ESP32-S3-WROOM-1U', 'dest':TEMPLATE, 'tool':SKIDL, 'aliases':Alias({'ESP32-S3-WROOM-1U'}), 'ref_prefix':'U', 'fplist':None, 'footprint':'heartsync:ESP32-S3-WROOM-1U_NoVias', 'keywords':None, 'description':'', 'datasheet':None, 'pins':[
             Pin(num='1',name='GND',func=pin_types.PASSIVE),
             Pin(num='2',name='3V3',func=pin_types.PASSIVE),
             Pin(num='3',name='EN',func=pin_types.PASSIVE),

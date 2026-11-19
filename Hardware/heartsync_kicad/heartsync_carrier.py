@@ -5,7 +5,8 @@ Run:   python heartsync_carrier.py
 Makes: heartsync_carrier.net  (import into the KiCad PCB editor: File > Import > Netlist)
        heartsync_carrier_bom.csv
 
-Board: 70 x 45 mm, 2 layers. ESP32-S3-WROOM-1-N16R8 + 2x MAX98357A + DRV2605L + BMI270 +
+Board: 70 x 45 mm, 2 layers. ESP32-S3-WROOM-1U-N16R8 (U.FL, external antenna) +
+2x MAX98357A + DRV2605L + BMI270 +
 MAX17048 + TLV62569 3.3 V buck + USB ESD + 1.8 V level shifter for the SIM7080G.
 Bought modules (power bank / USB-PD, Qi2 TX, SIM7080G) and the front parts (OLED, mic,
 light sensor, touch strip, buttons, mute switch) connect through JST-SH cables.
@@ -81,7 +82,7 @@ EN, BOOT, TXD0, RXD0, FB, SW = Net("ESP_EN"), Net("ESP_BOOT"), Net("UART0_TX"), 
 SPKL_P, SPKL_N, SPKR_P, SPKR_N = Net("SPK_L+"), Net("SPK_L-"), Net("SPK_R+"), Net("SPK_R-")
 LRA_P, LRA_N, DRV_REG = Net("LRA+"), Net("LRA-"), Net("DRV_REG")
 
-# ---------------------------------------------------------------- ESP32-S3-WROOM-1-N16R8
+# ---------------------------------------------------------------- ESP32-S3-WROOM-1U-N16R8
 esp_pins = [(1, "GND"), (2, "3V3"), (3, "EN"), (4, "IO4"), (5, "IO5"), (6, "IO6"), (7, "IO7"),
             (8, "IO15"), (9, "IO16"), (10, "IO17"), (11, "IO18"), (12, "IO8"), (13, "USB_D-"),
             (14, "USB_D+"), (15, "IO3"), (16, "IO46"), (17, "IO9"), (18, "IO10"), (19, "IO11"),
@@ -89,10 +90,11 @@ esp_pins = [(1, "GND"), (2, "3V3"), (3, "EN"), (4, "IO4"), (5, "IO5"), (6, "IO6"
             (26, "IO45"), (27, "IO0"), (28, "IO35"), (29, "IO36"), (30, "IO37"), (31, "IO38"),
             (32, "IO39"), (33, "IO40"), (34, "IO41"), (35, "IO42"), (36, "RXD0"), (37, "TXD0"),
             (38, "IO2"), (39, "IO1"), (40, "GND"), (41, "GND_EP")]
-# Project footprint (heartsync.pretty, ADR 0010): stock RF_Module:ESP32-S3-WROOM-1 with the 0.2 mm
-# pad-41 vias replaced by a 3x3 grid of 0.3 mm vias, to meet the 0.3 mm fab minimum drill.
-U1 = part("U1", "ESP32-S3-WROOM-1", "ESP32-S3-WROOM-1-N16R8", "heartsync:ESP32-S3-WROOM-1_NoVias",
-          esp_pins, "ESP32-S3-WROOM-1-N16R8", "Antenna end flush with the board top edge")
+# WROOM-1U (ADR 0011): same pinout as WROOM-1, U.FL socket for an external flex antenna instead of
+# the PCB antenna. Project footprint (heartsync.pretty, ADR 0010): stock RF_Module:ESP32-S3-WROOM-1U
+# with the 0.2 mm pad-41 vias replaced by a 3x3 grid of 0.3 mm vias, to meet the 0.3 mm fab minimum drill.
+U1 = part("U1", "ESP32-S3-WROOM-1U", "ESP32-S3-WROOM-1U-N16R8", "heartsync:ESP32-S3-WROOM-1U_NoVias",
+          esp_pins, "ESP32-S3-WROOM-1U-N16R8", "U.FL socket faces the board top edge, 3 mm clear")
 GND += U1[1], U1[40], U1[41]
 P3V3 += U1[2]
 EN += U1[3]

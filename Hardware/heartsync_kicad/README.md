@@ -7,7 +7,7 @@ Put this folder at `D:\SyncD\hardware\kicad\`.
 | `heartsync_carrier.py` | The whole circuit as Python (SKiDL). Edit this, not the netlist. |
 | `heartsync_carrier.net` | Generated netlist: 67 parts, 52 nets. Import into KiCad. |
 | `heartsync_carrier_bom.csv` | Parts list with part numbers and notes |
-| `place_board.py` | Run inside the KiCad PCB editor: outline, holes, placement, antenna keepout, GND pours |
+| `place_board.py` | Run inside the KiCad PCB editor: outline, holes, placement, GND pours |
 
 ## Steps
 
@@ -29,7 +29,8 @@ for parts that did not change).
 
 ## What is on the board
 
-- ESP32-S3-WROOM-1-N16R8, antenna flush with the top edge, keepout under the antenna
+- ESP32-S3-WROOM-1U-N16R8 (ADR 0011): U.FL socket facing the top edge, 3 mm clear around it,
+  external 2.4 GHz flex antenna on the shell wall. No antenna keepout.
 - TLV62569 buck: 5 V to 3.3 V, 2 A
 - 2x MAX98357A (left / right from one GPIO through R5, R6/R7), powered from 5 V
 - DRV2605L haptic driver (LRA), BMI270 IMU (I2C 0x68), MAX17048 fuel gauge (on VBAT)
@@ -45,7 +46,7 @@ for parts that did not change).
 | J1 | 5V, 5V, GND, GND, D+, D-, ALERT | Power bank / USB-C module |
 | J2 | VBAT, GND | Battery (fuel gauge and SIM supply) |
 | J3 | VBAT, GND, TXD, RXD, PWRKEY, VDD_EXT | SIM7080G module (1.8 V I/O) |
-| J4, J5 | +, - | Left / right speaker |
+| J4, J5 | +, - | Left / right speaker (J4 on the left edge, J5 on the right edge) |
 | J6 | +, - | Haptic LRA |
 | J7 | T1, T2, T3, GND | Touch strip |
 | J8 | MIC_3V3, GND, SCK, WS, SD | INMP441 mic (power cut by mute switch) |

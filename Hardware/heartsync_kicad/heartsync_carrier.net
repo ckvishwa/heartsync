@@ -2,7 +2,7 @@
   (version "D")
   (design
     (source "heartsync_carrier.py")
-    (date "11/19/2026 01:09 AM")
+    (date "11/19/2026 02:20 AM")
     (tool "SKiDL (3.0.0)")
     (sheet
       (number 1)
@@ -57,7 +57,7 @@
         (field
           (name "SKiDL Tag") "C1")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -81,7 +81,7 @@
         (field
           (name "SKiDL Tag") "C10")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -105,7 +105,7 @@
         (field
           (name "SKiDL Tag") "C11")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -129,7 +129,7 @@
         (field
           (name "SKiDL Tag") "C12")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -153,7 +153,7 @@
         (field
           (name "SKiDL Tag") "C13")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -177,7 +177,7 @@
         (field
           (name "SKiDL Tag") "C14")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -201,7 +201,7 @@
         (field
           (name "SKiDL Tag") "C15")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -225,7 +225,7 @@
         (field
           (name "SKiDL Tag") "C16")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -249,7 +249,7 @@
         (field
           (name "SKiDL Tag") "C17")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -273,7 +273,7 @@
         (field
           (name "SKiDL Tag") "C18")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -297,7 +297,7 @@
         (field
           (name "SKiDL Tag") "C19")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -321,7 +321,7 @@
         (field
           (name "SKiDL Tag") "C2")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -345,7 +345,7 @@
         (field
           (name "SKiDL Tag") "C3")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -369,7 +369,7 @@
         (field
           (name "SKiDL Tag") "C4")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -393,7 +393,7 @@
         (field
           (name "SKiDL Tag") "C5")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -417,7 +417,7 @@
         (field
           (name "SKiDL Tag") "C6")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -441,7 +441,7 @@
         (field
           (name "SKiDL Tag") "C7")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -465,7 +465,7 @@
         (field
           (name "SKiDL Tag") "C8")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -489,7 +489,7 @@
         (field
           (name "SKiDL Tag") "C9")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "C"))
@@ -513,7 +513,7 @@
         (field
           (name "SKiDL Tag") "J1")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "CONN_7"))
@@ -537,7 +537,7 @@
         (field
           (name "SKiDL Tag") "J10")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "CONN_4"))
@@ -561,7 +561,7 @@
         (field
           (name "SKiDL Tag") "J11")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "CONN_7"))
@@ -585,7 +585,7 @@
         (field
           (name "SKiDL Tag") "J12")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "CONN_4"))
@@ -609,7 +609,7 @@
         (field
           (name "SKiDL Tag") "J2")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "CONN_2"))
@@ -633,7 +633,7 @@
         (field
           (name "SKiDL Tag") "J3")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "CONN_6"))
@@ -657,7 +657,7 @@
         (field
           (name "SKiDL Tag") "J4")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "CONN_2"))
@@ -681,7 +681,7 @@
         (field
           (name "SKiDL Tag") "J5")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "CONN_2"))
@@ -705,7 +705,7 @@
         (field
           (name "SKiDL Tag") "J6")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "CONN_2"))
@@ -729,7 +729,7 @@
         (field
           (name "SKiDL Tag") "J7")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "CONN_4"))
@@ -753,7 +753,7 @@
         (field
           (name "SKiDL Tag") "J8")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "CONN_5"))
@@ -777,7 +777,7 @@
         (field
           (name "SKiDL Tag") "J9")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "CONN_2"))
@@ -801,7 +801,7 @@
         (field
           (name "SKiDL Tag") "L1")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "L"))
@@ -825,7 +825,7 @@
         (field
           (name "SKiDL Tag") "Q1")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "BSS138"))
@@ -849,7 +849,7 @@
         (field
           (name "SKiDL Tag") "R1")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -873,7 +873,7 @@
         (field
           (name "SKiDL Tag") "R10")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -897,7 +897,7 @@
         (field
           (name "SKiDL Tag") "R11")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -921,7 +921,7 @@
         (field
           (name "SKiDL Tag") "R12")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -945,7 +945,7 @@
         (field
           (name "SKiDL Tag") "R13")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -969,7 +969,7 @@
         (field
           (name "SKiDL Tag") "R14")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -993,7 +993,7 @@
         (field
           (name "SKiDL Tag") "R15")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -1017,7 +1017,7 @@
         (field
           (name "SKiDL Tag") "R16")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -1041,7 +1041,7 @@
         (field
           (name "SKiDL Tag") "R2")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -1065,7 +1065,7 @@
         (field
           (name "SKiDL Tag") "R3")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -1089,7 +1089,7 @@
         (field
           (name "SKiDL Tag") "R4")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -1113,7 +1113,7 @@
         (field
           (name "SKiDL Tag") "R5")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -1137,7 +1137,7 @@
         (field
           (name "SKiDL Tag") "R6")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -1161,7 +1161,7 @@
         (field
           (name "SKiDL Tag") "R7")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -1185,7 +1185,7 @@
         (field
           (name "SKiDL Tag") "R8")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -1209,7 +1209,7 @@
         (field
           (name "SKiDL Tag") "R9")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "R"))
@@ -1233,7 +1233,7 @@
         (field
           (name "SKiDL Tag") "SW1")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "SW_PUSH"))
@@ -1257,7 +1257,7 @@
         (field
           (name "SKiDL Tag") "SW2")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "SW_PUSH"))
@@ -1281,7 +1281,7 @@
         (field
           (name "SKiDL Tag") "TP1")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "TestPoint"))
@@ -1305,7 +1305,7 @@
         (field
           (name "SKiDL Tag") "TP2")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "TestPoint"))
@@ -1329,7 +1329,7 @@
         (field
           (name "SKiDL Tag") "TP3")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "TestPoint"))
@@ -1353,7 +1353,7 @@
         (field
           (name "SKiDL Tag") "TP4")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "TestPoint"))
@@ -1377,7 +1377,7 @@
         (field
           (name "SKiDL Tag") "TP5")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "TestPoint"))
@@ -1401,7 +1401,7 @@
         (field
           (name "SKiDL Tag") "TP6")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "TestPoint"))
@@ -1425,7 +1425,7 @@
         (field
           (name "SKiDL Tag") "TP7")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "TestPoint"))
@@ -1436,23 +1436,23 @@
       (tstamps "47117044-94ce-5dd7-abf9-83e3ef59bacb"))
     (comp
       (ref "U1")
-      (value "ESP32-S3-WROOM-1-N16R8")
+      (value "ESP32-S3-WROOM-1U-N16R8")
       (description "")
-      (footprint "heartsync:ESP32-S3-WROOM-1_NoVias")
+      (footprint "heartsync:ESP32-S3-WROOM-1U_NoVias")
       (fields
         (field
           (name "Description"))
         (field
-          (name "Footprint") "heartsync:ESP32-S3-WROOM-1_NoVias")
+          (name "Footprint") "heartsync:ESP32-S3-WROOM-1U_NoVias")
         (field
           (name "Datasheet"))
         (field
           (name "SKiDL Tag") "U1")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
-        (part "ESP32-S3-WROOM-1"))
+        (part "ESP32-S3-WROOM-1U"))
       (sheetpath
         (names "/")
         (tstamps "/"))
@@ -1473,7 +1473,7 @@
         (field
           (name "SKiDL Tag") "U2")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "TLV62569DBV"))
@@ -1497,7 +1497,7 @@
         (field
           (name "SKiDL Tag") "U3")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "USBLC6-2SC6"))
@@ -1521,7 +1521,7 @@
         (field
           (name "SKiDL Tag") "U4")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "MAX98357A"))
@@ -1545,7 +1545,7 @@
         (field
           (name "SKiDL Tag") "U5")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "MAX98357A"))
@@ -1569,7 +1569,7 @@
         (field
           (name "SKiDL Tag") "U6")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "DRV2605LDGS"))
@@ -1593,7 +1593,7 @@
         (field
           (name "SKiDL Tag") "U7")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "BMI270"))
@@ -1617,7 +1617,7 @@
         (field
           (name "SKiDL Tag") "U8")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "MAX17048"))
@@ -1641,7 +1641,7 @@
         (field
           (name "SKiDL Tag") "U9")
         (field
-          (name "SKiDL Line") "heartsync_carrier.py:33"))
+          (name "SKiDL Line") "heartsync_carrier.py:34"))
       (libsource
         (lib "NO_LIB")
         (part "TXS0102DCU"))

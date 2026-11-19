@@ -17,10 +17,13 @@ Pins must match `docs/hardware/pinout.md` and `firmware/include/config.h`.
 ## Board facts
 
 - 70 x 45 mm, 2-layer, GND pour on F.Cu and B.Cu, four M2 holes (H1-H4), origin at (100, 100) mm.
-- U1 = ESP32-S3-WROOM-1-N16R8, antenna flush with the TOP edge. Nothing (copper, parts, connectors)
-  inside its antenna keepout.
+- U1 = ESP32-S3-WROOM-1U-N16R8 (ADR 0011): U.FL socket, external flex antenna on the shell wall.
+  No PCB antenna, so no antenna keepout. U.FL rule: the socket faces a board edge (now the top edge,
+  centre at (23.0, 2.96) mm) with 3 mm free of other parts around it; `replace_parts.py` checks it.
 - JST-SH connectors sit on board edges, cable entry facing out (except J6, J7: see Known DRC items).
-  Rotation sets cable entry: 0 down, 90 right, 180 up.
+  Rotation sets cable entry: 0 down, 90 right, 180 up, 270 left.
+- Speakers: J4 (left) on the LEFT edge, J5 (right) on the right edge, so no speaker cable crosses
+  the device.
 - Project footprints live in `heartsync.pretty` (loaded by `fp-lib-table`, ADR 0010).
 - Rails: +5V (USB / power bank), +3V3 (TLV62569 buck), VBAT (cell), VDD_EXT_1V8 (SIM7080G I/O).
   +5V tracks to amps and buck >= 0.5 mm.
@@ -32,14 +35,16 @@ Pins must match `docs/hardware/pinout.md` and `firmware/include/config.h`.
 
 ## Known DRC items (as of 2026-11-19)
 
-- U1 drill errors are 0. U1 uses `heartsync:ESP32-S3-WROOM-1_NoVias` (project lib `heartsync.pretty`,
-  ADR 0010): stock footprint with nine 0.3 mm pad-41 vias instead of twelve 0.2 mm ones.
-  Do not lower the min-drill rule.
-- Placement errors (courtyard, keepout, hole) are 0, verified with DRC. H1 now at (3, 9), below the
-  U1 antenna keepout. After any PLACE edit, re-run DRC; an offline check is not proof.
+- U1 drill errors are 0. U1 uses `heartsync:ESP32-S3-WROOM-1U_NoVias` (project lib `heartsync.pretty`,
+  ADRs 0010 and 0011): stock footprint with nine 0.3 mm pad-41 vias instead of twelve 0.2 mm ones.
+  Do not lower the min-drill rule. `ESP32-S3-WROOM-1_NoVias` stays in the library, unused.
+- Placement errors (courtyard, keepout, hole) are 0, verified with DRC. After any PLACE edit,
+  re-run DRC; an offline check is not proof.
+- The board STEP has no U1 body: KiCad 10 ships no WROOM-1U 3D model (MAX17048 and MAX98357A
+  models are missing too). Add Espressif's model before trusting the Fusion fit check near U1.
 - Starved thermals on GND pads (11): the pour is cut into islands until routing. Recheck after GND vias.
-- J9 is on the top edge. Open item: J6 and J7 are off-edge (no room on any edge). J7 is fully
-  right of x 39.5 with its cable facing right, so it never crosses the antenna keepout.
+- J9 is on the top edge. Open item: J6 and J7 are off-edge (no room on any edge); J7's cable
+  faces right.
 - Keep "Footprint has no courtyard defined" as an error, not ignored, or overlaps go unseen.
 - Silkscreen overlaps are warnings: fix last (move reference text), after placement is clean.
 

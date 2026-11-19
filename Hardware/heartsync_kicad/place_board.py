@@ -8,9 +8,9 @@ Run in the PCB editor: Tools > Scripting Console, then:
 It does:
   1. draws the 70 x 45 mm board outline (Edge.Cuts)
   2. adds four M2 mounting holes
-  3. places every part in its area (connectors on the edges, ESP32 antenna on the top edge)
-  4. snaps U1 so its antenna end is flush with the board top edge (the footprint brings its own keepout)
-  5. adds GND copper pours on both layers and fills them
+  3. places every part in its area (connectors on the edges)
+  4. adds GND copper pours on both layers and fills them
+Then run replace_parts.py: it holds the final positions and checks U1's U.FL socket (ADR 0011).
 RUN IT ONCE per import. It refuses to run twice (deleting things from the script corrupts KiCad's Python).
 To redo: close the PCB editor without saving, reopen, re-import the netlist, run again.
 It does NOT route tracks. Route by hand (or with the Freerouting plugin), then run DRC.
@@ -114,32 +114,7 @@ def place():
         raise RuntimeError("not on the board (import the netlist first?): " + ", ".join(missing))
 
 
-# ------------------------------------------------------------------ 4. antenna at the board edge
-# The ESP32 footprint's courtyard includes its own antenna keepout, so it cannot be used to find
-# the module edge. Use the module body outline on F.Fab and put its top on the board top edge;
-# the footprint's keepout then hangs off the board.
-def snap_antenna():
-    u1 = board.FindFootprintByReference("U1")
-    if u1 is None:
-        raise RuntimeError("U1 not on the board")
-    tops, bots = [], []
-    for g in u1.GraphicalItems():
-        if g.GetLayer() == pcbnew.F_Fab:
-            bb = g.GetBoundingBox()
-            tops.append(bb.GetTop())
-            bots.append(bb.GetBottom())
-    if not tops:
-        raise RuntimeError("no F.Fab outline on U1; put the module top edge on the board top edge by hand")
-    top, bot = min(tops), max(bots)
-    h = pcbnew.ToMM(bot - top)
-    if not 24.0 <= h <= 27.0:
-        raise RuntimeError("U1 F.Fab outline is %.1f mm tall, expected about 25.5; not moved" % h)
-    u1.Move(pcbnew.VECTOR2I(0, mm(Y0) - top))
-    print("U1 body %.1f mm tall; origin now at x=%.1f y=%.1f mm from the board corner" % (
-        h, pcbnew.ToMM(u1.GetPosition().x) - X0, pcbnew.ToMM(u1.GetPosition().y) - Y0))
-
-
-# ------------------------------------------------------------------ 5. GND pours
+# ------------------------------------------------------------------ 4. GND pours
 def pours():
     gnd = board.FindNet("GND")
     if gnd is None:
@@ -161,7 +136,6 @@ def pours():
 step("board outline 70 x 45 mm", outline)
 step("M2 mounting holes", holes)
 step("place parts", place)
-step("U1 antenna to board edge", snap_antenna)
 step("GND pours (both layers)", pours)
 pcbnew.Refresh()
 print("\n".join(report))

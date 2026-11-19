@@ -1,5 +1,5 @@
 ref,value,footprint,mpn,note
-U1,ESP32-S3-WROOM-1-N16R8,heartsync:ESP32-S3-WROOM-1_NoVias,ESP32-S3-WROOM-1-N16R8,Antenna end flush with the board top edge
+U1,ESP32-S3-WROOM-1U-N16R8,heartsync:ESP32-S3-WROOM-1U_NoVias,ESP32-S3-WROOM-1U-N16R8,"U.FL socket faces the board top edge, 3 mm clear"
 C1,10uF,Capacitor_SMD:C_0805_2012Metric,,"ESP32 bulk, next to pin 2"
 C2,100nF,Capacitor_SMD:C_0603_1608Metric,,ESP32 decoupling
 R1,10k,Resistor_SMD:R_0603_1608Metric,,EN pull-up

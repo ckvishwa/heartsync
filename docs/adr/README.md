@@ -16,3 +16,4 @@ One file per decision. Create new ones with `/new-adr <title>` or by copying
 | 0009 | [BLE Wi-Fi setup and a board identity of its own](0009-ble-provisioning-board-identity.md) | Accepted |
 | 0010 | [Carrier footprint library: ESP32-S3-WROOM-1_NoVias](0010-project-footprint-library-esp32-novias.md) | Proposed |
 | 0011 | [Controller module: ESP32-S3-WROOM-1U (U.FL, external antenna)](0011-controller-module-esp32-s3-wroom-1u.md) | Proposed |
+| 0012 | [Speakers: enclosed CES-571423-28PMB, honeycomb end grille](0012-speakers-enclosed-ces-571423.md) | Proposed |

@@ -78,6 +78,8 @@ Phases 1 to 10 are prototypes. Phase 11 is the final build.
 ## Phase 6: Audio
 
 - [ ] Stereo speakers, Bluetooth audio module
+- [ ] Speaker DSP on the S3 for the CES-571423-28PMB (ADR 0012, Fs 700 Hz): bass shelf,
+      virtual bass (harmonics below Fs), output limiter. Native tests for the filter math.
 - [ ] Sound effects for events
 
 ## Phase 7: Voice

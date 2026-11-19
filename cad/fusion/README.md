@@ -17,6 +17,8 @@ that still need a datasheet).
 
 ## Model notes
 
-- No model yet. Enclosure and dock are Phase 10.
+- `heartsync_assembly.py` builds the full enclosure + internals (saved in Fusion as
+  "HeartSync v1"). Run it on an empty Hybrid design; see its docstring for the other
+  entry points (checks, exports, net, renders, save, sync).
 - Name bodies by part and material, for example `shell_front_petg`, `bumper_tpu`.
 - Export STL/3MF to `cad/exports/`. Never edit exports by hand.

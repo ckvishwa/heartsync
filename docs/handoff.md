@@ -1,6 +1,6 @@
 # Handoff: where we are and what to do next
 
-Last updated: 2026-11-19 (carrier U1 to WROOM-1U, enclosure layout pass with real carrier STEP; Phase 3 hardware test still pending). Read this first in a new session, then `CLAUDE.md`,
+Last updated: 2026-11-19 (carrier U1 to WROOM-1U, print-accurate enclosure saved as HeartSync v1; Phase 3 hardware test still pending). Read this first in a new session, then `CLAUDE.md`,
 `docs/phases.md`, and the package `CLAUDE.md` for the area you touch.
 
 ## State
@@ -54,48 +54,56 @@ Last updated: 2026-11-19 (carrier U1 to WROOM-1U, enclosure layout pass with rea
     flex antenna on the shell wall, no antenna keepout. Socket faces the top edge at (23.0, 2.96) mm.
   - J4 (left speaker) on the left edge, J5 (right) on the right edge.
   - DRC: 0 courtyard, keepout, hole and drill errors. 11 starved thermals wait for routing.
-  - Antenna: **Ezurio FlexPIFA 001-0014** (ADR 0011), on the front wall over the Qi2 TX board.
-    Flex PIFA differs from the certified monopole: extra RF/EMC testing may be needed.
+  - Antenna: **Ezurio FlexPIFA 001-0014** (ADR 0011), now on the front wall bottom-left, outside
+    the phone footprint. Flex PIFA differs from the certified monopole: extra RF/EMC testing.
   - Next in order: route power, I2S, USB pair, rest; DRC clean; STEP fit check in Fusion.
-- **Enclosure assembly** (`cad/fusion/heartsync_assembly.py`): layout pass done. One run builds
-  the shell, all parts, imports the carrier STEP (wrapper component placed before import),
-  runs the fit check and the antenna clearance report, then groups into shell, power,
-  speakers, lte, wifi, ui, dock + carrier. 64 bodies + 295 carrier bodies, **fit check clean**.
-  - Cell centred in X (-50..50 with seal), Qi2 coil at X = 0 under it, 0.1 mm graphite between,
-    0.2 mm insulator on the cell top, then the 1.2 mm swell gap. Board layer at Z 17.9.
-  - Board layer: carrier X -36..34, Qi2 TX right of it, PD board bottom-right (USB-C out the
-    right end wall), SIM board bottom-left. Speakers: 16 x 30 x 20 boxes at both ends, grille
-    slots in both end walls. Buttons on the top wall (right half): latching 7 x 7 mute, PWR,
-    VOL-, VOL+, PLAY. LRA on a rib on the bottom wall.
-  - Stack: 32.0 shell + 1.2 fabric = 33.2 mm of the 35 mm limit.
-  - Carrier mounting (fix pass 2026-11-19): no screws. The board hangs from four bosses on the
-    front shell with press-fit pins (2.1 mm) through H1-H4, flush with the board underside, so
-    nothing sits in the swell gap and no metal faces the cell. H3 (9.5, 16) and H4 (12.5, -12):
-    bosses from the front wall. H1 (-33, 21) and H2 (-33, 4) are under the OLED glass: drop
-    bosses from a rib cantilevered off the top wall (X -35.5..-30.5, Z 23..25.5, webs to the
-    front wall at Y 21.2..25.3 and 30.7..34.05). Retention is friction only: drop-test it.
-  - Antennas: LTE flex moved to X 0..40 on the bottom edge (PD inductor 14.8, USB-C 28.3).
-    GNSS patch on the top wall at X -69.8..-51.8, Z 4..22 (J6 cleared), but its edge is
-    **1.8 mm from the cell end**: no room between the wall corner and the cell for more with
-    an 18 mm patch. Wi-Fi coax and tape/clip mount modelled (ADR 0011).
-  - Under the cell: 0.5 mm thermal insulator on the cell bottom (Z 4.0..4.5); 1.1 mm air left
-    between it and the graphite. LRA rib edges rounded (r 0.6).
-  - The Fusion doc is unsaved ("Untitled", the last tab); the user saves it. The front ring
-    groove stays at X 43 (decorative) and no longer marks the coil.
-  - Battery swell gap is 1.2 mm (rule "at least 1 mm"); ADR 0006 and the reviewer skill now
-    say so. ADR 0006 also says heat sources stay off the cell, which the coil-under-cell
-    layout breaks: needs a decision (supersede or move the coil).
-  - Fit check includes a hidden keep-out body for the swell gap (Z 16.7..17.9 over the cell):
-    nothing intrudes. Cell supports and lid fasteners are not modelled.
-  - Safety review open points (first pass fixed hot parts and battery JST off the cell; fix
-    pass fixed mounting screws, bottom insulator, rib edges, ADR 0006). Still open:
-    - Cell fully over the Qi2 coil: NTC over the coil with TX cut-off, PET-laminated
-      graphite; check stray field vs graphite/pouch.
-    - Cell has no holder modelled; 95 x 60 x 12 is a placeholder (`battery_*` in params.csv = 0).
-    - No mesh/gasket on grilles, buttons, USB-C; add a vent when sealing.
-    - Pogo pads 1.25 mm outside the Qi2 magnet ring: check heating / FOD; TX off when docked.
-    - No lid screws/clips modelled; script dims differ from `params.csv` (152 x 72.5 vs
-      160 x 75); wiring paths stale.
+- **Enclosure: print-accurate model** (`cad/fusion/heartsync_assembly.py`, dimensions from
+  `cad/params.csv`, positions in its POS block). Saved in Fusion as **"HeartSync v1"**
+  (Default Project). One run builds everything, imports the carrier STEP, checks, groups
+  (shell/tray, lid, bracket; trim, power, speakers, lte, wifi, ui, dock, carrier), names the
+  sides, paints the finishes and adds hidden labels. Other entry points: `print_checks`,
+  `export_all`, `make_net`, `make_renders`, `save_doc`, `sync_from_fusion`.
+  - Use case: docked on the BOTTOM edge (4 pogo pads, 4 magnets, 1.6 mm skin); in use lying
+    on the BACK (4 rubber feet over the lid screws); phone charges on the FRONT Qi2 coil
+    (TX only, centre X 43, behind the gold ring; NTC in the coil centre).
+  - Stack: cell on a 1 mm foam pad (Z 1..13), 0.2 insulator, 1.2 swell gap, board layer Z 14.4,
+    coil ferrite 24.8. 32.0 shell + 0.6 back fabric + 1.5 feet = **34.1 mm** of 35.
+  - Speakers: **CES-571423-28PMB** (ADR 0012) per end, sealed to an ePTFE membrane over a
+    237-hole flat-top hex honeycomb (47.0 % open), wall thinned to 1.2. speaker_R is 1.5 mm
+    under the coil ferrite; speaker_L 0.3 mm under the GNSS patch (both tight).
+  - Top edge: USB-C (waterproof, X 46), buttons top-left (mute X -66.5, PWR, VOL-, VOL+,
+    PLAY to X -38.8), LTE flex X -28..12. Rules met: LTE >= 10 from USB-C (29.5), inductor
+    (40.5), coil (17.8); inductor >= 15 from all antennas (40.5 minimum). LTE is 4.8 mm from
+    the cell and 3.8 from the touch strip: **bench-test it**.
+  - GNSS 12 x 12 x 4 on the front, bottom-left (X -66..-54). Wi-Fi 5.1 from the OLED glass,
+    11.9 from the cell, coax 93.7 of 100 mm.
+  - Carrier held by tray bosses H3/H4 plus a separate clip-in bracket for H1/H2
+    (`heartsync_bracket.stl`), press-fit pins flush with the board underside.
+  - Checks: **fit 0 clashes**, swell-gap keep-out clear. Thin walls: only the honeycomb webs
+    (0.8 by spec) and the lid at the 4 screws (0.45 counterbore to gasket channel, 1.0 pad
+    wall): the speakers push the screws to the edge. Overhangs: only short bridges, no supports.
+  - Outputs: `cad/exports/` (3MF/STL/STEP, git-ignored), `cad/net/heartsync_net.dxf/.pdf`
+    (TOP + BACK fabric, generated from the model; the old hand-drawn nets were removed),
+    `cad/renders/*.jpg`.
+  - Battery size is still a placeholder (95 x 60 x 12; `battery_*` = 0 in params.csv).
+  - Fabric net is split at the lid seam (BACK + lid edge, and the tray TOP edge as a second
+    piece), so the case opens with the feet and screws only. Name a cold-peel adhesive.
+  - Safety review (2026-11-19, print-accurate model), open points:
+    - Nothing holds the cell sideways (foam pad only): add ribs or a strap; the seal edge is
+      5 mm from the Qi2 TX board. Foam pad material: flame-retardant (UL94 V-0), verify.
+    - PD board overhangs the cell's seal end by about 11.5 mm (hot parts are past X 46, USB-C
+      partly over it): cut the board back to X >= 46 or add a named thermal barrier.
+    - Qi2 coil ferrite overlaps the cell by 26 mm with an 11.6 mm gap (carrier and PD board
+      between). The only NTC is in the coil centre: the charger/pack thermistor must cut TX
+      and charging on cell temperature.
+    - Seals: pogo pad holes go through the bottom wall (no O-ring/potting), buttons have no
+      boots, mic and light holes have no mesh. Check the ePTFE grade passes air (vent).
+    - Dock wiring (bottom pogo to top-right PD board) is not modelled; keep it out of the
+      swell gap; pads must stay dead until seated (IP5328P back-feed).
+    - Build order: heat-set inserts before the cell goes in.
+    - Lid 0.45 mm between each counterbore and the gasket channel: check on the PLA print.
+    - speaker_R 1.5 mm behind the coil ferrite: bench-check eddy heating.
+    - USB-C receptacle model is generic: pick the waterproof part.
 
 ## Where we stopped (2026-11-16 evening, user said stop and save)
 

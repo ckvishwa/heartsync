@@ -1,9 +1,9 @@
 name,value,unit,status,comment
-body_length,160,mm,target,Outer length (about 16 cm)
-body_width,75,mm,target,Outer width (about 7.5 cm)
-body_thickness,32,mm,target,Outer thickness target (about 3.2 cm)
+body_length,152,mm,model,"Outer length, as built in fusion/heartsync_assembly.py"
+body_width,72.5,mm,model,Outer width
+body_thickness,32,mm,model,Shell thickness (tray 29.8 + lid 2.2). Stack with back fabric and feet: 34.1
 body_thickness_max,35,mm,hard limit,HARD LIMIT. The stack-up must never exceed this
-wall_thickness,2,mm,assumption,Starting value. Tune after the first PLA test print
+wall_thickness,2.2,mm,model,Tray wall and front wall
 corner_radius,6,mm,assumption,Outer corner radius under the fabric wrap
 fabric_allowance,0.6,mm,assumption,Fabric thickness per side. Measure the real fabric
 panel_width,128,mm,verify against datasheet,64 px at 2 mm pitch
@@ -15,10 +15,54 @@ battery_width,0,mm,verify against datasheet,Fill in from the datasheet
 battery_thickness,0,mm,verify against datasheet,Fill in from the datasheet
 battery_swell_gap,1.2,mm,safety,Free space over the cell face. At least 1 mm (1.2 used)
 pcb_thickness,1.6,mm,assumption,Standard FR4
-gasket_width,2,mm,assumption,Seam gasket channel for the IP54 target
+gasket_width,1.0,mm,model,"Gasket channel in the lid rim under the tray wall (IP54), continuous"
 gasket_compression,0.3,mm,assumption,Tune to the gasket material
 dock_magnet_count,4,count,spec,Four magnets in the dock
-dock_magnet_diameter,0,mm,verify against datasheet,Magnet not chosen
-dock_magnet_thickness,0,mm,verify against datasheet,Magnet not chosen
-pogo_pin_count,0,count,verify against datasheet,Decide in Phase 10
+dock_magnet_diameter,6,mm,assumption,Placeholder until the magnet is chosen
+dock_magnet_thickness,2,mm,assumption,Placeholder until the magnet is chosen
+pogo_pin_count,4,count,spec,4 pads centred on the bottom edge
 fit_clearance,0.2,mm,assumption,General clearance between printed parts. Tune per printer
+lid_thickness,2.2,mm,model,Back cover
+corner_radius_inner,3.8,mm,model,Inside corner radius (outer 6 minus wall)
+cell_pad,1.0,mm,model,"Foam pad under the cell (cell holder, no heat path to the lid)"
+cell_insulator_top,0.2,mm,safety,"Insulator on the cell top face, below the swell gap"
+lip_width,1.2,mm,model,Lid tongue that stands inside the tray wall
+lip_height,1.5,mm,model,Lid tongue height. Interrupted behind the speakers
+lip_clearance,0.15,mm,assumption,Tongue to tray inner face. Tune after the PLA test print
+gasket_depth,0.8,mm,model,Gasket channel depth (lid 1.4 thick under it)
+gasket_cord,1.1,mm,assumption,Silicone cord diameter for the channel
+insert_hole_d,3.2,mm,verify against datasheet,M2 heat-set insert hole. General M2 guidance 3.0-3.2; confirm with the insert maker
+insert_hole_depth,4.0,mm,verify against datasheet,Insert length 3 plus 1
+insert_boss_d,5.6,mm,model,Tray corner boss (insert wall 1.2)
+screw_clearance_d,2.4,mm,model,M2 clearance hole in the lid
+screw_counterbore_d,3.6,mm,model,M2 ISO 7380 button head (dk 3.5)
+screw_counterbore_depth,1.4,mm,model,Counterbore depth below the foot pocket
+screw_pad_h,1.5,mm,model,Lid pad under each screw (counterbore floor 1.3)
+fit_button,0.2,mm,assumption,"Button cap to hole, per side"
+fit_usb_c,0.3,mm,assumption,"USB-C receptacle to opening, per side"
+fit_pogo,0.1,mm,assumption,"Pogo pad to hole, per side"
+fit_magnet,0.1,mm,assumption,"Magnet to pocket, per side and depth"
+min_wall,1.2,mm,rule,Minimum printed wall (3 perimeters at 0.4)
+ring_od,56,mm,model,"Front ring groove = Qi2 marking, centred on the coil"
+ring_width,1.0,mm,model,Front ring groove width
+ring_depth,0.6,mm,model,Front ring groove depth (ring_inlay fills it)
+plate_length,30,mm,model,"""made with love"" pill plate, back centre"
+plate_width,10,mm,model,Plate width (pill ends R5)
+plate_recess,0.6,mm,model,Recess in the lid (lid 1.6 left)
+plate_thickness,0.5,mm,model,"Brushed aluminium plate, sits 0.1 below the lid surface"
+plate_text_depth,0.2,mm,model,Engraving depth
+honeycomb_count,237,count,spec,End grille holes: 25 columns of 9/10 flat-top hexes
+honeycomb_hex,1.8,mm,spec,Hex hole across flats
+honeycomb_pitch,2.6,mm,spec,Hex pitch (web 0.8)
+honeycomb_wall,1.2,mm,spec,End wall thinned to this in front of the speaker
+membrane_thickness,0.2,mm,assumption,ePTFE acoustic membrane over the whole honeycomb
+speaker_gasket,1.0,mm,assumption,"Foam gasket, speaker face to membrane"
+speaker_length,57.5,mm,spec,CES-571423-28PMB enclosed speaker (along Y)
+speaker_height,23,mm,spec,CES-571423-28PMB (along Z)
+speaker_depth,14.85,mm,spec,CES-571423-28PMB (along X)
+foot_d,6,mm,assumption,Rubber foot over each lid screw (peel off to open). 6 keeps 1.3 mm to the lid edge
+foot_h,3.1,mm,assumption,Rubber foot height
+foot_pocket_depth,1.0,mm,model,Foot pocket in the lid
+pogo_pad_d,2.5,mm,assumption,Pogo target pad on the bottom edge
+gnss_patch,12,mm,spec,12 x 12 x 4 GNSS patch (18 x 18 does not fit outside cell/OLED/phone)
+gnss_patch_t,4,mm,spec,GNSS patch thickness

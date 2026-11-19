@@ -1,139 +1,300 @@
 """
-heartsync - assembly: enclosure + internals (Fusion 360 script, Python)
+heartsync - assembly: print-accurate enclosure + internals (Fusion 360 script, Python)
 
-Source: 3D/HeartsyncShell/HeartsyncStack/HeartsyncStack.py, trimmed.
+Use case
+  * DOCKED: stands on its BOTTOM EDGE, charging through 4 pogo pads, held by 4 magnets.
+  * IN USE: lies on its BACK (rubber feet), front up. A phone snaps onto the FRONT Qi2
+    coil (transmit only) behind the gold front ring.
 
-Builds:
-  * tray (front shell) with display window, ring groove, mic and
-    light-sensor holes, touch-strip groove, USB-C cutout in the right end
-    wall, speaker grille slots in both end walls, five button cutouts in the
-    top wall, and a rib on the bottom wall that carries the haptic LRA
-  * lid (back cover) with dock magnet pockets and pogo contact pads
-  * internal parts with colour: Qi2 coil (ferrite, windings, magnet ring)
-    centred at X = 0, graphite sheet between coil and cell, 10,000 mAh pouch
-    cell (centred in X) + protection board + insulator sheet, power bank /
-    USB-C PD board, Qi2 transmitter board, SIM7080G board with nano-SIM holder
-    and U.FL connectors, GNSS patch antenna, LTE flex antenna, Wi-Fi FlexPIFA
-    on the front wall, stereo end-firing speaker boxes, haptic LRA, OLED
-    glass + flex cable, touch strip, mic, light sensor, button strip
-    (PWR, VOL-, VOL+, PLAY + latching mic-mute button)
+Builds (one run, rebuildable):
+  * tray: FRONT wall with OLED window, Qi2 ring groove (+ ring_inlay), touch-strip groove,
+    mic and light holes; TOP edge with USB-C (waterproof receptacle), 5 buttons (latching
+    mute + PWR, VOL-, VOL+, PLAY) and the bracket slot; BOTTOM edge with 4 pogo pads and 4
+    magnet pockets (1.6 mm skin); both ENDS as a 237-hole honeycomb, thinned to 1.2 mm in
+    front of the speaker, with an ePTFE membrane; carrier bosses H3/H4 with press-fit pins;
+    LRA fin; Wi-Fi hook clips; 4 corner bosses for M2 heat-set inserts
+  * lid: 1.2 mm tongue (0.15 clearance, interrupted behind the speakers), continuous 1 mm
+    gasket channel, screw pads with counterbores, foot pockets over the screws, plate recess
+  * bracket: separate clip-in part that holds the carrier at H1/H2 (under the OLED)
+  * internals: cell on a foam pad, insulator, swell-gap keep-out, front Qi2 coil + NTC,
+    vertical Qi2 TX board, PD board + USB-C, SIM7080G board, GNSS patch, LTE flex,
+    Wi-Fi FlexPIFA + tape + coax, CES-571423-28PMB speakers + foam gaskets, OLED, touch strip,
+    mic, light sensor, button strip, pogo pads, dock magnets, rubber feet, plate
   * the real carrier board, imported from cad/heartsync_carrier.step
-  * fit check (interference), antenna clearance report, then the bodies are
-    grouped into components: shell, power, speakers, lte, wifi, ui, dock
-  * wiring (off by default; endpoints are stale, from the old layout)
+  * checks: fit (interference), clearance rules, grille open area, stack; then grouping,
+    side names and finishes, labels (hidden)
 
-Not built (on purpose):
-  * 500 mAh backup cell: dropped, tracking runs from a reserve on the main cell
+Other entry points (call on the open design after run()):
+  print_checks()      thin walls (ray test) and overhangs for the print orientation
+  export_all()        cad/exports/: tray/lid 3MF + STL, bracket STL, full assembly STEP
+  make_net()          cad/net/heartsync_net.dxf + .pdf (TOP + BACK fabric, linked to the model)
+  make_renders()      cad/renders/_png/*.png (converted to JPG outside Fusion)
+  save_doc()          saves as "HeartSync v1"
+  sync_from_fusion()  reads moved anchor parts and rewrites the POS block in this file
 
-Run from the Fusion MCP or Scripts and Add-ins. Prints a report; no dialogs.
-
-EXPLODE = False -> normal stack with a fit (interference) check
-EXPLODE = True  -> exploded view (layers pulled apart upward, no wires)
-
-Sizes in mm. Part sizes are close to real parts but several are estimates -
-replace them when the real parts arrive.
-Axes: X = 152 length, Y = 72.5 width, Z = thickness. Front face is +Z.
+Dimensions come from cad/params.csv (source of truth); part positions from the POS block.
+Axes: X = length, Y = width (+Y = TOP edge), Z = thickness (+Z = FRONT). Sizes in mm.
 """
 import adsk.core
 import adsk.fusion
+import csv
+import json
 import math
 import os
+import re
+
+HERE = os.path.dirname(os.path.abspath(globals().get("__file__", ".")))
+CAD = os.path.normpath(os.path.join(HERE, ".."))
 
 # ----------------------------------------------------------------------
 # SETTINGS
 # ----------------------------------------------------------------------
-EXPLODE = False
-EXPLODE_GAP = 25.0
-WIRES = False
-
+DOCK_SIDE = "bottom"       # "bottom" (stands on the dock) or "back"; only "bottom" is built
 DISPLAY = "2.7"            # "2.7" or "3.12"
-
-LENGTH, WIDTH = 152.0, 72.5
-THICKNESS = 32.0           # tray + lid (31 was 0.1 mm short with the swell gap)
-WALL = 2.2
-LID = 2.2
-CORNER_R = 6.0
-SWELL = 1.2                # free space above the 10,000 mAh cell
-
-RING_CX = 43.0             # decorative ring groove on the front (no longer over the coil)
-RING_DIA = 56.0
-COIL_CX = 0.0              # Qi2 coil on the back, centred in X under the cell
-
-INSUL = 0.2                # insulator sheet on the cell top (below the swell gap)
-INSUL_BOT = 0.5            # thermal insulator on the cell bottom (coil side)
-GRAPHITE = 0.1             # graphite sheet between the coil ferrite and the cell
-GROUP = True               # group the bodies into components after the checks
+GROUP = True               # group bodies into components after the checks
 CARRIER = True             # import the real carrier board STEP
-CARRIER_STEP = os.path.join(os.path.dirname(os.path.abspath(globals().get("__file__", "."))),
-                            "..", "heartsync_carrier.step")
-CARRIER_X0, CARRIER_Y1 = -36.0, 30.0   # board left edge, top edge (KiCad top = +Y)
-# where kicad-cli puts the board in the STEP (board origin at (100, 100) in the .kicad_pcb)
-STEP_BOARD_X0, STEP_BOARD_Y1, STEP_BOARD_Z0 = 100.0, -100.0, 0.0
+DOC_NAME = "HeartSync v1"
 
-SPK = (16.0, 30.0, 20.0)   # speaker box: depth (X), face width (Y), face height (Z)
-SPK_CY, SPK_Z0 = 10.0, 4.0
+# One place for the finishes (hex colours)
+PALETTE = {
+    "shell_fabric": "#CBBFAE",   # fabric on TOP edge and BACK
+    "front_panel": "#1A1A1A",    # FRONT, whole face, matte black
+    "petg_bare": "#1A1A1A",      # BOTTOM edge, ENDS and inside faces (the tray filament)
+    "oled_glass": "#050505",
+    "ring_inlay": "#C9A227",     # front ring = Qi2 marking, satin gold
+    "plate": "#D6D6D6",          # "made with love", brushed aluminium
+    "buttons": "#CBBFAE",        # soft-touch, shell colour
+    "mute_cap": "#E24B4A",
+    "grille_mesh": "#2E2E2E",    # ePTFE membrane behind the honeycomb
+    "usb_c": "#111111",          # rubber gasket around the port
+    "feet": "#202020",
+}
 
-# Wi-Fi FlexPIFA 001-0014: centre, size (X, Y, thickness), tape on the element side
-WIFI_C, WIFI = (41.5, 1.05), (11.0, 40.1, 2.5)
-WIFI_TAPE = 0.2
+# ----------------------------------------------------------------------
+# PARAMETERS (cad/params.csv)
+# ----------------------------------------------------------------------
+PARAMS, PARAM_NOTES = {}, []
 
-# carrier mounting holes (H1-H4, M2 NPTH 2.2 mm) in model coordinates. The board hangs from
-# bosses on the front shell with press-fit pins, flush with the board underside: no screw
-# head, nut or clip barb below the board, so nothing enters the swell gap and no metal
-# faces the cell. H1/H2 sit under the OLED glass, so their bosses drop from a rib that is
-# cantilevered from the top wall between the board and the glass.
-HOLES = {"H1": (-33.0, 21.0), "H2": (-33.0, 4.0), "H3": (9.5, 16.0), "H4": (12.5, -12.0)}
-BOSS_D, PIN_D = 5.0, 2.1
 
-# top-wall buttons: (name, centre X, body size). Latching mic mute is 7 x 7 mm.
-BTN_ZC = 21.5
-BUTTONS = [("mute", 38.5, 7.0), ("pwr", 46.0, 6.0), ("vol_dn", 53.5, 6.0),
-           ("vol_up", 61.0, 6.0), ("play", 68.0, 6.0)]
+def _load_params():
+    path = os.path.join(CAD, "params.csv")
+    try:
+        with open(path, encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                try:
+                    PARAMS[r["name"]] = float(r["value"])
+                except (TypeError, ValueError):
+                    pass
+    except OSError:
+        PARAM_NOTES.append("params.csv not found: all defaults used")
 
-if DISPLAY == "2.7":
-    DCX = -34.5
-    GLASS = (73.0, 41.9, 1.8)      # bare 2.7in 128x64 glass
-    WIN = (63.0, 32.0)             # window over the 61.4 x 30.7 lit area
-else:
-    DCX = -27.0
-    GLASS = (89.2, 44.0, 6.0)      # NHD-3.12-25664UCW2 module body
-    WIN = (82.0, 22.0)
-STRIP_C = (DCX, 28.0)
+
+def prm(name, default):
+    v = PARAMS.get(name)
+    if v is None:
+        PARAM_NOTES.append("%s missing: default %g" % (name, default))
+        return default
+    if v == 0:
+        PARAM_NOTES.append("%s is 0 (unknown): placeholder %g" % (name, default))
+        return default
+    return v
+
+
+_load_params()
+
+LENGTH = prm("body_length", 152.0)
+WIDTH = prm("body_width", 72.5)
+THICKNESS = prm("body_thickness", 32.0)
+WALL = prm("wall_thickness", 2.2)
+LID = prm("lid_thickness", 2.2)
+CORNER_R = prm("corner_radius", 6.0)
+FABRIC = prm("fabric_allowance", 0.6)
+SWELL = prm("battery_swell_gap", 1.2)
+INSUL = prm("cell_insulator_top", 0.2)
+CELL_PAD = prm("cell_pad", 1.0)
+CELL_L = prm("battery_length", 95.0)        # placeholder until the cell is chosen
+CELL_W = prm("battery_width", 60.0)
+CELL_T = prm("battery_thickness", 12.0)
+PCB_T = prm("pcb_thickness", 1.6)
+
+LIP_W = prm("lip_width", 1.2)
+LIP_H = prm("lip_height", 1.5)
+LIP_CLR = prm("lip_clearance", 0.15)
+GASKET_W = prm("gasket_width", 1.0)
+GASKET_D = prm("gasket_depth", 0.8)
+
+INSERT_D = prm("insert_hole_d", 3.2)
+INSERT_DEPTH = prm("insert_hole_depth", 4.0)
+BOSS_INS_D = prm("insert_boss_d", 5.6)
+SCREW_D = prm("screw_clearance_d", 2.4)
+CBORE_D = prm("screw_counterbore_d", 4.0)
+CBORE_DEPTH = prm("screw_counterbore_depth", 1.4)
+SCREW_PAD = prm("screw_pad_h", 1.5)
+
+FIT_BTN = prm("fit_button", 0.2)
+FIT_USB = prm("fit_usb_c", 0.3)
+FIT_POGO = prm("fit_pogo", 0.1)
+FIT_MAG = prm("fit_magnet", 0.1)
+MIN_WALL = prm("min_wall", 1.2)
+
+RING_OD = prm("ring_od", 56.0)
+RING_W = prm("ring_width", 1.0)
+RING_DEPTH = prm("ring_depth", 0.6)
+
+PLATE_L = prm("plate_length", 30.0)
+PLATE_W = prm("plate_width", 10.0)
+PLATE_RECESS = prm("plate_recess", 0.6)
+PLATE_T = prm("plate_thickness", 0.5)
+PLATE_TEXT = prm("plate_text_depth", 0.2)
+
+HC_HEX = prm("honeycomb_hex", 1.8)
+HC_PITCH = prm("honeycomb_pitch", 2.6)
+HC_WALL = prm("honeycomb_wall", 1.2)
+MEMBRANE = prm("membrane_thickness", 0.2)
+SPK_GASKET = prm("speaker_gasket", 1.0)
+SPK_L = prm("speaker_length", 57.5)          # along Y
+SPK_H = prm("speaker_height", 23.0)          # along Z
+SPK_D = prm("speaker_depth", 14.85)          # along X
+
+FOOT_D = prm("foot_d", 8.0)
+FOOT_H = prm("foot_h", 3.1)
+FOOT_POCKET = prm("foot_pocket_depth", 1.0)
+POGO_D = prm("pogo_pad_d", 2.5)
+MAG_D = prm("dock_magnet_diameter", 6.0)
+MAG_T = prm("dock_magnet_thickness", 2.0)
+GNSS = prm("gnss_patch", 12.0)
+GNSS_T = prm("gnss_patch_t", 4.0)
+
+# ----------------------------------------------------------------------
+# POSITIONS (anchors; sync_from_fusion() rewrites this block)
+# ----------------------------------------------------------------------
+# --- POS BEGIN ---
+POS = {
+    "cell": (-4.00, 0.00),
+    "coil": (43.00, 0.00),
+    "oled": (-34.50, 4.00),
+    "carrier": (-36.00, 30.00),
+    "pd_board": (46.38, 20.25),
+    "usb_c": (46.00, 0.00),
+    "qi2_tx": (51.80, -17.00),
+    "sim_board": (-42.25, -24.25),
+    "wifi": (-24.95, -27.55),
+    "gnss": (-60.00, -27.50),
+    "lte": (-8.00, 20.00),
+    "lra": (22.25, -29.00),
+    "buttons": (-70.00, 0.00),
+}
+# --- POS END ---
 
 # ----------------------------------------------------------------------
 # DERIVED
 # ----------------------------------------------------------------------
 TRAY_H = THICKNESS - LID
-INNER = TRAY_H - WALL                    # inside face of the front wall
-Z_CELL = 4.5                             # coil budget below the cell
-CELL_T = 12.0
-ABOVE = Z_CELL + CELL_T + INSUL + SWELL  # board layer bottom (17.9)
-PCB_T = 1.6
+INNER = TRAY_H - WALL                       # inside face of the front wall (27.6)
+CAV_X = LENGTH / 2.0 - WALL                 # inside face of the ends (73.8)
+CAV_Y = WIDTH / 2.0 - WALL                  # inside face of TOP/BOTTOM walls (34.05)
+
+Z_CELL = CELL_PAD
+CELL_TOP = Z_CELL + CELL_T
+ABOVE = CELL_TOP + INSUL + SWELL            # board layer bottom (14.4)
 PCB_TOP = ABOVE + PCB_T
+
+CELL_CX, CELL_CY = POS["cell"]
+CELL_X0 = CELL_CX - (CELL_L + 5.0) / 2.0    # body + 5 mm seal edge
+CELL_X1 = CELL_X0 + CELL_L + 5.0
+
+COIL_CX, COIL_CY = POS["coil"]
+COIL_Z0 = INNER - 2.8                       # ferrite bottom (24.8)
+
+if DISPLAY == "2.7":
+    GLASS = (73.0, 41.9, 1.8)
+    WIN = (63.0, 32.0)
+else:
+    GLASS = (89.2, 44.0, 6.0)
+    WIN = (82.0, 22.0)
+DCX, DCY = POS["oled"]
 GLASS_Z = INNER - GLASS[2]
-CELL_X0 = -50.0                          # cell + seal edge span X -50..50 (centred)
-CAV_X = LENGTH / 2.0 - WALL              # inside face of the end walls (73.8)
-CAV_Y = WIDTH / 2.0 - WALL               # inside face of the top/bottom walls (34.05)
-USB_ZC = ABOVE + PCB_T + 3.26 / 2.0      # USB-C receptacle centre height
-WIFI_Z0 = INNER - WIFI_TAPE - WIFI[2]    # FlexPIFA ground plate (board side)
-TZ = (5 * EXPLODE_GAP + 10.0) if EXPLODE else 0.0   # tray lift in exploded view
+STRIP_C = (DCX, 28.0)
+
+# carrier (KiCad board 70 x 45, origin top-left; local x right, y down)
+CAR_X0, CAR_Y1 = POS["carrier"]
+STEP_BOARD_X0, STEP_BOARD_Y1, STEP_BOARD_Z0 = 100.0, -100.0, 0.0
+HOLES_LOCAL = {"H1": (3.0, 9.0), "H2": (3.0, 26.0), "H3": (45.5, 14.0), "H4": (48.5, 42.0)}
+HOLES = {k: (CAR_X0 + x, CAR_Y1 - y) for k, (x, y) in HOLES_LOCAL.items()}
+UFL = (CAR_X0 + 23.0, CAR_Y1 - 2.96)
+BOSS_D, PIN_D = 5.0, 2.1
+
+# speakers: face against the foam gasket on the membrane in the thinned end wall
+# flat-top hexes (flats face +-Z: 1 mm bridge + 60 deg sides when printed front-down),
+# 25 columns along Y (2.25 apart) of 9/10 holes along Z (2.6 pitch) = 237 holes
+HC_COLS = 25
+HC_COL_DY = HC_PITCH * math.sqrt(3) / 2.0
+HC_R = HC_HEX / math.sqrt(3)                # hex circumradius
+POCKET_Y = 29.2
+POCKET_Z = (1.2, 26.8)                      # 1.2 mm rim ledge below the thinned pocket
+HC_ZC = POCKET_Z[0] + 0.2 + (9 * HC_PITCH + HC_HEX) / 2.0   # lowest hole 0.2 above the ledge
+WALL_THIN_X = LENGTH / 2.0 - HC_WALL        # 74.8: inner face of the thinned wall
+SPK_FACE_X = WALL_THIN_X - MEMBRANE - SPK_GASKET     # 73.6
+SPK_Z0 = 0.3                                # below the honeycomb centre: the GNSS patch clears it
+SPK_CY = 0.0
+
+# top edge
+USB = (8.94, 3.26, 7.35)                    # receptacle W x H x depth
+USB_X = POS["usb_c"][0]
+USB_ZC = PCB_TOP + USB[1] / 2.0
+BTN_ZC = 19.7                               # strip bottom 16.2, above the carrier top (16.0)
+BTN_X0 = POS["buttons"][0]
+BTN_GAP = 0.8
+BUTTONS = []                                # (name, centre X, body width)
+_x = BTN_X0
+for _n, _w in (("mute", 7.0), ("pwr", 6.0), ("vol_dn", 6.0), ("vol_up", 6.0), ("play", 6.0)):
+    BUTTONS.append((_n, _x + _w / 2.0, _w))
+    _x += _w + BTN_GAP
+BTN_X1 = _x - BTN_GAP
+SLOT_X, SLOT_DEPTH = HOLES["H1"][0], 1.0    # bracket tab slot in the top wall
+
+# bottom edge (dock)
+POGO_X = (-12.0, -4.0, 4.0, 12.0)
+POGO_Z = (TRAY_H - LID) / 2.0               # 13.8: middle of the 32 mm face (Z -2.2..29.8)
+MAG_X = (-58.0, -32.0, 32.0, 58.0)
+MAG_Z = 7.0
+MAG_PAD_D, MAG_PAD_T = 9.0, 1.5
+
+# corner screws / inserts / feet (outside the cell and the speakers)
+SCREWS = [(sx * 66.0, sy * 31.8) for sx in (-1, 1) for sy in (-1, 1)]
+
+WIFI_C, WIFI = POS["wifi"], (40.1, 11.0, 2.5)        # long axis along X
+WIFI_TAPE = 0.2
+WIFI_Z0 = INNER - WIFI_TAPE - WIFI[2]
+WIFI_COAX = [(-10, -21.3, 25.6), (-10, -20.2, 23.4), (-9, -17.5, 21.0), (-6, -14, 21.0),
+             (3, -14, 21.0), (6, -11, 21.0), (3, -8, 21.0), (-6, -8, 21.0), (-9, -5, 21.0),
+             (-6, -2, 21.0), (3, -2, 21.0), (5, 2, 21.0), (1, 8, 21.0), (-6, 14, 21.0),
+             (-11, 21, 21.0), (UFL[0], 25.0, 20.6), (UFL[0], UFL[1], 19.6)]
+
+PHONE_X0 = COIL_CX - 38.5                   # upright 77 x 163 phone on the ring covers X >= 4.5
 
 COL = {
-    "shell": (235, 225, 230), "lid": (220, 205, 215),
-    "pcb": (20, 110, 60), "pcb_dark": (25, 25, 30), "chip": (22, 22, 22),
-    "metal": (190, 190, 195), "gold": (212, 175, 55), "copper": (200, 110, 50),
-    "ferrite": (40, 40, 40), "magnet": (150, 150, 155), "cell": (70, 120, 200),
-    "cell_seal": (170, 170, 175), "conn": (235, 232, 220), "passive": (200, 170, 120),
-    "glass": (10, 10, 12), "fpc": (205, 125, 30), "ceramic": (210, 190, 150),
-    "red": (200, 30, 30), "black": (25, 25, 25), "yellow": (230, 200, 40),
-    "green": (40, 160, 60), "white": (240, 240, 240), "blue": (40, 90, 200),
-    "coax": (120, 120, 120), "mic_pcb": (90, 40, 140), "als_pcb": (30, 60, 160),
-    "mute": (230, 70, 30), "foam": (60, 60, 60),
-    "insul": (245, 235, 190), "speaker": (45, 45, 50), "flexpifa": (230, 140, 20),
+    "shell": (26, 26, 26), "pcb": (20, 110, 60), "chip": (22, 22, 22), "metal": (190, 190, 195),
+    "gold": (212, 175, 55), "copper": (200, 110, 50), "ferrite": (40, 40, 40),
+    "magnet": (150, 150, 155), "cell": (70, 120, 200), "cell_seal": (170, 170, 175),
+    "conn": (235, 232, 220), "passive": (200, 170, 120), "fpc": (205, 125, 30),
+    "ceramic": (210, 190, 150), "black": (25, 25, 25), "white": (240, 240, 240),
+    "mic_pcb": (90, 40, 140), "als_pcb": (30, 60, 160), "insul": (245, 235, 190),
+    "speaker": (45, 45, 50), "flexpifa": (230, 140, 20), "foam": (60, 60, 60),
+    "red": (200, 30, 30), "coax": (120, 120, 120),
 }
 
+
+def hex_rgb(h):
+    h = h.lstrip("#")
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
+for _k, _v in PALETTE.items():
+    COL[_k] = hex_rgb(_v)
+
 MM = 0.1
-G = {"fails": [], "parts": [], "wires": 0, "planes": {}, "apps": {}, "base_app": None}
+G = {"fails": [], "parts": [], "planes": {}, "apps": {}, "base_app": None}
 
 
 def mm(v):
@@ -192,8 +353,8 @@ def appearance(key):
             a = design.appearances.itemByName(name)
             if not a:
                 a = design.appearances.addByCopy(G["base_app"], name)
-                r, g, b = COL[key]
-                color_prop(a).value = adsk.core.Color.create(r, g, b, 255)
+            r, g, b = COL[key]
+            color_prop(a).value = adsk.core.Color.create(r, g, b, 255)
     except Exception:
         a = None
     G["apps"][key] = a
@@ -201,6 +362,8 @@ def appearance(key):
 
 
 def paint(body, key):
+    if not key:
+        return
     a = appearance(key)
     if a:
         try:
@@ -212,18 +375,11 @@ def paint(body, key):
 # ----------------------------------------------------------------------
 # GEOMETRY HELPERS
 # ----------------------------------------------------------------------
-def shift(layer):
-    """layer 1 = front group, 2 = electronics, 3 = power, 4 = coil, 5 = lid."""
-    if not EXPLODE:
-        return 0.0
-    return {5: 0, 4: 1, 3: 2, 2: 3, 1: 4}[layer] * EXPLODE_GAP
-
-
 def plane_at(z):
     comp = G["comp"]
     if abs(z) < 1e-6:
         return comp.xYConstructionPlane
-    key = round(z, 3)
+    key = ("z", round(z, 3))
     if key not in G["planes"]:
         pi = comp.constructionPlanes.createInput()
         pi.setByOffset(comp.xYConstructionPlane, vi(z))
@@ -233,24 +389,48 @@ def plane_at(z):
     return G["planes"][key]
 
 
-def side_plane(base, val, axis):
+def side_plane(axis, val):
+    """Construction plane x = val (axis 'x') or y = val (axis 'y'), model coordinates."""
     comp = G["comp"]
+    key = (axis, round(val, 3))
+    if key in G["planes"]:
+        return G["planes"][key]
+    base = comp.yZConstructionPlane if axis == "x" else comp.xZConstructionPlane
     pi = comp.constructionPlanes.createInput()
     pi.setByOffset(base, vi(val))
     pl = comp.constructionPlanes.add(pi)
     o = pl.geometry.origin
     c = o.x if axis == "x" else o.y
-    if c * val < 0:
+    if abs(val) > 1e-6 and c * val < 0:
         pl.deleteMe()
         pi = comp.constructionPlanes.createInput()
         pi.setByOffset(base, vi(-val))
         pl = comp.constructionPlanes.add(pi)
     pl.isLightBulbOn = False
+    G["planes"][key] = pl
     return pl
 
 
 def rect(sk, cx, cy, w, h):
     sk.sketchCurves.sketchLines.addCenterPointRectangle(P(cx, cy), P(cx + w / 2.0, cy + h / 2.0))
+
+
+def rounded_rect(sk, cx, cy, w, h, r):
+    """Closed rounded rectangle in an XY-offset sketch (model X/Y)."""
+    lines, arcs = sk.sketchCurves.sketchLines, sk.sketchCurves.sketchArcs
+    x0, x1, y0, y1 = cx - w / 2.0, cx + w / 2.0, cy - h / 2.0, cy + h / 2.0
+    r = min(r, w / 2.0, h / 2.0)
+    corners = ((x1 - r, y0 + r, -90), (x1 - r, y1 - r, 0), (x0 + r, y1 - r, 90), (x0 + r, y0 + r, 180))
+    seg = []
+    for (ax, ay, sa) in corners:
+        a0, a1 = math.radians(sa), math.radians(sa + 90)
+        seg.append(((ax, ay), (ax + r * math.cos(a0), ay + r * math.sin(a0)),
+                    (ax + r * math.cos(a1), ay + r * math.sin(a1))))
+    for i, (c, s, e) in enumerate(seg):
+        arcs.addByCenterStartSweep(P(*c), P(*s), math.radians(90))
+        n = seg[(i + 1) % 4]
+        if (abs(e[0] - n[1][0]) + abs(e[1] - n[1][1])) > 1e-6:
+            lines.addByTwoPoints(P(*e), P(*n[1]))
 
 
 def all_profiles(sk):
@@ -275,6 +455,7 @@ def new_bodies(profiles, t, name, color, register=True):
         profiles, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
     ei.setDistanceExtent(False, vi(t))
     f = comp.features.extrudeFeatures.add(ei)
+    f.name = name
     out = []
     for i in range(f.bodies.count):
         b = f.bodies.item(i)
@@ -286,20 +467,20 @@ def new_bodies(profiles, t, name, color, register=True):
     return out
 
 
-def block(name, layer, color, cx, cy, z0, w, h, t):
+def block(name, color, cx, cy, z0, w, h, t, register=True):
     try:
-        sk = G["comp"].sketches.add(plane_at(z0 + shift(layer)))
+        sk = G["comp"].sketches.add(plane_at(z0))
         rect(sk, cx, cy, w, h)
         sk.isVisible = False
-        return new_bodies(sk.profiles.item(0), t, name, color)
+        return new_bodies(sk.profiles.item(0), t, name, color, register)
     except Exception:
         G["fails"].append(name)
         return []
 
 
-def cyl(name, layer, color, cx, cy, z0, dia, t, inner=0.0):
+def cyl(name, color, cx, cy, z0, dia, t, inner=0.0, register=True):
     try:
-        sk = G["comp"].sketches.add(plane_at(z0 + shift(layer)))
+        sk = G["comp"].sketches.add(plane_at(z0))
         circ = sk.sketchCurves.sketchCircles
         circ.addByCenterRadius(P(cx, cy), mm(dia / 2.0))
         if inner > 0:
@@ -308,16 +489,15 @@ def cyl(name, layer, color, cx, cy, z0, dia, t, inner=0.0):
         else:
             prof = sk.profiles.item(0)
         sk.isVisible = False
-        return new_bodies(prof, t, name, color)
+        return new_bodies(prof, t, name, color, register)
     except Exception:
         G["fails"].append(name)
         return []
 
 
-def grid(name, layer, color, z0, rects, t):
-    """Many small disjoint rectangles in one feature (pads, passives, antenna)."""
+def grid(name, color, z0, rects, t):
     try:
-        sk = G["comp"].sketches.add(plane_at(z0 + shift(layer)))
+        sk = G["comp"].sketches.add(plane_at(z0))
         for (cx, cy, w, h) in rects:
             rect(sk, cx, cy, w, h)
         sk.isVisible = False
@@ -327,29 +507,98 @@ def grid(name, layer, color, z0, rects, t):
         return []
 
 
-def wire(name, color, pts, dia=1.0):
-    if EXPLODE or not WIRES:
-        return
+def _side_extrude(axis, mid, shapes, length, name, color, register=True, op=None, participants=None):
+    """Extrude closed shapes drawn on the plane axis = mid, symmetric, total `length`.
+    shapes: ("rect", (a0, b0), (a1, b1)) | ("circle", (a, b), dia) | ("poly", [(a, b), ...])
+    with (a, b) = (y, z) for axis 'x' and (x, z) for axis 'y'."""
     comp = G["comp"]
-    try:
-        sk = comp.sketches.add(comp.xYConstructionPlane)
-        pc = adsk.core.ObjectCollection.create()
-        for p in pts:
-            pc.add(P(*p))
-        spl = sk.sketchCurves.sketchFittedSplines.add(pc)
-        sk.isVisible = False
-        path = comp.features.createPath(spl)
-        pi = comp.features.pipeFeatures.createInput(
-            path, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
-        pi.sectionSize = vi(dia)
-        f = comp.features.pipeFeatures.add(pi)
+    pl = side_plane(axis, mid)
+    sk = comp.sketches.add(pl)
+    sk.isComputeDeferred = True
+
+    def mp(a, b):
+        p = P(mid, a, b) if axis == "x" else P(a, mid, b)
+        q = sk.modelToSketchSpace(p)
+        return adsk.core.Point3D.create(q.x, q.y, 0)
+
+    lines = sk.sketchCurves.sketchLines
+    for s in shapes:
+        if s[0] == "rect":
+            lines.addTwoPointRectangle(mp(*s[1]), mp(*s[2]))
+        elif s[0] == "circle":
+            sk.sketchCurves.sketchCircles.addByCenterRadius(mp(*s[1]), mm(s[2] / 2.0))
+        else:
+            pts = [mp(a, b) for (a, b) in s[1]]
+            first = lines.addByTwoPoints(pts[0], pts[1])
+            prev = first
+            for p in pts[2:]:
+                prev = lines.addByTwoPoints(prev.endSketchPoint, p)
+            lines.addByTwoPoints(prev.endSketchPoint, first.startSketchPoint)
+    sk.isComputeDeferred = False
+    sk.isVisible = False
+    new = op is None
+    ei = comp.features.extrudeFeatures.createInput(
+        all_profiles(sk), adsk.fusion.FeatureOperations.NewBodyFeatureOperation if new else op)
+    ei.setSymmetricExtent(vi(length), True)
+    if participants:
+        ei.participantBodies = participants
+    f = comp.features.extrudeFeatures.add(ei)
+    f.name = name
+    out = []
+    if new:
         for i in range(f.bodies.count):
             b = f.bodies.item(i)
-            b.name = "wire_" + name
+            b.name = name if f.bodies.count == 1 else "%s_%d" % (name, i + 1)
             paint(b, color)
-        G["wires"] += 1
+            if register:
+                G["parts"].append(b)
+            out.append(b)
+    return out
+
+
+def side_body(name, color, axis, mid, shapes, length, register=True):
+    try:
+        return _side_extrude(axis, mid, shapes, length, name, color, register)
     except Exception:
-        G["fails"].append("wire_" + name)
+        G["fails"].append(name)
+        return []
+
+
+def side_cut(name, body, axis, mid, shapes, length):
+    try:
+        _side_extrude(axis, mid, shapes, length, name, None,
+                      op=adsk.fusion.FeatureOperations.CutFeatureOperation, participants=[body])
+    except Exception:
+        G["fails"].append(name)
+
+
+def tool_block(cx, cy, z0, w, h, t):
+    return block("tool", None, cx, cy, z0, w, h, t, register=False)[0]
+
+
+def tool_cyl(cx, cy, z0, dia, t):
+    return cyl("tool", None, cx, cy, z0, dia, t, register=False)[0]
+
+
+def combine(target, tools, op, name, keep=False):
+    comp = G["comp"]
+    coll = adsk.core.ObjectCollection.create()
+    for t in tools:
+        coll.add(t)
+    ci = comp.features.combineFeatures.createInput(target, coll)
+    ci.operation = op
+    ci.isKeepToolBodies = keep
+    f = comp.features.combineFeatures.add(ci)
+    f.name = name
+    return f
+
+
+def join(target, tools, name):
+    return combine(target, tools, adsk.fusion.FeatureOperations.JoinFeatureOperation, name)
+
+
+def cut(target, tools, name):
+    return combine(target, tools, adsk.fusion.FeatureOperations.CutFeatureOperation, name)
 
 
 def fillet_vertical_edges(body, r):
@@ -368,317 +617,428 @@ def fillet_vertical_edges(body, r):
         comp.features.filletFeatures.add(fi)
 
 
-def cut_from_front(profiles, depth, tray):
+def chamfer_edges_at_z(body, z, d):
+    comp = G["comp"]
+    edges = adsk.core.ObjectCollection.create()
+    for e in body.edges:
+        bb = e.boundingBox
+        if abs(bb.minPoint.z - mm(z)) < 1e-4 and abs(bb.maxPoint.z - mm(z)) < 1e-4:
+            edges.add(e)
+    if edges.count:
+        ci = comp.features.chamferFeatures.createInput2()
+        ci.chamferEdgeSets.addEqualDistanceChamferEdgeSet(edges, vi(d), True)
+        comp.features.chamferFeatures.add(ci)
+
+
+def cut_z(sk, profiles, depth, body, name, up=False):
     comp = G["comp"]
     ei = comp.features.extrudeFeatures.createInput(
         profiles, adsk.fusion.FeatureOperations.CutFeatureOperation)
     ei.setOneSideExtent(adsk.fusion.DistanceExtentDefinition.create(vi(depth)),
-                        adsk.fusion.ExtentDirections.NegativeExtentDirection)
-    ei.participantBodies = [tray]
-    comp.features.extrudeFeatures.add(ei)
+                        adsk.fusion.ExtentDirections.PositiveExtentDirection if up
+                        else adsk.fusion.ExtentDirections.NegativeExtentDirection)
+    ei.participantBodies = [body]
+    comp.features.extrudeFeatures.add(ei).name = name
 
 
-def side_cut(tray, plane, a, b, depth=10.0):
-    """a, b = opposite model-space corners (mm) lying on the side plane."""
-    side_cuts(tray, plane, [(a, b)], depth)
+def hex_points(yc, zc, r):
+    """Flat-top hexagon (flats face +-Z, points along Y) in the (y, z) plane."""
+    return [(yc + r * math.cos(math.radians(60 * k)), zc + r * math.sin(math.radians(60 * k)))
+            for k in range(6)]
 
 
-def side_cuts(tray, plane, corners, depth=10.0):
-    """Several rectangles, each (a, b) = opposite model-space corners on the side plane."""
-    comp = G["comp"]
-    sk = comp.sketches.add(plane)
-    for a, b in corners:
-        p1 = sk.modelToSketchSpace(P(*a))
-        p2 = sk.modelToSketchSpace(P(*b))
-        sk.sketchCurves.sketchLines.addTwoPointRectangle(
-            adsk.core.Point3D.create(p1.x, p1.y, 0), adsk.core.Point3D.create(p2.x, p2.y, 0))
-    sk.isVisible = False
-    ei = comp.features.extrudeFeatures.createInput(
-        all_profiles(sk), adsk.fusion.FeatureOperations.CutFeatureOperation)
-    ei.setSymmetricExtent(vi(depth), True)
-    ei.participantBodies = [tray]
-    comp.features.extrudeFeatures.add(ei)
-
-
-def join_to_tray(tray, bodies):
-    coll = adsk.core.ObjectCollection.create()
-    for b in bodies:
-        coll.add(b)
-    ci = G["comp"].features.combineFeatures.createInput(tray, coll)
-    ci.operation = adsk.fusion.FeatureOperations.JoinFeatureOperation
-    G["comp"].features.combineFeatures.add(ci)
-
-
-def shell_block(cx, cy, z0, w, h, t):
-    """A tray feature body (not a part): extruded rectangle, joined to the tray later."""
-    sk = G["comp"].sketches.add(plane_at(TZ + z0))
-    rect(sk, cx, cy, w, h)
-    sk.isVisible = False
-    return new_bodies(sk.profiles.item(0), t, "shell_feature", "shell", register=False)[0]
-
-
-def shell_cyl(cx, cy, z0, dia, t):
-    sk = G["comp"].sketches.add(plane_at(TZ + z0))
-    sk.sketchCurves.sketchCircles.addByCenterRadius(P(cx, cy), mm(dia / 2.0))
-    sk.isVisible = False
-    return new_bodies(sk.profiles.item(0), t, "shell_feature", "shell", register=False)[0]
+def honeycomb_centres():
+    out = []
+    for j in range(HC_COLS):
+        y = SPK_CY + (j - (HC_COLS - 1) / 2.0) * HC_COL_DY
+        n = 9 if j % 2 == 0 else 10
+        for i in range(n):
+            out.append((y, HC_ZC + (i - (n - 1) / 2.0) * HC_PITCH))
+    return out
 
 
 # ----------------------------------------------------------------------
-# SHELL
+# SHELL: TRAY
 # ----------------------------------------------------------------------
 def build_tray():
     comp = G["comp"]
-    sk = comp.sketches.add(plane_at(TZ))
+    sk = comp.sketches.add(comp.xYConstructionPlane)
     rect(sk, 0, 0, LENGTH, WIDTH)
     sk.isVisible = False
     ei = comp.features.extrudeFeatures.createInput(
         sk.profiles.item(0), adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
     ei.setDistanceExtent(False, vi(TRAY_H))
-    tray = comp.features.extrudeFeatures.add(ei).bodies.item(0)
+    f = comp.features.extrudeFeatures.add(ei)
+    f.name = "SHELL_tray_block"
+    tray = f.bodies.item(0)
     tray.name = "shell_tray"
     fillet_vertical_edges(tray, CORNER_R)
-
-    back = None
-    for f in tray.faces:
-        if isinstance(f.geometry, adsk.core.Plane) and abs(f.geometry.normal.z) > 0.99:
-            if back is None or f.centroid.z < back.centroid.z:
-                back = f
+    back = min((fc for fc in tray.faces if isinstance(fc.geometry, adsk.core.Plane)
+                and abs(fc.geometry.normal.z) > 0.99), key=lambda fc: fc.centroid.z)
     faces = adsk.core.ObjectCollection.create()
     faces.add(back)
     si = comp.features.shellFeatures.createInput(faces)
     si.insideThickness = vi(WALL)
-    comp.features.shellFeatures.add(si)
+    comp.features.shellFeatures.add(si).name = "SHELL_tray_shell"
 
-    front = plane_at(TZ + TRAY_H)
-
-    def front_cut(name, fn, depth):
+    # FRONT: window, touch-strip groove, Qi2 ring groove, mic and light holes
+    def fcut(name, fn, depth, smallest=False):
         try:
-            s = comp.sketches.add(front)
-            fn(s)
+            s = comp.sketches.add(plane_at(TRAY_H))
             s.isVisible = False
-            cut_from_front(all_profiles(s) if name != "ring" else smallest_profile(s), depth, tray)
+            fn(s)
+            cut_z(s, smallest_profile(s) if smallest else all_profiles(s), depth, tray, name)
         except Exception:
-            G["fails"].append("cut_" + name)
+            G["fails"].append(name)
 
-    front_cut("window", lambda s: rect(s, DCX, 0, WIN[0], WIN[1]), WALL * 1.5)
-    front_cut("strip", lambda s: rect(s, STRIP_C[0], STRIP_C[1], 40.0, 5.0), 0.6)
+    fcut("FRONT_window", lambda s: rect(s, DCX, DCY, WIN[0], WIN[1]), WALL * 1.5)
+    fcut("FRONT_touch_groove", lambda s: rect(s, STRIP_C[0], STRIP_C[1], 40.0, 5.0), 0.6)
 
     def ring(s):
         c = s.sketchCurves.sketchCircles
-        c.addByCenterRadius(P(RING_CX, 0), mm(RING_DIA / 2.0))
-        c.addByCenterRadius(P(RING_CX, 0), mm(RING_DIA / 2.0 - 1.0))
-    front_cut("ring", ring, 0.6)
-    front_cut("mic_hole", lambda s: s.sketchCurves.sketchCircles.addByCenterRadius(P(-64, 28.5), mm(0.5)), WALL * 1.5)
-    front_cut("light_hole", lambda s: s.sketchCurves.sketchCircles.addByCenterRadius(P(-64, -28.5), mm(1.0)), WALL * 1.5)
+        c.addByCenterRadius(P(COIL_CX, COIL_CY), mm(RING_OD / 2.0))
+        c.addByCenterRadius(P(COIL_CX, COIL_CY), mm(RING_OD / 2.0 - RING_W))
+    fcut("FRONT_qi2_ring_groove", ring, RING_DEPTH, smallest=True)
+    fcut("FRONT_mic_hole", lambda s: s.sketchCurves.sketchCircles.addByCenterRadius(P(-66.5, 29.5), mm(0.5)), WALL * 1.5)
+    fcut("FRONT_light_hole", lambda s: s.sketchCurves.sketchCircles.addByCenterRadius(P(-58.5, 29.5), mm(1.0)), WALL * 1.5)
 
-    # USB-C on the right end wall (+X), at the PD board level
+    # TOP edge: USB-C, buttons, bracket slot
+    ty = WIDTH / 2.0
+    uw, uh = USB[0] + 2 * FIT_USB, USB[1] + 2 * FIT_USB
+    side_cut("TOP_EDGE_usb_c", tray, "y", ty,
+             [("rect", (USB_X - uw / 2, USB_ZC - uh / 2), (USB_X + uw / 2, USB_ZC + uh / 2))], 6.0)
+    holes = []
+    for name, x, w in BUTTONS:
+        h = (6.4 if name == "mute" else 4.0) + 2 * FIT_BTN
+        holes.append(("rect", (x - h / 2, BTN_ZC - h / 2), (x + h / 2, BTN_ZC + h / 2)))
+    side_cut("TOP_EDGE_buttons", tray, "y", ty, holes, 6.0)
+    side_cut("TOP_EDGE_bracket_slot", tray, "y", CAV_Y + SLOT_DEPTH / 2.0,
+             [("rect", (SLOT_X - 0.6, 19.3), (SLOT_X + 2.6, 23.2))], SLOT_DEPTH)   # off-centre: 3 mm to PLAY
+
+    # BOTTOM edge: pogo pad holes, magnet pads + pockets (1.6 mm skin)
+    side_cut("BOTTOM_EDGE_pogo_holes", tray, "y", -WIDTH / 2.0,
+             [("circle", (x, POGO_Z), POGO_D + 2 * FIT_POGO) for x in POGO_X], 6.0)
     try:
-        px = side_plane(comp.yZConstructionPlane, LENGTH / 2.0, "x")
-        side_cut(tray, px, (LENGTH / 2.0, -20.5 - 4.8, TZ + USB_ZC - 1.95),
-                 (LENGTH / 2.0, -20.5 + 4.8, TZ + USB_ZC + 1.95))
+        pads = side_body("tool", None, "y", -CAV_Y + (MAG_PAD_T - 0.5) / 2.0,
+                         [("circle", (x, MAG_Z), MAG_PAD_D) for x in MAG_X], MAG_PAD_T + 0.5, register=False)
+        join(tray, pads, "BOTTOM_EDGE_magnet_pads")
+        pt = MAG_T + FIT_MAG
+        side_cut("BOTTOM_EDGE_magnet_pockets", tray, "y", -CAV_Y + MAG_PAD_T - pt / 2.0,
+                 [("circle", (x, MAG_Z), MAG_D + 2 * FIT_MAG) for x in MAG_X], pt)
     except Exception:
-        G["fails"].append("cut_usb_c")
+        G["fails"].append("BOTTOM_EDGE_magnets")
 
-    # speaker grilles: 7 slots, 24 x 1.2 mm, in both end walls over the speaker faces
-    zc = SPK_Z0 + SPK[2] / 2.0
-    for side, name in ((1, "R"), (-1, "L")):
-        try:
-            pl = side_plane(comp.yZConstructionPlane, side * LENGTH / 2.0, "x")
-            x = side * LENGTH / 2.0
-            slots = [((x, SPK_CY - 12.0, TZ + zc + 2.4 * k - 0.6),
-                      (x, SPK_CY + 12.0, TZ + zc + 2.4 * k + 0.6)) for k in range(-3, 4)]
-            side_cuts(tray, pl, slots)
-        except Exception:
-            G["fails"].append("cut_grille_" + name)
+    # ENDS: thinned pocket + honeycomb, all holes through
+    hc = honeycomb_centres()
+    G["honeycomb_n"] = len(hc)
+    for side, name in ((1, "RIGHT_END"), (-1, "LEFT_END")):
+        side_cut(name + "_thin_pocket", tray, "x", side * (CAV_X + (WALL - HC_WALL) / 2.0),
+                 [("rect", (-POCKET_Y, POCKET_Z[0]), (POCKET_Y, POCKET_Z[1]))], WALL - HC_WALL)
+        side_cut(name + "_honeycomb", tray, "x", side * LENGTH / 2.0,
+                 [("poly", hex_points(y, z, HC_R)) for (y, z) in hc], 4.0)
 
-    # top wall (+Y): PWR / VOL- / VOL+ / PLAY caps (4.4 mm holes) + 7 x 7 mm latching mute
-    try:
-        py = side_plane(comp.xZConstructionPlane, WIDTH / 2.0, "y")
-        holes = []
-        for name, x, size in BUTTONS:
-            h = 7.0 if name == "mute" else 4.4
-            holes.append(((x - h / 2.0, WIDTH / 2.0, TZ + BTN_ZC - h / 2.0),
-                          (x + h / 2.0, WIDTH / 2.0, TZ + BTN_ZC + h / 2.0)))
-        side_cuts(tray, py, holes)
-    except Exception:
-        G["fails"].append("cut_buttons")
-
-    # haptic rib: ledge on the bottom wall (-Y), above the swell gap, joined to the tray
-    try:
-        sk = comp.sketches.add(plane_at(TZ + ABOVE + 0.1))
-        y0, y1 = -CAV_Y - 0.5, -23.5          # 0.5 mm into the wall so it fuses
-        sk.sketchCurves.sketchLines.addTwoPointRectangle(P(-16.0, y0), P(-4.0, y1))
-        sk.isVisible = False
-        rib = new_bodies(sk.profiles.item(0), 1.5, "shell_rib_lra", "shell", register=False)[0]
-        # round every free edge (r 0.6): nothing sharp faces the cell. Skip edges that lie
-        # in the wall-side face (buried in the wall after the join).
-        edges = adsk.core.ObjectCollection.create()
-        for e in rib.edges:
-            if e.boundingBox.maxPoint.y > mm(y0) + 1e-4:
-                edges.add(e)
-        fi = comp.features.filletFeatures.createInput()
-        fi.addConstantRadiusEdgeSet(edges, vi(0.6), True)
-        comp.features.filletFeatures.add(fi)
-        join_to_tray(tray, [rib])
-    except Exception:
-        G["fails"].append("rib_lra")
-
-    # carrier mounts: front-wall bosses at H3/H4, top-wall rib with drop bosses at H1/H2
-    pcb_top = ABOVE + PCB_T
+    # carrier bosses H3/H4 from the front wall + press-fit pins (flush with the board underside)
     try:
         tools = []
         for h in ("H3", "H4"):
             x, y = HOLES[h]
-            tools.append(shell_cyl(x, y, pcb_top, BOSS_D, INNER - pcb_top))
-        x = HOLES["H1"][0]
-        rib_z0, rib_z1 = 23.0, 25.5            # above J4 (22.45), below the OLED glass (25.8)
-        y_lo, y_hi = HOLES["H2"][1] - BOSS_D / 2.0, CAV_Y + 0.5
-        tools.append(shell_block(x, (y_lo + y_hi) / 2.0, rib_z0, BOSS_D, y_hi - y_lo,
-                                 rib_z1 - rib_z0))
-        # webs up to the front wall where neither the glass nor the touch strip is in the way
-        tools.append(shell_block(x, 23.25, rib_z1, BOSS_D, 4.1, INNER - rib_z1))
-        tools.append(shell_block(x, (30.7 + y_hi) / 2.0, rib_z1, BOSS_D, y_hi - 30.7,
-                                 INNER - rib_z1))
-        for h in ("H1", "H2"):
-            hx, hy = HOLES[h]
-            tools.append(shell_cyl(hx, hy, pcb_top, BOSS_D, rib_z0 - pcb_top))
-        # press-fit pins through the board holes, ending flush with the board underside
-        for h, (hx, hy) in HOLES.items():
-            tools.append(shell_cyl(hx, hy, ABOVE, PIN_D, PCB_T))
-        join_to_tray(tray, tools)
+            tools.append(tool_cyl(x, y, PCB_TOP, BOSS_D, INNER - PCB_TOP + 0.5))
+            tools.append(tool_cyl(x, y, ABOVE, PIN_D, PCB_T))
+        join(tray, tools, "INSIDE_carrier_bosses_H3_H4")
     except Exception:
-        G["fails"].append("carrier_mounts")
+        G["fails"].append("carrier_bosses")
 
-    # Wi-Fi FlexPIFA retention: plastic hook clips at both short ends (the factory adhesive is
-    # on the ground plate, which faces the board), plus non-conductive tape on the element side
+    # LRA fin: grows from the front wall and the bottom wall (no supports front-down)
     try:
-        ax = WIFI_C[0]
-        ay0, ay1 = WIFI_C[1] - WIFI[1] / 2.0, WIFI_C[1] + WIFI[1] / 2.0
-        zb = WIFI_Z0 - 0.5
-        tools = [shell_block(ax, ay1 + 0.75, zb, 5.0, 1.5, INNER - zb),
-                 shell_block(ax, ay1 - 0.5, zb, 5.0, 1.0, 0.5),
-                 shell_block(ax, ay0 - 0.75, zb, 5.0, 1.5, INNER - zb),
-                 shell_block(ax, ay0 + 0.5, zb, 5.0, 1.0, 0.5)]
-        join_to_tray(tray, tools)
+        lx, ly = POS["lra"]
+        y0, y1 = -CAV_Y - 0.5, ly + 5.0
+        fin = tool_block(lx + 3.5 / 2.0 + 0.75, (y0 + y1) / 2.0, ABOVE + 0.1, 1.5, y1 - y0,
+                         INNER - ABOVE - 0.1 + 0.5)
+        join(tray, [fin], "INSIDE_lra_fin")
+    except Exception:
+        G["fails"].append("lra_fin")
+
+    # Wi-Fi FlexPIFA hook clips at both short ends (lip 1.2 thick under the ground plate edge)
+    try:
+        ax0, ax1 = WIFI_C[0] - WIFI[0] / 2.0, WIFI_C[0] + WIFI[0] / 2.0
+        zb = WIFI_Z0 - 1.2
+        tools = [tool_block(ax0 - 0.75, WIFI_C[1], zb, 1.5, 5.0, INNER - zb + 0.3),
+                 tool_block(ax0 + 0.5, WIFI_C[1], zb, 1.0, 5.0, 1.2),
+                 tool_block(ax1 + 0.75, WIFI_C[1], zb, 1.5, 5.0, INNER - zb + 0.3),
+                 tool_block(ax1 - 0.5, WIFI_C[1], zb, 1.0, 5.0, 1.2)]
+        join(tray, tools, "INSIDE_wifi_clips")
     except Exception:
         G["fails"].append("wifi_clips")
 
-    paint(tray, "shell")
+    # corner bosses for M2 heat-set inserts, 45 deg chamfer toward the bed (front-down print)
+    try:
+        z0, z1 = SCREW_PAD, SCREW_PAD + 6.0
+        tools = []
+        for (x, y) in SCREWS:
+            b = tool_cyl(x, y, z0, BOSS_INS_D, z1 - z0)
+            chamfer_edges_at_z(b, z1, 2.0)
+            tools.append(b)
+        join(tray, tools, "INSIDE_insert_bosses")
+        cut(tray, [tool_cyl(x, y, z0 - 0.1, INSERT_D, INSERT_DEPTH + 0.1) for (x, y) in SCREWS],
+            "INSIDE_insert_holes")
+    except Exception:
+        G["fails"].append("insert_bosses")
+
+    paint(tray, "petg_bare")
     return tray
 
 
+# ----------------------------------------------------------------------
+# SHELL: LID
+# ----------------------------------------------------------------------
 def build_lid():
     comp = G["comp"]
-    sk = comp.sketches.add(plane_at(shift(5)))
+    sk = comp.sketches.add(comp.xYConstructionPlane)
     rect(sk, 0, 0, LENGTH, WIDTH)
     sk.isVisible = False
     ei = comp.features.extrudeFeatures.createInput(
         sk.profiles.item(0), adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
     ei.setOneSideExtent(adsk.fusion.DistanceExtentDefinition.create(vi(LID)),
                         adsk.fusion.ExtentDirections.NegativeExtentDirection)
-    lid = comp.features.extrudeFeatures.add(ei).bodies.item(0)
+    f = comp.features.extrudeFeatures.add(ei)
+    f.name = "SHELL_lid_block"
+    lid = f.bodies.item(0)
     lid.name = "shell_lid"
     fillet_vertical_edges(lid, CORNER_R)
-    paint(lid, "lid")
 
-    tools = []
-    for (x, y) in ((-62, 26), (62, 26), (-62, -26), (62, -26)):
-        tools += cyl("dock_magnet", 5, "magnet", x, y, -2.0, 6.0, 2.0)
-    for x in (-12, -4, 4, 12):
-        tools += cyl("pogo_pad", 5, "gold", x, -30, -LID, 2.5, LID)
+    # tongue: 1.2 wide, inside the tray wall with 0.15 clearance, interrupted behind the speakers
     try:
-        coll = adsk.core.ObjectCollection.create()
-        for t in tools:
-            coll.add(t)
-        ci = comp.features.combineFeatures.createInput(lid, coll)
-        ci.operation = adsk.fusion.FeatureOperations.CutFeatureOperation
-        ci.isKeepToolBodies = True
-        comp.features.combineFeatures.add(ci)
+        d0 = WALL + LIP_CLR
+        s = comp.sketches.add(comp.xYConstructionPlane)
+        rounded_rect(s, 0, 0, LENGTH - 2 * d0, WIDTH - 2 * d0, max(CORNER_R - d0, 0.5))
+        rounded_rect(s, 0, 0, LENGTH - 2 * (d0 + LIP_W), WIDTH - 2 * (d0 + LIP_W),
+                     max(CORNER_R - d0 - LIP_W, 0.5))
+        s.isVisible = False
+        tongue = new_bodies(smallest_profile(s), LIP_H, "tool", None, register=False)[0]
+        cut(tongue, [tool_block(sx * (LENGTH / 2.0 - 3.0), 0, -0.1, 6.0, 2 * (POCKET_Y + 0.8), LIP_H + 0.2)
+                     for sx in (-1, 1)], "BACK_lid_tongue_gaps")
+        join(lid, [tongue], "BACK_lid_tongue")
     except Exception:
-        G["fails"].append("lid_pockets")
+        G["fails"].append("lid_tongue")
+
+    # gasket channel under the tray wall: 1.2 land outside, 1.0 channel, 0.8 deep (continuous)
+    try:
+        s = comp.sketches.add(comp.xYConstructionPlane)
+        a, b = WALL - GASKET_W, WALL
+        rounded_rect(s, 0, 0, LENGTH - 2 * a, WIDTH - 2 * a, CORNER_R - a)
+        rounded_rect(s, 0, 0, LENGTH - 2 * b, WIDTH - 2 * b, CORNER_R - b)
+        s.isVisible = False
+        cut_z(s, smallest_profile(s), GASKET_D, lid, "BACK_lid_gasket_channel")
+    except Exception:
+        G["fails"].append("lid_gasket_channel")
+
+    # screw pads (D-shaped: clipped at the tray inner face and at the speaker), holes,
+    # counterbores and foot pockets (the feet cover the screws)
+    try:
+        pads = []
+        for (x, y) in SCREWS:
+            p = tool_cyl(x, y, 0.0, BOSS_INS_D, SCREW_PAD)
+            sy = 1 if y > 0 else -1
+            cut(p, [tool_block(x, sy * (CAV_Y - 0.05 + 2.0), -0.1, 8.0, 4.0, SCREW_PAD + 0.2),
+                    tool_block(x, sy * (SPK_L / 2.0 + 0.25 - 2.0), -0.1, 8.0, 4.0, SCREW_PAD + 0.2)],
+                "BACK_screw_pad_clip")
+            pads.append(p)
+        join(lid, pads, "BACK_screw_pads")
+        tools = []
+        for (x, y) in SCREWS:
+            tools.append(tool_cyl(x, y, -LID - 0.1, SCREW_D, LID + SCREW_PAD + 0.2))
+            tools.append(tool_cyl(x, y, -LID - 0.1, CBORE_D, FOOT_POCKET + CBORE_DEPTH + 0.1))
+            tools.append(tool_cyl(x, y, -LID - 0.1, FOOT_D + 0.2, FOOT_POCKET + 0.1))
+        cut(lid, tools, "BACK_screws_and_feet")
+    except Exception:
+        G["fails"].append("lid_screws")
+
+    # plate recess (pill), centred on the back
+    try:
+        s = comp.sketches.add(plane_at(-LID))
+        rounded_rect(s, 0, 0, PLATE_L, PLATE_W, PLATE_W / 2.0)
+        s.isVisible = False
+        cut_z(s, s.profiles.item(0), PLATE_RECESS, lid, "BACK_plate_recess", up=True)
+    except Exception:
+        G["fails"].append("plate_recess")
+
+    paint(lid, "shell_fabric")
     return lid
+
+
+def build_trim():
+    comp = G["comp"]
+    # front ring inlay fills the groove exactly
+    cyl("ring_inlay", "ring_inlay", COIL_CX, COIL_CY, TRAY_H - RING_DEPTH, RING_OD, RING_DEPTH,
+        inner=RING_OD - 2 * RING_W)
+    # plate with engraved text, 0.1 below the lid surface
+    try:
+        z = -LID + PLATE_RECESS - PLATE_T
+        s = comp.sketches.add(plane_at(z))
+        rounded_rect(s, 0, 0, PLATE_L - 0.2, PLATE_W - 0.2, (PLATE_W - 0.2) / 2.0)
+        s.isVisible = False
+        plate = new_bodies(s.profiles.item(0), PLATE_T, "plate", "plate")[0]
+        ts = comp.sketches.add(plane_at(z))
+        ti = ts.sketchTexts.createInput2("made with love", mm(3.2))
+        ti.setAsMultiLine(P(-PLATE_L / 2 + 2, -PLATE_W / 2 + 1), P(PLATE_L / 2 - 2, PLATE_W / 2 - 1),
+                          adsk.core.HorizontalAlignments.CenterHorizontalAlignment,
+                          adsk.core.VerticalAlignments.MiddleVerticalAlignment, 0)
+        txt = ts.sketchTexts.add(ti)
+        try:
+            txt.isHorizontalFlip = True      # reads correctly from the back
+        except Exception:
+            pass
+        ts.isVisible = False
+        ei = comp.features.extrudeFeatures.createInput(txt, adsk.fusion.FeatureOperations.CutFeatureOperation)
+        ei.setDistanceExtent(False, vi(PLATE_TEXT))
+        ei.participantBodies = [plate]
+        comp.features.extrudeFeatures.add(ei).name = "BACK_plate_text"
+    except Exception:
+        G["fails"].append("plate")
+    # rubber feet over the screws, 1.5 proud of the back fabric
+    for (x, y) in SCREWS:
+        cyl("foot", "feet", x, y, -LID + FOOT_POCKET - FOOT_H, FOOT_D, FOOT_H)
+    # USB-C rubber gasket on the inside of the top wall, around the receptacle
+    try:
+        g = side_body("usb_c_gasket", "usb_c", "y", CAV_Y - 0.4,
+                      [("rect", (USB_X - USB[0] / 2 - 2, USB_ZC - USB[1] / 2 - 2),
+                        (USB_X + USB[0] / 2 + 2, USB_ZC + USB[1] / 2 + 2))], 0.8)
+        hole = side_body("tool", None, "y", CAV_Y - 0.4,
+                         [("rect", (USB_X - USB[0] / 2, USB_ZC - USB[1] / 2),
+                           (USB_X + USB[0] / 2, USB_ZC + USB[1] / 2))], 1.0, register=False)
+        cut(g[0], hole, "TOP_EDGE_usb_gasket_hole")
+    except Exception:
+        G["fails"].append("usb_c_gasket")
+
+
+def build_bracket():
+    """Clip-in bracket for H1/H2 (printed flat, own STL): bar under the OLED, drop bosses with
+    press-fit pins, a web to the front wall beside the touch strip and a tab into the top wall."""
+    x = HOLES["H1"][0]
+    y_lo, y_hi = HOLES["H2"][1] - BOSS_D / 2.0, CAV_Y - 0.55
+    try:
+        bar = block("carrier_bracket", "petg_bare", x, (y_lo + y_hi) / 2.0, 19.5, 5.0, y_hi - y_lo, 3.5)[0]
+        tab_y1 = CAV_Y + SLOT_DEPTH - 0.1
+        tools = [tool_block(x, (30.7 + y_hi) / 2.0, 23.0, 5.0, y_hi - 30.7, INNER - 0.2 - 23.0),
+                 tool_block(x + 1.0, (y_hi - 0.5 + tab_y1) / 2.0, 19.5, 2.8, tab_y1 - (y_hi - 0.5), 3.5)]
+        for h in ("H1", "H2"):
+            hx, hy = HOLES[h]
+            tools.append(tool_cyl(hx, hy, PCB_TOP, BOSS_D, 19.5 - PCB_TOP + 0.5))
+            tools.append(tool_cyl(hx, hy, ABOVE, PIN_D, PCB_T + 0.5))
+        join(bar, tools, "BRACKET_join")
+    except Exception:
+        G["fails"].append("carrier_bracket")
 
 
 # ----------------------------------------------------------------------
 # PARTS
 # ----------------------------------------------------------------------
 def build_coil():
-    L = 4
-    # windings + magnet ring face the back (lid), ferrite shield on top
+    """Front Qi2 TX coil: windings + magnet ring against the front wall, ferrite behind."""
     for k in range(6):
         ri = 10.0 + 2.2 * k
-        cyl("qi2_winding_%d" % (k + 1), L, "copper", COIL_CX, 0, 0.0, 2 * (ri + 1.6), 1.8, 2 * ri)
-    cyl("qi2_magnet_ring", L, "magnet", COIL_CX, 0, 0.0, 55.0, 2.0, 47.0)
-    cyl("qi2_ferrite", L, "ferrite", COIL_CX, 0, 2.0, 56.0, 0.8)
-    # graphite heat spreader on the ferrite, under the cell
-    block("graphite_sheet", L, "black", COIL_CX, 0, 2.8, 60.0, 60.0, GRAPHITE)
+        cyl("qi2_winding_%d" % (k + 1), "copper", COIL_CX, COIL_CY, INNER - 1.8, 2 * (ri + 1.6), 1.8, 2 * ri)
+    cyl("qi2_magnet_ring", "magnet", COIL_CX, COIL_CY, INNER - 2.0, 55.0, 2.0, 47.0)
+    cyl("qi2_ferrite", "ferrite", COIL_CX, COIL_CY, COIL_Z0, 56.0, 0.8)
+    cyl("qi2_ntc", "black", COIL_CX, COIL_CY, INNER - 1.0, 2.0, 1.0)
 
 
 def build_power():
-    L = 3
-    # 10,000 mAh pouch: body, sealed edge, protection board, insulator on the top face
-    block("cell_10000mAh", L, "cell", CELL_X0 + 47.5, 0, Z_CELL, 95.0, 60.0, CELL_T)
-    block("cell_seal_edge", L, "cell_seal", CELL_X0 + 97.5, 0, Z_CELL + 5.5, 5.0, 60.0, 1.0)
-    block("cell_protection_pcb", L, "pcb", CELL_X0 + 97.5, 0, Z_CELL + 6.5, 4.0, 40.0, 1.2)
-    block("cell_insulator", L, "insul", CELL_X0 + 47.5, 0, Z_CELL + CELL_T, 95.0, 60.0, INSUL)
-    # thermal insulator on the cell bottom, between the graphite (top 2.9) and the cell (4.5)
-    block("cell_insulator_bottom", L, "insul", CELL_X0 + 47.5, 0, Z_CELL - INSUL_BOT,
-          95.0, 60.0, INSUL_BOT)
-    # keep-out for the fit check: the swell gap over the whole cell outline must stay empty
-    ko = block("keepout_swell_gap", L, "red", CELL_X0 + 50.0, 0, Z_CELL + CELL_T + INSUL,
-               100.0, 60.0, SWELL)
-    for b in ko:
+    block("cell_pad", "foam", CELL_CX, CELL_CY, 0.0, CELL_L + 5.0, CELL_W, CELL_PAD)
+    body_cx = CELL_X0 + CELL_L / 2.0
+    block("cell_10000mAh", "cell", body_cx, CELL_CY, Z_CELL, CELL_L, CELL_W, CELL_T)
+    block("cell_seal_edge", "cell_seal", CELL_X1 - 2.5, CELL_CY, Z_CELL + 5.5, 5.0, CELL_W, 1.0)
+    block("cell_protection_pcb", "pcb", CELL_X1 - 2.5, CELL_CY, Z_CELL + 6.5, 4.0, 40.0, 1.2)
+    block("cell_insulator", "insul", body_cx, CELL_CY, CELL_TOP, CELL_L, CELL_W, INSUL)
+    for b in block("keepout_swell_gap", "red", CELL_CX, CELL_CY, CELL_TOP + INSUL, CELL_L + 5.0, CELL_W, SWELL):
         b.isLightBulbOn = False
 
-    # power bank / USB-C PD board (IP5328P) in the board layer, USB-C out the right end wall
-    z = ABOVE
-    block("pd_board", L, "pcb", 53, -20.5, z, 35.0, 25.0, PCB_T)
-    zt = z + PCB_T
-    block("pd_usb_c", L, "metal", 75.3 - 3.675, -20.5, zt, 7.35, 8.94, 3.26)
-    # hot parts and the battery JST sit right of X 50, off the cell outline (safety rules 1, 7)
-    block("pd_ip5328p", L, "chip", 63, -22, zt, 5.0, 5.0, 0.9)
-    block("pd_inductor", L, "ferrite", 57, -26, zt, 6.0, 6.0, 3.0)
-    grid("pd_caps", L, "passive", zt, [(42, -27, 3.2, 1.6), (62, -14, 3.2, 1.6)], 1.6)
-    block("pd_jst_main_cell", L, "conn", 53, -10, zt, 4.0, 3.0, 2.9)
+    # PD board (IP5328P) top-right, USB-C on the TOP edge; hot parts off the cell (X > 46)
+    px, py = POS["pd_board"]
+    block("pd_board", "pcb", px, py, ABOVE, 23.75, 24.5, PCB_T)
+    block("pd_usb_c", "metal", USB_X, (WIDTH / 2.0 - 0.7) - USB[2] / 2.0, PCB_TOP, USB[0], USB[2], USB[1])
+    block("pd_ip5328p", "chip", px + 5.6, py + 4.0, PCB_TOP, 5.0, 5.0, 0.9)
+    block("pd_inductor", "ferrite", px + 5.6, py - 6.0, PCB_TOP, 6.0, 6.0, 3.0)
+    grid("pd_caps", "passive", PCB_TOP, [(px - 4.0, py - 8.0, 3.2, 1.6), (px - 4.0, py + 1.0, 3.2, 1.6)], 1.6)
+    block("pd_jst_main_cell", "conn", px + 5.6, py - 10.0, ABOVE - 2.9, 4.0, 3.0, 2.9)   # underside
 
-    # Qi2 transmitter board in the board layer, right of the carrier (20 x 30, long side in Y)
-    block("qi2_tx_board", L, "pcb", 46, 8, z, 20.0, 30.0, PCB_T)
-    block("qi2_tx_controller", L, "chip", 53, 4, zt, 5.0, 5.0, 0.9)
-    grid("qi2_tx_caps", L, "passive", zt, [(40, 16, 1.6, 3.2), (52, 16, 1.6, 3.2)], 1.6)
+    # Qi2 TX board, vertical, 5 mm off the cell end, parts facing away from the cell
+    tx, ty = POS["qi2_tx"]
+    block("qi2_tx_board", "pcb", tx, ty, 2.0, PCB_T, 30.0, 20.0)
+    block("qi2_tx_controller", "chip", tx + PCB_T / 2 + 0.45, ty, 9.5, 0.9, 5.0, 5.0)
+    grid("qi2_tx_caps", "passive", 14.0, [(tx + PCB_T / 2 + 0.8, ty - 8, 1.6, 3.2),
+                                         (tx + PCB_T / 2 + 0.8, ty + 8, 1.6, 3.2)], 1.6)
 
 
-def build_electronics():
-    """Boards beside the (real, imported) carrier board."""
-    L = 2
-    z = ABOVE
-
-    # SIM7080G board (LTE-M + GNSS), left of the carrier, above the cell
-    block("sim_board", L, "pcb", -54, -20.5, z, 32.0, 25.0, 1.0)
-    block("sim7080g_module", L, "metal", -61, -18.5, z + 1.0, 17.6, 15.7, 2.3)
-    block("nano_sim_holder", L, "metal", -44.5, -26.5, z + 1.0, 12.5, 13.0, 1.4)
-    grid("ufl_connectors", L, "gold", z + 1.0, [(-47, -12.5, 2.0, 2.0), (-43, -12.5, 2.0, 2.0)], 1.2)
-
-    # haptic LRA, glued to the rib on the bottom wall
-    cyl("haptic_lra_10mm", L, "metal", -10, -28.5, ABOVE + 0.1 + 1.5, 10.0, 3.5)
+def build_lte_gnss():
+    sx, sy = POS["sim_board"]
+    block("sim_board", "pcb", sx, sy, ABOVE, 32.0, 17.5, 1.0)
+    block("sim7080g_module", "metal", sx - 6.75, sy + 0.05, ABOVE + 1.0, 17.6, 15.7, 2.3)
+    block("nano_sim_holder", "metal", sx + 9.25, sy - 1.75, ABOVE + 1.0, 12.5, 13.0, 1.4)
+    grid("ufl_connectors", "gold", ABOVE + 1.0, [(sx + 3.75, sy + 6.75, 2.0, 2.0), (sx + 6.75, sy + 6.75, 2.0, 2.0)], 1.2)
+    # GNSS patch 12 x 12 x 4 on the FRONT wall (sky when lying on the back), feed pin off-centre
+    gx, gy = POS["gnss"]
+    block("gnss_patch_ceramic", "ceramic", gx, gy, INNER - GNSS_T, GNSS, GNSS, GNSS_T - 0.05)
+    block("gnss_patch_silver", "metal", gx, gy, INNER - 0.05, GNSS - 3.0, GNSS - 3.0, 0.05)
+    cyl("gnss_feed_pin", "gold", gx + 4.0, gy, INNER - GNSS_T - 1.0, 1.2, 1.0)
+    # LTE flex on the TOP wall inner face
+    lx, lz = POS["lte"]
+    block("lte_flex_antenna", "black", lx, CAV_Y - 0.15, lz - 4.0, 40.0, 0.3, 8.0)
 
 
 def build_speakers():
-    """Boxed rectangular stand-ins, firing out through the end-wall grilles."""
-    L = 3
-    d, w, h = SPK
-    block("speaker_L", L, "speaker", -CAV_X + d / 2.0, SPK_CY, SPK_Z0, d, w, h)
-    block("speaker_R", L, "speaker", CAV_X - d / 2.0, SPK_CY, SPK_Z0, d, w, h)
+    """CES-571423-28PMB enclosed speakers, long side along Y, sealed to the membrane."""
+    for side, tag in ((1, "R"), (-1, "L")):
+        xf = side * SPK_FACE_X
+        block("speaker_" + tag, "speaker", xf - side * SPK_D / 2.0, SPK_CY, SPK_Z0, SPK_D, SPK_L, SPK_H)
+        y0, y1, z1 = SPK_CY - SPK_L / 2, SPK_CY + SPK_L / 2, SPK_Z0 + SPK_H
+        z0 = max(SPK_Z0, POCKET_Z[0])       # ring sits on the face, above the rim ledge
+        side_body("speaker_gasket_" + tag, "foam", "x", xf + side * SPK_GASKET / 2.0,
+                  [("rect", (y0, z0), (y1, z0 + 2)), ("rect", (y0, z1 - 2), (y1, z1)),
+                   ("rect", (y0, z0 + 2), (y0 + 2, z1 - 2)), ("rect", (y1 - 2, z0 + 2), (y1, z1 - 2))],
+                  SPK_GASKET)
+        side_body("grille_mesh_" + tag, "grille_mesh", "x", side * (WALL_THIN_X - MEMBRANE / 2.0),
+                  [("rect", (-POCKET_Y, POCKET_Z[0]), (POCKET_Y, POCKET_Z[1]))], MEMBRANE)
 
 
-# 100 mm MHF1 coax, 1.13 mm: leaves the FlexPIFA's X = 36 long side at right angles, slack
-# dressed as a serpentine over the carrier (>= 7 mm from the element, around H3/H4 bosses
-# and over J6/J8/J9), then to U1's U.FL socket. Bend radius about 3 to 4 mm.
-WIFI_COAX = [(35.9, -12, 25.2), (32, -12, 24.6), (29, -10, 23.8), (29, -4, 23.8), (28, -1, 23.8),
-             (25, 0, 23.8), (22, -1, 23.8), (21, -4, 23.8), (21, -6, 23.8), (20, -9, 23.8),
-             (17.5, -10, 23.8), (15, -9, 23.8), (14.5, -6, 23.8), (14.5, 12, 23.8),
-             (14, 20, 23.8), (8, 23, 23.8), (-4, 25.5, 23.8), (-10, 26.8, 23.8),
-             (-12.2, 27.04, 23.4), (-13, 27.04, 22.8)]
+def build_ui():
+    block("oled_glass", "oled_glass", DCX, DCY, GLASS_Z, GLASS[0], GLASS[1], GLASS[2])
+    gy0 = DCY - GLASS[1] / 2.0
+    block("oled_fpc_flat", "fpc", DCX, gy0 + 3.55, GLASS_Z - 0.3, 20.0, 7.0, 0.3)
+    drop = (GLASS_Z - 0.3) - (PCB_TOP + 2.0)
+    if drop > 0.2:
+        block("oled_fpc_drop", "fpc", DCX, CAR_Y1 - 45.0 - 0.15, PCB_TOP + 2.0, 20.0, 0.3, drop)
+    block("touch_strip_pcb", "copper", STRIP_C[0], STRIP_C[1], INNER - 1.6, 40.0, 5.0, 1.6)
+    block("mic_inmp441_pcb", "mic_pcb", -66.5, 29.5, INNER - 2.6, 8.0, 8.0, 1.6)
+    block("mic_inmp441", "metal", -66.5, 29.5, INNER - 1.0, 4.0, 3.0, 1.0)
+    block("light_veml7700_pcb", "als_pcb", -58.5, 29.5, INNER - 2.6, 7.0, 7.0, 1.6)
+    block("light_veml7700", "white", -58.5, 29.5, INNER - 1.0, 3.0, 2.0, 1.0)
+
+    # button strip on the TOP wall (left): latching mute + PWR, VOL-, VOL+, PLAY
+    block("button_strip_pcb", "pcb", (BTN_X0 + BTN_X1) / 2.0, 29.4, BTN_ZC - 3.5, BTN_X1 - BTN_X0, 0.8, 7.0)
+    for name, x, w in BUTTONS:
+        if name == "mute":
+            block("btn_mute_body", "black", x, 31.9, BTN_ZC - 3.5, 7.0, 4.2, 7.0)
+            block("btn_mute_cap", "mute_cap", x, (34.0 + 36.75) / 2.0, BTN_ZC - 3.2, 6.4, 2.75, 6.4)
+        else:
+            block("btn_%s_body" % name, "black", x, 31.55, BTN_ZC - 3.0, w, 3.5, 6.0)
+            block("btn_%s_cap" % name, "buttons", x, (33.3 + 36.75) / 2.0, BTN_ZC - 2.0, 4.0, 3.45, 4.0)
+
+    # haptic LRA glued to the fin (disc in the YZ plane)
+    lx, ly = POS["lra"]
+    side_body("haptic_lra_10mm", "metal", "x", lx, [("circle", (ly, 21.0), 10.0)], 3.5)
+
+    # Wi-Fi FlexPIFA on the FRONT wall, element facing out, ground plate toward the board
+    block("wifi_flexpifa", "flexpifa", WIFI_C[0], WIFI_C[1], WIFI_Z0, WIFI[0], WIFI[1], WIFI[2])
+    block("wifi_tape", "white", WIFI_C[0], WIFI_C[1], WIFI_Z0 + WIFI[2], WIFI[0], WIFI[1], WIFI_TAPE)
+    wifi_coax()
+
+
+def build_dock():
+    side_body("pogo_pad", "gold", "y", -WIDTH / 2.0 + 1.35,
+              [("circle", (x, POGO_Z), POGO_D) for x in POGO_X], 2.7)
+    side_body("dock_magnet", "magnet", "y", -CAV_Y + MAG_PAD_T - FIT_MAG - MAG_T / 2.0,
+              [("circle", (x, MAG_Z), MAG_D) for x in MAG_X], MAG_T)
 
 
 def wifi_coax():
@@ -703,101 +1063,10 @@ def wifi_coax():
         G["fails"].append("wifi_coax")
 
 
-def build_front():
-    L = 1
-    block("oled_glass", L, "glass", DCX, 0, GLASS_Z, GLASS[0], GLASS[1], GLASS[2])
-    # flex cable: folds under the glass, then down into the connector
-    block("oled_fpc_flat", L, "fpc", DCX, -17.5, GLASS_Z - 0.3, 20.0, 7.0, 0.3)
-    drop = (GLASS_Z - 0.3) - (PCB_TOP + 2.0)
-    if drop > 0.2:
-        block("oled_fpc_drop", L, "fpc", DCX, -15.0, PCB_TOP + 2.0, 20.0, 0.3, drop)
-
-    block("touch_strip_pcb", L, "copper", STRIP_C[0], STRIP_C[1], INNER - 1.6, 40.0, 5.0, 1.6)
-
-    block("mic_inmp441_pcb", L, "mic_pcb", -64, 28.5, INNER - 2.6, 10.0, 10.0, 1.6)
-    block("mic_inmp441", L, "metal", -64, 28.5, INNER - 1.0, 4.0, 3.0, 1.0)
-    block("light_veml7700_pcb", L, "als_pcb", -64, -28.5, INNER - 2.6, 10.0, 10.0, 1.6)
-    block("light_veml7700", L, "white", -64, -28.5, INNER - 1.0, 3.0, 2.0, 1.0)
-
-    # GNSS patch on the top wall (+Y), facing the sky when docked, left of the cell end
-    # (X -69.8..-51.8: between the wall corner and the cell end; Z 4..22, under the mic PCB)
-    gx, gz = -60.8, 13.0
-    block("gnss_patch_ceramic", L, "ceramic", gx, CAV_Y - 0.05 - 3.95 / 2.0, gz - 9.0,
-          18.0, 3.95, 18.0)
-    block("gnss_patch_silver", L, "metal", gx, CAV_Y - 0.025, gz - 7.0, 14.0, 0.05, 14.0)
-    block("gnss_feed_pin", L, "gold", gx, CAV_Y - 4.0 - 0.5, gz - 0.6, 1.2, 1.0, 1.2)
-    # LTE flex on the front wall, bottom edge, >= 10 mm from the PD inductor and USB-C
-    block("lte_flex_antenna", L, "black", 20, -30, INNER - 0.3, 40.0, 8.0, 0.3)
-
-    # Wi-Fi: Ezurio FlexPIFA 001-0014 (40.1 x 11.0 x 2.5), on the front wall, element facing
-    # out, ground plate toward the board, long axis along Y. Long sides >= 5 mm from metal in
-    # the wall plane (GNSS patch 10, speaker_R 10.8). 100 mm MHF1 cable to U1's U.FL at
-    # (-13.0, 27.0): leaves the X = 36 long side, crosses the carrier, about 55 mm used.
-    block("wifi_flexpifa", L, "flexpifa", WIFI_C[0], WIFI_C[1], WIFI_Z0, WIFI[0], WIFI[1], WIFI[2])
-    block("wifi_tape", L, "white", WIFI_C[0], WIFI_C[1], WIFI_Z0 + WIFI[2], WIFI[0], WIFI[1],
-          WIFI_TAPE)
-    wifi_coax()
-
-    # button strip on the top wall: vertical PCB, tactile PWR/VOL-/VOL+/PLAY, latching mute
-    block("button_strip_pcb", L, "pcb", 53.25, 27.5, BTN_ZC - 3.5, 36.5, 1.0, 7.0)
-    for name, x, s in BUTTONS:
-        if name == "mute":
-            # 7 x 7 mm self-latching push button (body depth 5 mm assumed) + 6.4 mm cap
-            block("btn_mute_body", L, "black", x, 30.5, BTN_ZC - 3.5, 7.0, 5.0, 7.0)
-            block("btn_mute_cap", L, "mute", x, 34.875, BTN_ZC - 3.2, 6.4, 3.75, 6.4)
-        else:
-            block("btn_%s_body" % name, L, "black", x, 29.75, BTN_ZC - 3.0, s, 3.5, 6.0)
-            block("btn_%s_cap" % name, L, "white", x, 34.125, BTN_ZC - 2.0, 4.0, 5.25, 4.0)
-
-
-def build_wiring():
-    W = []
-    # main cell -> PD board
-    W.append(("cell_plus", "red", [(CELL_X0 + 99.5, -15, 11.6), (30.5, -15, 11.6), (30.8, -11.5, 9.0), (35.4, -10, 8.6)]))
-    W.append(("cell_minus", "black", [(CELL_X0 + 99.5, -16.5, 11.6), (30.5, -16.5, 11.6), (31.6, -12, 9.0), (36.6, -10, 8.6)]))
-    # PD board -> main PCB (5V, GND, USB D+, D-)
-    for k, (n, c) in enumerate((("5v", "red"), ("gnd", "black"), ("usb_dp", "green"), ("usb_dm", "white"))):
-        y = -6.0 + 1.2 * k
-        W.append(("pd_main_" + n, c, [(34.0 + 1.0 * k, -8.6, 6.6), (30.5, y, 8.0), (30.5, y, 20.6), (5.0, y, 21.0), (-1.5, y, 20.6)]))
-    # PD board -> Qi2 TX board
-    for k, c in enumerate(("red", "black")):
-        x = 71.5 - 1.2 * k
-        W.append(("pd_tx_" + c, c, [(63.0 - 1.2 * k, -8.6, 6.6), (x, -1.5, 7.5), (x, -1.5, 17.5), (64.0 - 1.2 * k, -9.0, 17.2)]))
-    # Qi2 coil -> TX board
-    W.append(("coil_a", "copper", [(40, -20, 3.4), (33, -30, 3.4), (29.5, -32.5, 4.0), (29.5, -32.5, 16.0), (37.6, -26.0, 16.0)]))
-    W.append(("coil_b", "copper", [(46, -20, 3.4), (34, -31.5, 3.4), (30.4, -33.3, 4.0), (30.4, -33.3, 16.0), (37.6, -24.8, 16.0)]))
-    # dock pogo pads -> PD board
-    W.append(("dock_plus", "red", [(-4, -30, 0.3), (-4, -30, 1.6), (20, -32.6, 1.6), (32.6, -33.3, 2.0), (32.6, -33.3, 5.5), (35.0, -31.5, 6.6)]))
-    W.append(("dock_minus", "black", [(4, -30, 0.3), (4, -30, 1.6), (21, -31.4, 1.6), (32.6, -32.1, 2.0), (32.6, -32.1, 5.5), (36.2, -30.5, 6.6)]))
-    # haptic LRA -> main PCB
-    for k, c in enumerate(("red", "black")):
-        d = 1.6 * k
-        W.append(("lra_" + c, c, [(12.2, 27 + d, 19.0), (5.0, 24 + d, 20.8), (-1.5, 19.9 + 1.2 * k, 20.6)]))
-    # touch strip -> main PCB
-    for k, c in enumerate(("yellow", "black")):
-        x = -30 + 1.2 * k
-        W.append(("touch_" + c, c, [(x, 26.5, INNER - 2.0), (x, 24.0, 22.5), (x, 21.0, PCB_TOP + 2.0)]))
-    # mic (I2S) -> main PCB
-    for k, c in enumerate(("red", "black", "yellow", "green", "blue")):
-        W.append(("mic_%d" % (k + 1), c, [(-63 + 1.2 * k, 26.0, INNER - 3.0), (-52 + 1.2 * k, 24.5, 23.5), (-44 + 1.2 * k, 20.0, PCB_TOP + 2.0)]))
-    # light sensor (I2C) -> main PCB
-    for k, c in enumerate(("red", "black", "yellow", "blue")):
-        W.append(("light_%d" % (k + 1), c, [(-63 + 1.2 * k, -26.0, INNER - 3.0), (-50 + 1.2 * k, -24.0, 23.5), (-45 + 1.2 * k, -21.0, PCB_TOP + 2.0)]))
-    # mute switch -> main PCB
-    for k, c in enumerate(("yellow", "black")):
-        W.append(("mute_" + c, c, [(-20 - 1.2 * k, 30.4, 23.0), (-19 - 1.2 * k, 25.0, 22.5), (-18 + 1.2 * k, 21.0, PCB_TOP + 2.0)]))
-    # SIM board UART + power -> main PCB
-    for k, c in enumerate(("red", "black", "yellow", "green")):
-        W.append(("sim_%d" % (k + 1), c, [(4 + 1.2 * k, -8.6, ABOVE + 1.3), (1.0, -12 + 0.9 * k, 20.4), (-1.5, -14.0 + 1.2 * k, 20.6)]))
-    for n, c, pts in W:
-        wire(n, c, pts)
-    # coax to the antennas
-    wire("coax_gnss", "coax", [(25, -12, ABOVE + 2.5), (25, -3, 22.0), (17, 5, INNER - 5.0)], 1.13)
-    wire("coax_lte", "coax", [(29, -12, ABOVE + 2.5), (31, -24, 23.0), (32, -30, INNER - 0.6)], 1.13)
-
-
+# ----------------------------------------------------------------------
+# CARRIER
+# ----------------------------------------------------------------------
 def occ_bodies(occ):
-    """All bodies under an occurrence, as proxies in the root context."""
     out = [occ.bRepBodies.item(i) for i in range(occ.bRepBodies.count)]
     for i in range(occ.childOccurrences.count):
         out += occ_bodies(occ.childOccurrences.item(i))
@@ -805,18 +1074,14 @@ def occ_bodies(occ):
 
 
 def import_carrier(design):
-    """Imports the carrier STEP into a component placed so the PCB sits at X0 = -36, top edge
-    Y = 30, bottom Z = ABOVE. The wrapper occurrence is positioned before the import: moving
-    the imported occurrence afterwards (transform + snapshot) left one nested part behind."""
     app = adsk.core.Application.get()
     root = design.rootComponent
-    path = os.path.normpath(CARRIER_STEP)
+    path = os.path.join(CAD, "heartsync_carrier.step")
     if not os.path.isfile(path):
-        G["fails"].append("carrier_step (not found: %s)" % path)
+        G["fails"].append("carrier_step (not found)")
         return None
     m = adsk.core.Matrix3D.create()
-    m.translation = adsk.core.Vector3D.create(mm(CARRIER_X0 - STEP_BOARD_X0),
-                                              mm(CARRIER_Y1 - STEP_BOARD_Y1),
+    m.translation = adsk.core.Vector3D.create(mm(CAR_X0 - STEP_BOARD_X0), mm(CAR_Y1 - STEP_BOARD_Y1),
                                               mm(ABOVE - STEP_BOARD_Z0))
     occ = root.occurrences.addNewComponent(m)
     occ.component.name = "carrier"
@@ -824,27 +1089,28 @@ def import_carrier(design):
     opts.isViewFit = False
     app.importManager.importToTarget(opts, occ.component)
     G["carrier"] = occ
-    # verify: the board body (70 x 45 footprint, 1.4..1.7 thick; KiCad exports the core only)
-    bodies = occ_bodies(occ)
-    pcb = [b for b in bodies
+    pcb = [b for b in occ_bodies(occ)
            if mm(1.4) < (b.boundingBox.maxPoint.z - b.boundingBox.minPoint.z) < mm(1.7)
            and (b.boundingBox.maxPoint.x - b.boundingBox.minPoint.x) > mm(60.0)]
     if len(pcb) != 1:
         G["fails"].append("carrier_step (found %d PCB bodies)" % len(pcb))
         return occ
     bb = pcb[0].boundingBox
-    err = max(abs(bb.minPoint.x - mm(CARRIER_X0)), abs(bb.maxPoint.y - mm(CARRIER_Y1)),
-              abs(bb.minPoint.z - mm(ABOVE)))
+    err = max(abs(bb.minPoint.x - mm(CAR_X0)), abs(bb.maxPoint.y - mm(CAR_Y1)), abs(bb.minPoint.z - mm(ABOVE)))
     if err > mm(0.05):
-        G["fails"].append("carrier_step (PCB off target by %.2f mm: re-export the STEP with "
-                          "the board origin at (100, 100) or update STEP_BOARD_*)" % (err * 10.0))
-    lost = [b for b in bodies if b.boundingBox.minPoint.x > mm(LENGTH / 2.0)
-            or b.boundingBox.maxPoint.x < -mm(LENGTH / 2.0)]
-    if lost:
-        G["fails"].append("carrier_step (%d bodies outside the shell)" % len(lost))
+        G["fails"].append("carrier_step (PCB off target by %.2f mm)" % (err * 10.0))
+    try:
+        pcb[0].nativeObject.attributes.add("heartsync", "anchor", json.dumps(
+            {"pos": "carrier", "axes": "xy", "ref": [bb.minPoint.x * 10, bb.maxPoint.y * 10, 0],
+             "corner": "x0y1"}))
+    except Exception:
+        pass
     return occ
 
 
+# ----------------------------------------------------------------------
+# CHECKS
+# ----------------------------------------------------------------------
 def body_label(b):
     ctx = b.assemblyContext
     return "%s/%s" % (ctx.name, b.name) if ctx else b.name
@@ -852,76 +1118,115 @@ def body_label(b):
 
 def interference_report(design, tray, lid):
     ents = adsk.core.ObjectCollection.create()
-    for b in G["parts"] + [tray, lid]:
+    ours = G["parts"] + [tray, lid]
+    for b in ours:
         ents.add(b)
     carrier = occ_bodies(G["carrier"]) if G.get("carrier") else []
     for b in carrier:
         ents.add(b)
     res = design.analyzeInterference(design.createInterferenceInput(ents))
-    ours = set(b.name for b in G["parts"]) | {tray.name, lid.name}
+    names = set(b.name for b in ours)
     lines, internal = [], 0
     for i in range(res.count):
         r = res.item(i)
         a, b = r.entityOne, r.entityTwo
-        if a.name not in ours and b.name not in ours:
-            # both from the carrier STEP (parts sitting on their own board): not a fit issue.
-            # Results come back as native bodies, so the test is by name: ours are all named.
+        if a.name not in names and b.name not in names:
             internal += 1
             continue
-        lines.append("%s x %s (%.2f mm3)" % (body_label(a), body_label(b),
-                                             r.interferenceBody.volume * 1000.0))
+        lines.append("%s x %s (%.3f mm3)" % (body_label(a), body_label(b), r.interferenceBody.volume * 1000.0))
     note = " (%d carrier-internal overlaps ignored)" % internal if internal else ""
     if not lines:
-        return "Fit check: no interferences%s." % note
-    return "Fit check: %d interferences%s:\n  %s" % (len(lines), note, "\n  ".join(lines))
+        return "Fit check: 0 clashes%s." % note
+    return "Fit check: %d clashes%s:\n  %s" % (len(lines), note, "\n  ".join(lines))
 
 
-ANTENNAS = ("wifi_flexpifa", "gnss_patch_ceramic", "lte_flex_antenna")
-# metal (or lossy) neighbours checked against each antenna
-NEIGHBOURS = ("cell_10000mAh", "cell_protection_pcb", "qi2_magnet_ring", "qi2_ferrite",
-              "qi2_tx_board", "speaker_L", "speaker_R", "pd_board", "pd_usb_c", "pd_inductor",
-              "sim7080g_module", "nano_sim_holder", "haptic_lra_10mm", "oled_glass",
-              "touch_strip_pcb", "button_strip_pcb", "btn_mute_body", "btn_pwr_body",
-              "btn_play_body", "wifi_coax", "gnss_patch_silver") + ANTENNAS
+def _dist(a, b):
+    return adsk.core.Application.get().measureManager.measureMinimumDistance(a, b).value * 10.0
 
 
-def clearance_report(design):
-    """Minimum distance (mm) from each antenna to its neighbours and to the carrier board."""
-    mm_ = adsk.core.Application.get().measureManager
-    root = design.rootComponent
-    by_name = {}
-    for b in G["parts"]:
-        by_name.setdefault(b.name, b)
-    carrier = occ_bodies(G["carrier"]) if G.get("carrier") else []
-    out = ["Antenna clearances (minimum distance, mm):"]
-    for a in ANTENNAS:
-        ab = by_name.get(a)
-        if ab is None:
-            out.append("  %s: missing" % a)
-            continue
-        d = []
-        for n in NEIGHBOURS:
-            if n == a or n not in by_name:
-                continue
-            d.append((mm_.measureMinimumDistance(ab, by_name[n]).value * 10.0, n))
-        best = None
-        for b in carrier:
-            v = mm_.measureMinimumDistance(ab, b).value * 10.0
-            if best is None or v < best[0]:
-                best = (v, body_label(b))
-        if best:
-            d.append((best[0], "carrier: " + best[1]))
-        d.sort()
-        out.append("  %s: %s" % (a, ", ".join("%s %.1f" % (n, v) for v, n in d)))
+def clearance_report():
+    def named(n):
+        return [b for b in G["parts"] if b.name == n or b.name.startswith(n + "_")]
+
+    car = occ_bodies(G["carrier"]) if G.get("carrier") else []
+
+    def d(a, b):
+        A, B = named(a), named(b)
+        if not A or not B:
+            return None
+        return min(_dist(x, y) for x in A for y in B)
+
+    out = ["Clearances (minimum distance, mm):"]
+    rules = [("lte_flex_antenna", x, 10.0) for x in ("pd_usb_c", "pd_inductor", "qi2_ferrite",
+                                                     "qi2_magnet_ring", "qi2_winding", "pogo_pad", "dock_magnet")]
+    rules += [("pd_inductor", a, 15.0) for a in ("wifi_flexpifa", "gnss_patch_ceramic", "lte_flex_antenna")]
+    rules += [("wifi_flexpifa", "oled_glass", 5.0)]
+    for a, b, lim in rules:
+        v = d(a, b)
+        out.append("  %-18s %-18s %6s  rule >= %2.0f  %s" % (a, b, "%.1f" % v if v is not None else "-", lim,
+                                                         "OK" if v is not None and v >= lim else "FAIL"))
+    report = [("wifi_flexpifa", ("cell_10000mAh", "qi2_ferrite", "gnss_patch_ceramic", "sim7080g_module",
+                                 "nano_sim_holder", "pogo_pad", "speaker_L", "lte_flex_antenna")),
+              ("gnss_patch_ceramic", ("cell_10000mAh", "oled_glass", "speaker_L", "sim7080g_module",
+                                      "wifi_flexpifa", "dock_magnet", "mic_inmp441_pcb")),
+              ("lte_flex_antenna", ("cell_10000mAh", "touch_strip_pcb", "button_strip_pcb", "btn_play_body",
+                                    "qi2_ferrite", "pd_usb_c", "pd_inductor")),
+              ("speaker_R", ("qi2_tx_board", "qi2_ferrite", "qi2_magnet_ring", "cell_10000mAh", "pd_board")),
+              ("speaker_L", ("cell_10000mAh", "gnss_patch_ceramic", "sim_board", "btn_mute_body")),
+              ("qi2_ferrite", ("pd_board", "pd_usb_c", "qi2_tx_board", "speaker_R"))]
+    for a, others in report:
+        parts = []
+        for o in others:
+            v = d(a, o)
+            if v is not None:
+                parts.append("%s %.1f" % (o, v))
+        A = named(a)
+        if A and car:
+            parts.append("carrier %.1f" % min(_dist(A[0], b) for b in car))
+        out.append("  %s: %s" % (a, ", ".join(parts)))
+    W = named("wifi_flexpifa")
+    if W:
+        out.append("  wifi_flexpifa to phone footprint (X >= %.1f): %.1f"
+                   % (PHONE_X0, PHONE_X0 - W[0].boundingBox.maxPoint.x * 10))
     return "\n".join(out)
 
 
+def grille_report():
+    n = G.get("honeycomb_n", 0)
+    hole = math.sqrt(3) / 2.0 * HC_HEX ** 2
+    cell = math.sqrt(3) / 2.0 * HC_PITCH ** 2
+    cs = honeycomb_centres()
+    w = (max(c[0] for c in cs) - min(c[0] for c in cs)) + 2 * HC_R
+    h = (max(c[1] for c in cs) - min(c[1] for c in cs)) + HC_HEX
+    return ("Grille: %d hex holes per end, %.1f AF at %.1f pitch (web %.1f), open %.1f %% of the "
+            "%.1f x %.1f honeycomb (%.1f %% per cell), Z %.2f..%.2f" % (
+                n, HC_HEX, HC_PITCH, HC_PITCH - HC_HEX, 100.0 * n * hole / (w * h), w, h,
+                100.0 * hole / cell, HC_ZC - h / 2, HC_ZC + h / 2))
+
+
+def stack_report():
+    feet = FOOT_H - FOOT_POCKET - FABRIC
+    return ("Stack: shell %.1f + back fabric %.1f + feet %.1f proud of the fabric = %.1f mm (limit 35). "
+            "Cell %.1f..%.1f, insulator to %.1f, swell gap to %.1f, board %.1f..%.1f, coil ferrite %.1f, "
+            "front wall %.1f..%.1f" % (THICKNESS, FABRIC, feet, THICKNESS + FABRIC + feet, Z_CELL, CELL_TOP,
+                                       CELL_TOP + INSUL, ABOVE, ABOVE, PCB_TOP, COIL_Z0, INNER, TRAY_H))
+
+
+# ----------------------------------------------------------------------
+# GROUPING, SIDE NAMES, FINISHES, LABELS
+# ----------------------------------------------------------------------
 def group(n):
-    if n.startswith("shell_"):
-        return "shell"
-    if n.startswith(("cell_", "pd_", "qi2_", "graphite_", "keepout_")):
+    if n in ("shell_tray", "ring_inlay"):
+        return "tray"
+    if n == "shell_lid":
+        return "lid"
+    if n == "carrier_bracket":
+        return "bracket"
+    if n.startswith(("plate", "foot", "usb_c_gasket")):
+        return "trim"
+    if n.startswith(("cell_", "pd_", "qi2_", "keepout_")):
         return "power"
-    if n.startswith("speaker_"):
+    if n.startswith(("speaker_", "grille_mesh")):
         return "speakers"
     if n in ("sim_board", "sim7080g_module", "nano_sim_holder", "lte_flex_antenna") \
             or n.startswith(("ufl_connectors", "gnss_")):
@@ -934,11 +1239,16 @@ def group(n):
 
 
 def group_components(design):
-    """Moves every root body into a component. Run after the checks (moving drops references)."""
     root = design.rootComponent
     I = adsk.core.Matrix3D.create()
+    shell = root.occurrences.addNewComponent(I)
+    shell.component.name = "shell"
     occs = {}
-    for g in ("shell", "power", "speakers", "lte", "wifi", "ui", "dock"):
+    for g in ("tray", "lid", "bracket"):
+        o = shell.component.occurrences.addNewComponent(I)
+        o.component.name = g
+        occs[g] = o.createForAssemblyContext(shell)
+    for g in ("trim", "power", "speakers", "lte", "wifi", "ui", "dock"):
         o = root.occurrences.addNewComponent(I)
         o.component.name = g
         occs[g] = o
@@ -948,11 +1258,135 @@ def group_components(design):
     return ", ".join("%s %d" % (g, o.component.bRepBodies.count) for g, o in occs.items())
 
 
+def find_body(design, name):
+    root = design.rootComponent
+    for oc in root.allOccurrences:
+        for i in range(oc.bRepBodies.count):
+            b = oc.bRepBodies.item(i)
+            if b.name == name:
+                return b
+    return root.bRepBodies.itemByName(name)
+
+
+def side_of(face, body_name):
+    """Outer side name of a tray/lid face, or None (inside, holes, grooves)."""
+    g = face.geometry
+    bb = face.boundingBox
+    lo, hi = bb.minPoint, bb.maxPoint
+    hx, hy = mm(LENGTH / 2.0), mm(WIDTH / 2.0)
+    if isinstance(g, adsk.core.Plane):
+        n = g.normal
+        if body_name == "shell_tray" and n.z > 0.99 and abs(hi.z - mm(TRAY_H)) < 1e-4:
+            return "FRONT"
+        if body_name == "shell_lid" and n.z < -0.99 and abs(lo.z + mm(LID)) < 1e-4:
+            return "BACK"
+        if abs(n.y) > 0.99 and abs(abs(lo.y) - hy) < 1e-4 and abs(abs(hi.y) - hy) < 1e-4:
+            return "TOP_EDGE" if lo.y > 0 else "BOTTOM_EDGE"
+        if abs(n.x) > 0.99 and abs(abs(lo.x) - hx) < 1e-4 and abs(abs(hi.x) - hx) < 1e-4:
+            return "RIGHT_END" if lo.x > 0 else "LEFT_END"
+    elif isinstance(g, adsk.core.Cylinder) and abs(g.radius - mm(CORNER_R)) < 1e-4:
+        return "CORNER"
+    return None
+
+
+SIDE_FINISH = {"FRONT": "front_panel", "BACK": "shell_fabric", "TOP_EDGE": "shell_fabric",
+               "BOTTOM_EDGE": "petg_bare", "LEFT_END": "petg_bare", "RIGHT_END": "petg_bare",
+               "CORNER": "petg_bare"}
+
+
+def name_and_paint_sides(design):
+    counts = {}
+    for name in ("shell_tray", "shell_lid"):
+        b = find_body(design, name)
+        if b is None:
+            continue
+        nb = b.nativeObject or b
+        paint(nb, "petg_bare")
+        for f in nb.faces:
+            s = side_of(f, name)
+            if not s:
+                continue
+            try:
+                f.attributes.add("heartsync", "side", s)
+            except Exception:
+                pass
+            a = appearance(SIDE_FINISH[s])
+            if a:
+                try:
+                    f.appearance = a
+                except Exception:
+                    pass
+            counts[s] = counts.get(s, 0) + 1
+    return ", ".join("%s %d" % kv for kv in sorted(counts.items()))
+
+
+def build_labels(design):
+    root = design.rootComponent
+    occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+    comp = occ.component
+    comp.name = "labels"
+    specs = [("FRONT", "z", TRAY_H + 0.05), ("BACK", "z", -LID - 0.05),
+             ("TOP_EDGE", "y", WIDTH / 2.0 + 0.05), ("BOTTOM_EDGE", "y", -WIDTH / 2.0 - 0.05),
+             ("RIGHT_END", "x", LENGTH / 2.0 + 0.05), ("LEFT_END", "x", -LENGTH / 2.0 - 0.05)]
+    made = 0
+    for text, axis, off in specs:
+        try:
+            base = {"z": comp.xYConstructionPlane, "y": comp.xZConstructionPlane, "x": comp.yZConstructionPlane}[axis]
+            pi = comp.constructionPlanes.createInput()
+            pi.setByOffset(base, vi(off))
+            pl = comp.constructionPlanes.add(pi)
+            o = pl.geometry.origin
+            if abs({"z": o.z, "y": o.y, "x": o.x}[axis] * 10 - off) > 0.01:
+                pl.deleteMe()
+                pi = comp.constructionPlanes.createInput()
+                pi.setByOffset(base, vi(-off))
+                pl = comp.constructionPlanes.add(pi)
+            pl.isLightBulbOn = False
+            sk = comp.sketches.add(pl)
+            if axis == "z":
+                a, b = P(-30, -3, off), P(30, 3, off)
+            elif axis == "y":
+                a, b = P(-30, off, 10), P(30, off, 16)
+            else:
+                a, b = P(off, -25, 10), P(off, 25, 16)
+            pa, pb = sk.modelToSketchSpace(a), sk.modelToSketchSpace(b)
+            ti = sk.sketchTexts.createInput2(text, mm(5.0))
+            ti.setAsMultiLine(adsk.core.Point3D.create(min(pa.x, pb.x), min(pa.y, pb.y), 0),
+                              adsk.core.Point3D.create(max(pa.x, pb.x), max(pa.y, pb.y), 0),
+                              adsk.core.HorizontalAlignments.CenterHorizontalAlignment,
+                              adsk.core.VerticalAlignments.MiddleVerticalAlignment, 0)
+            sk.sketchTexts.add(ti)
+            sk.name = "label_" + text
+            made += 1
+        except Exception:
+            G["fails"].append("label_" + text)
+    occ.isLightBulbOn = False
+    return made
+
+
+ANCHORS = {"cell_10000mAh": ("cell", "xy"), "qi2_ferrite": ("coil", "xy"), "oled_glass": ("oled", "xy"),
+           "pd_board": ("pd_board", "xy"), "pd_usb_c": ("usb_c", "x"), "qi2_tx_board": ("qi2_tx", "xy"),
+           "sim_board": ("sim_board", "xy"), "wifi_flexpifa": ("wifi", "xy"),
+           "gnss_patch_ceramic": ("gnss", "xy"), "lte_flex_antenna": ("lte", "xz"),
+           "haptic_lra_10mm": ("lra", "xy"), "button_strip_pcb": ("buttons", "x")}
+
+
+def tag_anchors():
+    for b in G["parts"]:
+        if b.name in ANCHORS:
+            key, axes = ANCHORS[b.name]
+            bb = b.boundingBox
+            try:
+                b.attributes.add("heartsync", "anchor", json.dumps(
+                    {"pos": key, "axes": axes, "ref": [bb.minPoint.x * 10, bb.minPoint.y * 10, bb.minPoint.z * 10]}))
+            except Exception:
+                pass
+
+
 # ----------------------------------------------------------------------
 # RUN
 # ----------------------------------------------------------------------
 def run(context):
-    """Builds the assembly, prints a report and returns it. Errors propagate."""
     app = adsk.core.Application.get()
     design = adsk.fusion.Design.cast(app.activeProduct)
     if not design:
@@ -967,44 +1401,476 @@ def run(context):
 
     tray = build_tray()
     lid = build_lid()
+    build_trim()
+    build_bracket()
     build_coil()
     build_power()
-    build_electronics()
+    build_lte_gnss()
     build_speakers()
-    build_front()
-    build_wiring()
-    if CARRIER and not EXPLODE:
+    build_ui()
+    build_dock()
+    tag_anchors()
+    if CARRIER:
         import_carrier(design)
 
-    report = ""
-    if not EXPLODE:
-        try:
-            report = interference_report(design, tray, lid)
-        except Exception as e:
-            report = "Fit check could not run: %s" % e
-        try:
-            report += "\n" + clearance_report(design)
-        except Exception as e:
-            report += "\nClearance report could not run: %s" % e
+    report = [stack_report(), grille_report()]
+    try:
+        report.append(interference_report(design, tray, lid))
+    except Exception as e:
+        report.append("Fit check could not run: %s" % e)
+    try:
+        report.append(clearance_report())
+    except Exception as e:
+        report.append("Clearance report could not run: %s" % e)
     n_parts = len(G["parts"])
     n_carrier = len(occ_bodies(G["carrier"])) if G.get("carrier") else 0
     grouped = group_components(design) if GROUP else "off"
+    sides = name_and_paint_sides(design)
+    labels = build_labels(design)
 
     app.activeViewport.fit()
-    msg = ("heartsync %s (%s display)\n"
-           "Shell %.1f x %.1f x %.1f mm, inside height %.1f mm, board layer Z %.1f\n"
-           "Parts: %d bodies, carrier STEP: %s, wires: %d\n"
-           "Components: %s\n"
-           % ("EXPLODED VIEW" if EXPLODE else "STACK", DISPLAY,
-              LENGTH, WIDTH, THICKNESS, INNER, ABOVE, n_parts,
-              "%d bodies" % n_carrier if n_carrier else "not imported",
-              G["wires"], grouped))
-    if G.get("wifi_coax_mm"):
-        msg += "Wi-Fi coax path: %.1f mm (cable 100 mm)\n" % G["wifi_coax_mm"]
+    msg = ("heartsync STACK (%s display, dock %s)\n"
+           "Shell %.1f x %.1f x %.1f, inside height %.1f, board layer Z %.1f\n"
+           "Parts: %d bodies, carrier STEP: %d bodies, Wi-Fi coax %.1f mm (cable 100)\n"
+           "Components: %s\nSides: %s; labels %d (hidden)\n"
+           % (DISPLAY, DOCK_SIDE, LENGTH, WIDTH, THICKNESS, INNER, ABOVE, n_parts, n_carrier,
+              G.get("wifi_coax_mm", 0), grouped, sides, labels))
     if G["fails"]:
         msg += "Could not build: %s\n" % ", ".join(G["fails"])
-    if not G["base_app"]:
-        msg += "Colours skipped (no base appearance found).\n"
-    msg += report
+    if PARAM_NOTES:
+        msg += "Params: %s\n" % "; ".join(PARAM_NOTES)
+    msg += "\n".join(report)
+    print(msg)
+    return msg
+
+
+# ----------------------------------------------------------------------
+# PRINT CHECKS (thin walls, overhangs) on the open design
+# ----------------------------------------------------------------------
+def print_checks():
+    """Thin walls by inward rays from face sample points; overhangs > 45 deg for the print
+    orientation (tray front face down, lid outside face down; bracket printed on its side)."""
+    app = adsk.core.Application.get()
+    design = adsk.fusion.Design.cast(app.activeProduct)
+    root = design.rootComponent
+    lines = []
+    for name, down in (("shell_tray", 1), ("shell_lid", -1), ("carrier_bracket", 0)):
+        body = find_body(design, name)
+        if body is None:
+            continue
+        thin, rays = [], 0
+        for f in body.faces:
+            ev = f.evaluator
+            pts = [f.pointOnFace]
+            rng = ev.parametricRange()
+            pmin, pmax = rng.minPoint, rng.maxPoint
+            if f.area > 0.5:
+                for u in (0.25, 0.5, 0.75):
+                    for v in (0.25, 0.5, 0.75):
+                        pp = adsk.core.Point2D.create(pmin.x + (pmax.x - pmin.x) * u, pmin.y + (pmax.y - pmin.y) * v)
+                        if ev.isParameterOnFace(pp):
+                            okp, p3 = ev.getPointAtParameter(pp)
+                            if okp:
+                                pts.append(p3)
+            for p in pts:
+                okn, n = ev.getNormalAtPoint(p)
+                if not okn:
+                    continue
+                d = n.copy()
+                d.scaleBy(-1)
+                o = p.copy()
+                step = d.copy()
+                step.scaleBy(1e-4)
+                o.translateBy(step)
+                hits = adsk.core.ObjectCollection.create()
+                ents = root.findBRepUsingRay(o, d, adsk.fusion.BRepEntityTypes.BRepFaceEntityType, -1.0, False, hits)
+                rays += 1
+                best = None
+                for i in range(ents.count):
+                    if ents.item(i).body.name != name:
+                        continue
+                    t = o.distanceTo(hits.item(i)) * 10.0
+                    if t > 0.02 and (best is None or t < best):
+                        best = t
+                if best is not None and best < MIN_WALL - 0.01:
+                    thin.append((best, p.x * 10, p.y * 10, p.z * 10))
+        thin.sort()
+        web = [t for t in thin if abs(t[1]) > CAV_X - 0.5]
+        thin = [t for t in thin if abs(t[1]) <= CAV_X - 0.5]
+        if web:
+            lines.append("%s: honeycomb webs %d samples, %.2f..%.2f mm (by spec)" % (
+                name, len(web), min(w[0] for w in web), max(w[0] for w in web)))
+        spots = {}
+        for t, x, y, z in thin:
+            spots.setdefault((round(x / 10), round(y / 10), round(z / 10)), (t, x, y, z))
+        lines.append("%s: %d rays, %d thin samples (< %.1f mm)%s" % (
+            name, rays, len(thin), MIN_WALL, ", thinnest %.2f" % thin[0][0] if thin else ""))
+        for t, x, y, z in sorted(spots.values())[:12]:
+            lines.append("    %.2f mm at (%.1f, %.1f, %.1f)" % (t, x, y, z))
+        if down:
+            bed = mm(TRAY_H) if down > 0 else -mm(LID)
+            over = []
+            for f in body.faces:
+                okn, n = f.evaluator.getNormalAtPoint(f.pointOnFace)
+                if not okn or n.z * down <= math.cos(math.radians(45)) + 1e-3:
+                    continue
+                if abs(f.pointOnFace.z - bed) < 1e-4:
+                    continue
+                over.append((f.area * 100.0, f.pointOnFace))
+            over.sort(key=lambda t: -t[0])
+            lines.append("  overhangs > 45 deg: %d faces, %.0f mm2 total" % (len(over), sum(a for a, _ in over)))
+            for a, p in over[:10]:
+                lines.append("    %.1f mm2 at (%.1f, %.1f, %.1f)" % (a, p.x * 10, p.y * 10, p.z * 10))
+    msg = "\n".join(lines)
+    print(msg)
+    return msg
+
+
+# ----------------------------------------------------------------------
+# EXPORTS
+# ----------------------------------------------------------------------
+def _mesh_opts(o):
+    try:
+        o.meshRefinement = adsk.fusion.MeshRefinementSettings.MeshRefinementCustom
+        o.surfaceDeviation = mm(0.01)
+        o.normalDeviation = math.radians(5.0)
+    except Exception:
+        pass
+
+
+def export_all():
+    app = adsk.core.Application.get()
+    design = adsk.fusion.Design.cast(app.activeProduct)
+    em = design.exportManager
+    out = os.path.join(CAD, "exports")
+    os.makedirs(out, exist_ok=True)
+    root = design.rootComponent
+    done = []
+
+    def occ_named(n):
+        for oc in root.allOccurrences:
+            if oc.component.name == n:
+                return oc
+        return None
+
+    for comp_name, fn in (("tray", "heartsync_tray.3mf"), ("lid", "heartsync_lid.3mf")):
+        occ = occ_named(comp_name)
+        if occ:
+            o = em.createC3MFExportOptions(occ, os.path.join(out, fn))
+            _mesh_opts(o)
+            em.execute(o)
+            done.append(fn)
+    for n, fn in (("shell_tray", "heartsync_tray.stl"), ("shell_lid", "heartsync_lid.stl"),
+                  ("carrier_bracket", "heartsync_bracket.stl")):
+        b = find_body(design, n)
+        if b:
+            o = em.createSTLExportOptions(b, os.path.join(out, fn))
+            o.isBinaryFormat = True
+            _mesh_opts(o)
+            em.execute(o)
+            done.append(fn)
+    em.execute(em.createSTEPExportOptions(os.path.join(out, "heartsync_full_assembly.step"), root))
+    done.append("heartsync_full_assembly.step")
+    msg = "Exported: " + ", ".join(done)
+    print(msg)
+    return msg
+
+
+# ----------------------------------------------------------------------
+# FLAT NET (TOP + BACK fabric), linked to the model constants
+# ----------------------------------------------------------------------
+def net_geometry():
+    """Net primitives in mm, origin at the bottom-left of the BACK panel seen from outside:
+    ("cut", pts), ("fold", pts), ("circle_cut", centre, r), ("text", p, s, size)."""
+    L, W, T, r = LENGTH, WIDTH, THICKNESS, CORNER_R
+    arc = math.pi / 2.0 * r
+    prims = []
+
+    def bu(x):              # seen from behind, model +X is on the left
+        return L / 2.0 - x
+
+    SEAM_GAP = 12.0
+
+    def tv(z):              # TOP edge: lid part (z < 0) stays on the BACK piece; tray part is a
+        return W + (z + LID) + (SEAM_GAP if z >= 0 else 0.0)   # separate piece, so the seam opens
+
+    def arc_pts(cx, cy, a0, a1, n=8):
+        return [(cx + r * math.cos(math.radians(a0 + (a1 - a0) * k / n)),
+                 cy + r * math.sin(math.radians(a0 + (a1 - a0) * k / n))) for k in range(n + 1)]
+
+    u0, u1 = r - arc, L - r + arc          # TOP strips incl. the quarter-round corner wraps
+    va, vb0, vb1 = W + LID, W + LID + SEAM_GAP, W + LID + SEAM_GAP + TRAY_H
+    # piece 1: BACK panel + the lid's top edge (2.2), cut at the seam
+    outline = [(r, 0), (L - r, 0)] + arc_pts(L - r, r, -90, 0)[1:] + [(L, W - r)] +         arc_pts(L - r, W - r, 0, 90)[1:] + [(u1, W), (u1, va), (u0, va), (u0, W), (r, W)] +         arc_pts(r, W - r, 90, 180)[1:] + [(0, r)] + arc_pts(r, r, 180, 270)[1:]
+    prims.append(("cut", outline))
+    prims.append(("fold", [(r, W), (L - r, W)]))
+    # piece 2: tray TOP edge, seam (z = 0) to the FRONT edge
+    prims.append(("cut", [(u0, vb0), (u1, vb0), (u1, vb1), (u0, vb1), (u0, vb0)]))
+    prims.append(("text", (L / 2.0, W / 2.0 + 14), "BACK", 5.0))
+    prims.append(("text", (L / 2.0, vb0 + 8), "TOP_EDGE (tray, from the lid seam)", 4.0))
+    prims.append(("text", (L / 2.0, va + SEAM_GAP / 2.0), "seam: separate pieces, case opens without peeling", 2.5))
+    for (x, y) in SCREWS:                    # feet over the screws
+        prims.append(("circle_cut", (bu(x), y + W / 2.0), FOOT_D / 2.0 + 0.2))
+    pl = []                                  # plate window
+    for (cx, a0) in ((PLATE_L / 2 - PLATE_W / 2, -90), (-(PLATE_L / 2 - PLATE_W / 2), 90)):
+        for k in range(13):
+            a = math.radians(a0 + 180 * k / 12)
+            pl.append((bu(cx + PLATE_W / 2 * math.cos(a)), W / 2.0 + PLATE_W / 2 * math.sin(a)))
+    prims.append(("cut", pl + [pl[0]]))
+
+    def box(x, z, w, h):
+        a, b = bu(x - w / 2), bu(x + w / 2)
+        return [(a, tv(z - h / 2)), (b, tv(z - h / 2)), (b, tv(z + h / 2)), (a, tv(z + h / 2)), (a, tv(z - h / 2))]
+    prims.append(("cut", box(USB_X, USB_ZC, USB[0] + 2 * FIT_USB, USB[1] + 2 * FIT_USB)))
+    for name, x, w in BUTTONS:
+        h = (6.4 if name == "mute" else 4.0) + 2 * FIT_BTN
+        prims.append(("cut", box(x, BTN_ZC, h, h)))
+    prims.append(("fold", [(0, -12), (50, -12)]))
+    prims.append(("text", (25, -17), "50 mm check (print at 100 %)", 3.0))
+    return prims
+
+
+def make_net():
+    app = adsk.core.Application.get()
+    design = adsk.fusion.Design.cast(app.activeProduct)
+    root = design.rootComponent
+    out_dir = os.path.join(CAD, "net")
+    os.makedirs(out_dir, exist_ok=True)
+    prims = net_geometry()
+    occ = None
+    for oc in root.occurrences:
+        if oc.component.name == "net":
+            occ = oc
+    if occ is None:
+        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+        occ.component.name = "net"
+    comp = occ.component
+    while comp.sketches.count:
+        comp.sketches.item(0).deleteMe()
+    sk = comp.sketches.add(comp.xYConstructionPlane)
+    sk.name = "heartsync_net"
+    sk.isComputeDeferred = True
+    lines = sk.sketchCurves.sketchLines
+    for pr in prims:
+        kind = pr[0]
+        if kind in ("cut", "fold"):
+            for a, b in zip(pr[1], pr[1][1:]):
+                ln = lines.addByTwoPoints(P(a[0], a[1]), P(b[0], b[1]))
+                if kind == "fold":
+                    ln.isConstruction = True
+        elif kind == "circle_cut":
+            sk.sketchCurves.sketchCircles.addByCenterRadius(P(pr[1][0], pr[1][1]), mm(pr[2]))
+        elif kind == "text":
+            p, s, size = pr[1], pr[2], pr[3]
+            ti = sk.sketchTexts.createInput2(s, mm(size))
+            ti.setAsMultiLine(P(p[0] - 45, p[1] - size), P(p[0] + 45, p[1] + size),
+                              adsk.core.HorizontalAlignments.CenterHorizontalAlignment,
+                              adsk.core.VerticalAlignments.MiddleVerticalAlignment, 0)
+            sk.sketchTexts.add(ti)
+    sk.isComputeDeferred = False
+    occ.isLightBulbOn = False
+    dxf = os.path.join(out_dir, "heartsync_net.dxf")
+    sk.saveAsDXF(dxf)
+    pdf = os.path.join(out_dir, "heartsync_net.pdf")
+    write_net_pdf(prims, pdf)
+    msg = "Net: %s, %s" % (dxf, pdf)
+    print(msg)
+    return msg
+
+
+def write_net_pdf(prims, path):
+    """Minimal vector PDF at 1:1 (1 mm = 72/25.4 pt), one page sized to the net + 15 mm margin."""
+    k = 72.0 / 25.4
+    xs, ys = [], []
+    for pr in prims:
+        if pr[0] in ("cut", "fold"):
+            xs += [p[0] for p in pr[1]]
+            ys += [p[1] for p in pr[1]]
+    m = 15.0
+    x0, y0 = min(xs) - m, min(ys) - m
+    wpt, hpt = (max(xs) - min(xs) + 2 * m) * k, (max(ys) - min(ys) + 2 * m) * k
+
+    def tp(x, y):
+        return (x - x0) * k, (y - y0) * k
+    ops = ["0.35 w 0 0 0 RG 0 0 0 rg"]
+    for pr in prims:
+        if pr[0] in ("cut", "fold"):
+            pts = [tp(*p) for p in pr[1]]
+            ops.append(("[] 0 d " if pr[0] == "cut" else "[4 2] 0 d ") + "%.2f %.2f m " % pts[0] +
+                       " ".join("%.2f %.2f l" % p for p in pts[1:]) + " S")
+        elif pr[0] == "circle_cut":
+            cx, cy = tp(*pr[1])
+            r = pr[2] * k
+            q = 0.5523 * r
+            ops.append("[] 0 d %.2f %.2f m %.2f %.2f %.2f %.2f %.2f %.2f c %.2f %.2f %.2f %.2f %.2f %.2f c "
+                       "%.2f %.2f %.2f %.2f %.2f %.2f c %.2f %.2f %.2f %.2f %.2f %.2f c S" % (
+                           cx + r, cy, cx + r, cy + q, cx + q, cy + r, cx, cy + r, cx - q, cy + r, cx - r, cy + q,
+                           cx - r, cy, cx - r, cy - q, cx - q, cy - r, cx, cy - r, cx + q, cy - r, cx + r, cy - q,
+                           cx + r, cy))
+        elif pr[0] == "text":
+            px, py = tp(*pr[1])
+            s, fs = pr[2], pr[3] * k
+            ops.append("BT /F1 %.1f Tf %.2f %.2f Td (%s) Tj ET" % (fs, px - len(s) * fs * 0.28, py - fs * 0.35, s))
+    stream = "\n".join(ops).encode("latin-1")
+    objs = [b"<< /Type /Catalog /Pages 2 0 R >>",
+            b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            ("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 %.2f %.2f] /Contents 4 0 R "
+             "/Resources << /Font << /F1 5 0 R >> >> >>" % (wpt, hpt)).encode(),
+            b"<< /Length %d >>\nstream\n" % len(stream) + stream + b"\nendstream",
+            b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"]
+    data = b"%PDF-1.4\n"
+    offs = []
+    for i, o in enumerate(objs):
+        offs.append(len(data))
+        data += b"%d 0 obj\n" % (i + 1) + o + b"\nendobj\n"
+    xref = len(data)
+    data += b"xref\n0 %d\n0000000000 65535 f \n" % (len(objs) + 1)
+    for o in offs:
+        data += b"%010d 00000 n \n" % o
+    data += b"trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n" % (len(objs) + 1, xref)
+    with open(path, "wb") as f:
+        f.write(data)
+
+
+# ----------------------------------------------------------------------
+# RENDERS
+# ----------------------------------------------------------------------
+VIEWS = {   # name: (eye direction, up)
+    "front": ((0, 0, 1), (0, 1, 0)), "back": ((0, 0, -1), (0, 1, 0)),
+    "top": ((0, 1, 0), (0, 0, 1)), "bottom": ((0, -1, 0), (0, 0, 1)),
+    "left": ((-1, 0, 0), (0, 0, 1)), "right": ((1, 0, 0), (0, 0, 1)),
+    "iso-front": ((0.8, -0.9, 1.2), (0, 0, 1)), "iso-back": ((-0.8, 0.9, -1.2), (0, 0, 1)),
+}
+
+
+def _camera(vp, eye_dir, up):
+    cam = vp.camera
+    dist = 60.0
+    n = math.sqrt(sum(c * c for c in eye_dir))
+    cam.target = adsk.core.Point3D.create(0, 0, mm(13.8))
+    cam.eye = adsk.core.Point3D.create(dist * eye_dir[0] / n, dist * eye_dir[1] / n, mm(13.8) + dist * eye_dir[2] / n)
+    cam.upVector = adsk.core.Vector3D.create(*up)
+    cam.isFitView = True
+    vp.camera = cam
+    adsk.doEvents()
+
+
+def make_renders():
+    app = adsk.core.Application.get()
+    design = adsk.fusion.Design.cast(app.activeProduct)
+    vp = app.activeViewport
+    root = design.rootComponent
+    out = os.path.join(CAD, "renders", "_png")
+    os.makedirs(out, exist_ok=True)
+    done = []
+    for name, (eye, up) in VIEWS.items():
+        _camera(vp, eye, up)
+        vp.saveAsImageFile(os.path.join(out, name + ".png"), 1920, 1080)
+        done.append(name)
+    lab = [oc for oc in root.occurrences if oc.component.name == "labels"]
+    if lab:
+        lab[0].isLightBulbOn = True
+        _camera(vp, *VIEWS["iso-front"])
+        vp.saveAsImageFile(os.path.join(out, "labels.png"), 1920, 1080)
+        lab[0].isLightBulbOn = False
+        done.append("labels")
+    # exploded: move groups apart along Z, capture, put them back
+    offsets = {"trim": -12, "power": 12, "lte": 24, "wifi": 36, "carrier": 30, "ui": 48, "dock": -24}
+    sub_off = {"tray": 64, "lid": -36, "bracket": 54}
+    saved = []
+    for oc in root.occurrences:
+        targets = []
+        if oc.component.name == "shell":
+            targets = [(s, sub_off.get(s.component.name, 0)) for s in oc.childOccurrences]
+        elif oc.component.name in offsets:
+            targets = [(oc, offsets[oc.component.name])]
+        for t, dz in targets:
+            saved.append((t, t.transform2.copy()))
+            m = t.transform2
+            v = m.translation
+            v.add(adsk.core.Vector3D.create(0, 0, mm(dz)))
+            m.translation = v
+            t.transform2 = m
+    _camera(vp, (0.9, -1.0, 0.45), (0, 0, 1))
+    vp.saveAsImageFile(os.path.join(out, "exploded.png"), 1920, 1080)
+    done.append("exploded")
+    for t, m in saved:
+        t.transform2 = m
+    try:
+        if design.snapshots.hasPendingSnapshot:
+            design.snapshots.revertPendingSnapshot()
+    except Exception:
+        pass
+    _camera(vp, *VIEWS["iso-front"])
+    msg = "Renders (PNG): " + ", ".join(done)
+    print(msg)
+    return msg
+
+
+# ----------------------------------------------------------------------
+# SAVE, SYNC
+# ----------------------------------------------------------------------
+def save_doc():
+    app = adsk.core.Application.get()
+    doc = app.activeDocument
+    try:
+        proj = app.data.activeProject
+        proj.name
+    except Exception:
+        proj = None
+    if proj is None:
+        projs = [app.data.dataProjects.item(i) for i in range(app.data.dataProjects.count)]
+        proj = next((p for p in projs if p.name == "Default Project"), projs[0] if projs else None)
+    ok = doc.saveAs(DOC_NAME, proj.rootFolder, "heartsync assembly, built by heartsync_assembly.py", "")
+    msg = "Saved as %s in %s: %s" % (DOC_NAME, proj.name, ok)
+    print(msg)
+    return msg
+
+
+def sync_from_fusion():
+    """Reads where the anchor parts are now (after manual moves in Fusion) and rewrites the POS
+    block in this file. Moves only (X/Y, or X/Z for the LTE flex); rotations are not synced."""
+    app = adsk.core.Application.get()
+    design = adsk.fusion.Design.cast(app.activeProduct)
+    root = design.rootComponent
+    pos = {k: list(v) for k, v in POS.items()}
+    moved, notes = [], []
+    idx = {"x": 0, "y": 1, "z": 2}
+    for oc in root.allOccurrences:
+        for i in range(oc.bRepBodies.count):
+            b = oc.bRepBodies.item(i)
+            nb = b.nativeObject or b
+            at = nb.attributes.itemByName("heartsync", "anchor")
+            if not at:
+                continue
+            info = json.loads(at.value)
+            bb = b.boundingBox
+            if info.get("corner") == "x0y1":
+                now = [bb.minPoint.x * 10, bb.maxPoint.y * 10, 0]
+            else:
+                now = [bb.minPoint.x * 10, bb.minPoint.y * 10, bb.minPoint.z * 10]
+            delta = [now[j] - info["ref"][j] for j in range(3)]
+            if max(abs(d) for d in delta) < 0.01:
+                continue
+            key, axes = info["pos"], info["axes"]
+            for slot, ax in enumerate(axes):
+                pos[key][slot] = round(pos[key][slot] + delta[idx[ax]], 2)
+            ignored = [a for a in "xyz" if a not in axes and abs(delta[idx[a]]) > 0.01]
+            if ignored and info.get("corner") != "x0y1":
+                notes.append("%s: %s move ignored (set by the stack)" % (key, "/".join(ignored)))
+            moved.append("%s %s" % (key, ", ".join("%+.2f" % d for d in delta)))
+    if not moved:
+        msg = "sync_from_fusion: nothing moved"
+        print(msg)
+        return msg
+    path = os.path.join(HERE, "heartsync_assembly.py")
+    src = open(path, encoding="utf-8").read()
+    body = "POS = {\n" + "".join('    "%s": (%s),\n' % (k, ", ".join("%.2f" % v for v in vals))
+                                 for k, vals in pos.items()) + "}\n"
+    src = re.sub(r"(# --- POS BEGIN ---\n).*?(# --- POS END ---)", lambda m: m.group(1) + body + m.group(2),
+                 src, flags=re.S)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(src)
+    msg = "sync_from_fusion: updated %s%s" % ("; ".join(moved), ("; " + "; ".join(notes)) if notes else "")
     print(msg)
     return msg

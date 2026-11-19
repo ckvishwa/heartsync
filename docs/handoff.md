@@ -104,6 +104,20 @@ Last updated: 2026-11-19 (carrier U1 to WROOM-1U, print-accurate enclosure saved
     - Lid 0.45 mm between each counterbore and the gasket channel: check on the PLA print.
     - speaker_R 1.5 mm behind the coil ferrite: bench-check eddy heating.
     - USB-C receptacle model is generic: pick the waterproof part.
+- **Real-parts library** (`cad/models/`, 2026-11-19; read its `README.md`): one folder per part
+  with STEP, datasheet PDF and README (source, part number, date, licence).
+  - Official STEP: CES-571423-28PMB speaker, Amphenol 124019572112A waterproof USB-C,
+    Newhaven NHD-2.7 / NHD-3.12 OLEDs, Adafruit 6049 (ICS-43434 mic) and 5378 (VEML7700).
+    KiCad library: JST SH headers, C&K PTS645 tactile. ESP32 linked from the carrier's 3dmodels.
+  - From drawing (`from_drawing.py`, **verify on arrival**): FlexPIFA 001-0014, SHR housings,
+    PS-7054DVB-6PL latching button, Mill-Max 0906-2 pogo pin, 6 x 2 magnet; pogo pad from params.
+  - Findings: the **speaker is 82.5 mm long with its mounting ears** (box 57.5; inside 68.1);
+    the **FlexPIFA is a flat FPC with a 17 mm foam end**, and its cable leaves that short end.
+  - Open parts, 2 options each, nothing bought: `cad/models/open_parts.md` (cell, OLED,
+    SIM7080G, LTE flex, GNSS, PD board, Qi2, mic, light), with the safety review's checks.
+  - **Not done: swapping the stand-ins in `heartsync_assembly.py` and the fit check.** The
+    user chose to wait for the other session's script rewrite (`6abad791`) to settle first.
+    Missing PDFs (vendors block scripts): Amphenol drawing, C&K PTS645; save from a browser.
 
 ## Where we stopped (2026-11-16 evening, user said stop and save)
 

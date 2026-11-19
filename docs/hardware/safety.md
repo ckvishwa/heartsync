@@ -17,7 +17,7 @@ against them.
   over-current, short circuit).
 - **JST connector on the battery.** The cell is never soldered directly to the
   board and can be unplugged before any work.
-- **Swelling gap:** 0.5 to 1 mm of free space over the cell's face in the
+- **Swelling gap:** at least 1 mm (1.2 used) of free space over the cell's face in the
   enclosure (`battery_swell_gap` in `cad/params.csv`). Nothing sharp faces the cell.
 - **Charge stop at about 90 percent while docked,** to extend cell life.
 - **No heat to open the case.** No glue that needs a heat gun, no heat-set step

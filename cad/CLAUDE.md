@@ -18,7 +18,7 @@ until then this folder only holds parameters and notes.
 - **Thickness: 3.5 cm maximum** (`body_thickness_max`). Check the full stack-up
   (fabric, wall, panel, PCB, battery, swelling gap, wall, coil, fabric) before any
   change that adds depth.
-- **Battery swelling gap: 0.5 to 1 mm** (`battery_swell_gap`). Nothing sharp
+- **Battery swelling gap: at least 1 mm (1.2 used)** (`battery_swell_gap`). Nothing sharp
   faces the cell. See `docs/hardware/safety.md`.
 - The case must open **without heat**: screws or clips, no glue near the cell.
 
@@ -40,3 +40,8 @@ until then this folder only holds parameters and notes.
 ## Commands
 
 No build step. Validate the CSV by importing it in Fusion; the script reports bad rows.
+
+## Open items
+
+- `fusion/heartsync_assembly.py` dimensions are hard-coded; move them to
+  `params.csv` once the layout settles.

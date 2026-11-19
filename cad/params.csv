@@ -13,7 +13,7 @@ panel_pitch,2,mm,spec,P2
 battery_length,0,mm,verify against datasheet,10000 mAh cell not chosen. Fill in from the datasheet
 battery_width,0,mm,verify against datasheet,Fill in from the datasheet
 battery_thickness,0,mm,verify against datasheet,Fill in from the datasheet
-battery_swell_gap,1,mm,safety,Free space over the cell face. Must stay within 0.5 to 1 mm
+battery_swell_gap,1.2,mm,safety,Free space over the cell face. At least 1 mm (1.2 used)
 pcb_thickness,1.6,mm,assumption,Standard FR4
 gasket_width,2,mm,assumption,Seam gasket channel for the IP54 target
 gasket_compression,0.3,mm,assumption,Tune to the gasket material

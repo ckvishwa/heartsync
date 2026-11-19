@@ -10,6 +10,7 @@ Pins must match `docs/hardware/pinout.md` and `firmware/include/config.h`.
   Never hand-edit the `.net` or the BOM CSV.
 - `heartsync_carrier.kicad_pcb` is the board. Placement lives in `replace_parts.py` (PLACE table).
   Change positions in the script, not by dragging, so the layout stays reproducible.
+- Fresh netlist import: run `place_board.py` THEN `replace_parts.py`, then save.
 - `place_board.py` runs ONCE per netlist import (outline, holes, pours). `replace_parts.py` is safe to re-run.
   Both run inside KiCad's PCB editor scripting console (pcbnew), not from the shell.
 
@@ -31,15 +32,16 @@ Pins must match `docs/hardware/pinout.md` and `firmware/include/config.h`.
 
 - U1 pad 41 thermal vias are 0.2 mm drill (below 0.3 mm min). Fix: footprint variant without
   thermal vias, then add 0.3 mm vias by hand. Do not lower the min-drill rule.
-- U9 (TXS0102) and U6 pad pitch gives 0.15 mm gaps against a 0.2 mm local override: footprint-level,
-  review before excluding.
+- Placement still has courtyard overlaps (incl. H1 inside the U1 antenna keepout). Fix in `replace_parts.py`
+  and verify with DRC; an offline check is not proof.
+- Keep "Footprint has no courtyard defined" as an error, not ignored, or overlaps go unseen.
 - Silkscreen overlaps are warnings: fix last (move reference text), after placement is clean.
 
 ## Commands (Windows, KiCad 10)
 
 kicad-cli: `C:\Program Files\KiCad\10.0\bin\kicad-cli.exe`
 
-- DRC: `kicad-cli pcb drc --severity-all --schematic-parity=false -o DRC.rpt heartsync_carrier.kicad_pcb`
+- DRC: `kicad-cli pcb drc --severity-all --all-track-errors -o DRC.rpt heartsync_carrier.kicad_pcb`
 - STEP for Fusion: `kicad-cli pcb export step -o ../../cad/heartsync_carrier.step heartsync_carrier.kicad_pcb`
 - Gerbers / drill go to `fab_output/` (git-ignored until we decide).
 

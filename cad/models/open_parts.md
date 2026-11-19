@@ -4,8 +4,8 @@
 
 | Part | Pick | Notes |
 |---|---|---|
-| Cell | LiPol **LP1160100** (100 +-1 x 60 +-0.5 x 11 +-0.3) | Modelled at its max envelope; swell gap measured above 11.3. Order with a 10 k NTC and a JST lead (the LiPol datasheet says NTC: no) |
-| OLED | Newhaven **NHD-2.7-12864WDW3** | Module 82 x 47.5 x 6.7 deep; clashes listed in the handoff |
+| Cell | LiPol **LP1160100** (100 +-1 x 60 +-0.5 x 11 +-0.3) | Modelled at its max envelope; swell gap measured above 11.3. Order with a 10 k NTC (wired to the IP5328P NTC input), **150 mm leads** and a JST PH 3-pin housing (the LiPol datasheet says NTC: no). PCM end faces -X in the case (ADR 0016) |
+| OLED | **Bare 3.12 in SSD1322 panel** (Winstar WEX025664B class), dead front (ADR 0015) | 88 x 27.8 x 2.15, model from the drawing in `oled_wex025664b_panel_312`; replaces the NHD-2.7 module (2026-11-19) |
 | GNSS | Taoglas **SGGP.12.4.A.02** | SMD: needs a ground-plane board (16 x 13 modelled) |
 | LTE flex | Molex **212570-0100** | Fits the top wall (X -28.2..12.2, Z 11.9..27.3, no clash). **But it covers 824-960 / 1710-2170 MHz only: no 700 MHz LTE-M bands** (B12/B13/B28/B85). See the alternative below |
 
@@ -107,42 +107,7 @@ waterproof USB-C. Before choosing, check against the charger IC's datasheet:
 
 ## Qi transmitter: magnetic modules (coil + magnets + driver), no Qi2 certification needed
 
-Current model envelope: coil + magnet ring dia 55-56, 2.8 deep behind the front wall at
-X 43; vertical TX board 30 x 20 at X 51.8.
-
-| | Part | Size (mm) | Price | STEP | Link |
-|---|---|---|---|---|---|
-| A | Huagon Charging 15 W magnetic wireless charging module (coil + N52 magnet ring + TX PCBA; Qi2 and non-certified versions) | coil dia 55 (customisable), PCBA 40 x 30 x 3, 2-8 mm charging distance | quote, MOQ 100 | no | https://www.huagoncharging.com/product/qi-2-magnetic-fast-wireless-charging-module-magnet-transmitter-receiver-15w-fast-qi-2-two-magnetic-wireless-charger-module.html |
-| B | Generic 15 W Qi TX PCBA + 50 mm coil (5-12 V in), plus a separate N52 ring (OD 56 / ID 44 x 1.5, the magnet makers' Qi2-style spec) | PCBA about 45 x 30 x 2.7, coil dia 50 | PCBA about $6-23, ring about $1-3 | no | https://cowinlink.com/product/15w-qi-fast-wireless-charger-pcba-circuit-board-transmitter-module-coil-charging/ and https://www.aimmagnetic.com/qi2-magnet-ring-specifications-the-precision-engineering-behind-25w-wireless-charging |
-| C | Wurth WE-WPCC transmitter coil 760308111 + a TX driver reference design + the same N52 ring | coil 53 x 53 x 6 | coil about $10 | Wurth publishes STEP behind its catalog login (not checked) | https://www.we-online.com/katalog/datasheet/760308111.pdf |
-
-Recommend **A** if the PCBA can be re-shaped to the 30 x 20 vertical slot (Huagon offers
-customisation), else **C** for a documented coil (datasheet, inductance, Q) with our own driver.
-A's 40 x 30 PCBA does not fit the current 30 x 20 slot as is. **B** is the cheapest bench test.
-None publish a STEP: model the coil and ring from the drawing on arrival. For any of them, also ask
-for:
-
-- thermal shutdown, foreign object detection, and the coil temperature sensor;
-- a way to cut TX from the cell's NTC (the coil ferrite is over the cell for 31.5 mm in X, X 15..46.5, 12.5 mm above it);
-- where its 9 V comes from: USB PD in from the wall, or a boost from the cell (more heat
-  next to the cell).
-
-## I2S microphone breakout
-
-| | Part | Size (mm) | Price | STEP | Link |
-|---|---|---|---|---|---|
-| A | Adafruit 6049, ICS-43434 I2S mic | 16.51 x 12.70 x 2.6 | $8.95 | **yes** (MIT, in `mic_adafruit-6049_ics-43434`) | https://www.adafruit.com/product/6049 |
-| B | Generic INMP441 I2S breakout | about 14 dia (varies by seller) | about $2 to $4 | no | (marketplace) |
-
-Recommend **A**: TDK has discontinued the INMP441, and the ICS-43434 is its successor.
-
-## Light sensor breakout
-
-| | Part | Size (mm) | Price | STEP | Link |
-|---|---|---|---|---|---|
-| A | Adafruit 5378, VEML7700 right-angle, STEMMA QT | 25.4 x 17.78 x 4.5 | $4.95 | **yes** (MIT, in `light_adafruit-5378_veml7700`) | https://www.adafruit.com/product/5378 |
-| B | Adafruit 4162, VEML7700 flat | not checked | about $4.95 | no (not in Adafruit's CAD repo) | https://www.adafruit.com/product/4162 |
-
-A has the model, but its sensor looks out of the board edge, so the board stands 17.8 mm
-deep behind the front wall. B mounts flat against the wall like the stand-in. Pick B if
-depth matters more than having a model.
+Moved to `docs/hardware/board-plans.md` section (d) (2026-11-19): three modules checked against
+the front-coil space of the 157 mm case (dia <= 56 at X 47.95, 2.8 to about 3.9 deep) and the
+driver slots. Recommendation there: a generic 15 W Qi TX PCBA (24 x 32 x 2.0) with a 50 mm coil and
+an N52 ring, its PCBA flat under the coil.

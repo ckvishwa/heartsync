@@ -26,16 +26,19 @@ Collected 2026-11-19. Open parts (not chosen yet) and their options are in
 | Dock magnet 6 x 2 mm | `magnet_6x2` | **from drawing, verify** | no (supplier has no PDF) |
 | OLED option A: NHD-2.7-12864WDW3 | `oled_nhd-2.7-12864wdw3` | Newhaven official | yes |
 | OLED option B: NHD-3.12-25664UCW2 | `oled_nhd-3.12-25664ucw2` | Newhaven official | yes |
+| OLED (picked): bare 3.12 in SSD1322 panel, WEX025664B | `oled_wex025664b_panel_312` | **from drawing, verify** (FPC folded) | yes (outline drawing) |
 | Mic option A: Adafruit 6049 (ICS-43434) | `mic_adafruit-6049_ics-43434` | Adafruit official (MIT) | yes (learn guide) |
 | Light option A: Adafruit 5378 (VEML7700) | `light_adafruit-5378_veml7700` | Adafruit official (MIT) | yes (Vishay sensor datasheet) |
 | Cell (picked): LiPol LP1160100 | `cell_lipol_lp1160100` | **from drawing, verify** (max envelope) | yes |
 | GNSS (picked): Taoglas SGGP.12.4.A.02 | `gnss_taoglas_sggp.12.4.a.02` | **from drawing, verify** | yes |
 | LTE flex (picked): Molex 212570-0100 | `lte_molex_212570-0100` | Molex official (TraceParts) | yes (sales drawing) |
 
-All of these are in the assembly (`REAL` in `cad/fusion/heartsync_assembly.py`), except the
-JST housings, the dock pogo pin and the 3.12 in OLED. Still stand-ins (no part chosen, or no
-model published): Qi coil and TX board, PD board, SIM7080G board, LRA, and our own boards (touch
-strip, button strip, GNSS ground plane). See `open_parts.md` and `docs/hardware/board-plans.md`.
+In the assembly (`REAL` in `cad/fusion/heartsync_assembly.py`): all of these except the JST
+housings, the dock pogo pin and both Newhaven OLED modules; since the 2026-11-19 pass the Adafruit
+mic and light boards are replaced by our front board (phase 4). Still stand-ins (no part chosen,
+or no model published): Qi coil and TX board, LRA. Our own boards (front board, power board,
+carrier rev B tab, button strip, mute board, pogo board, touch strip, GNSS ground plane) are
+outlines with their main parts. See `open_parts.md` and `docs/hardware/board-plans.md`.
 
 ## Rebuilding the drawing models
 

@@ -3,35 +3,36 @@ heartsync - assembly: print-accurate enclosure + internals (Fusion 360 script, P
 
 Use case
   * DOCKED: stands on its BOTTOM EDGE, charging through 4 pogo pads, held by 4 magnets.
-  * IN USE: lies on its BACK (rubber feet), front up. A phone snaps onto the FRONT Qi2
-    coil (transmit only) behind the gold front ring.
+  * IN USE: lies on its BACK on the TPU ring, front up. A phone snaps onto the FRONT Qi coil
+    (transmit only) under the raised Qi marking ring.
 
-Builds (one run, rebuildable):
-  * tray: FRONT wall with OLED window, Qi2 ring groove (+ ring_inlay), touch-strip groove,
-    mic and light holes; TOP edge with USB-C (waterproof receptacle), 5 buttons (latching
-    mute + PWR, VOL-, VOL+, PLAY) and the bracket slot; BOTTOM edge with 4 pogo pads and 4
-    magnet pockets (1.6 mm skin); both ENDS as a 237-hole honeycomb, thinned to 1.2 mm in
-    front of the speaker, with an ePTFE membrane; carrier bosses H3/H4 with press-fit pins;
-    LRA fin; Wi-Fi hook clips; 4 corner bosses for M2 heat-set inserts
+Builds (one run, rebuildable), 157 x 72.5 (ADR 0014):
+  * tray: FRONT wall (fabric) with a dead-front display window (VA + 0.5), smoked PC lens on a
+    foam gasket flush with the fabric, fabric-tuck groove, Qi ring groove (+ raised ring),
+    touch-strip pocket from the inside (1.2 wall left), mic and light holes; TOP edge (fabric)
+    with USB-C (waterproof receptacle) and 5 keys (latching mute + PWR, VOL-, VOL+, PLAY); BOTTOM
+    edge with 4 sealed pogo pads and 4 magnet pockets; both ENDS as a 237-hole honeycomb, thinned
+    to 1.2 mm in front of the speaker, with an ePTFE membrane; front-board bosses; LRA fin;
+    4 corner bosses for M2 heat-set inserts; pogo-board bosses
   * lid (3.0, bare PETG): 1.2 mm tongue (0.15 clearance, interrupted behind the speakers),
-    continuous 1 mm gasket channel, screw pads and holes (no counterbore: low-head heads sit
-    under the back ring), back-ring channel, engraved ID block (text from params.csv)
-  * back ring: continuous TPU ring (own STL) over the screws, 1.5 proud
-  * bracket: separate clip-in part that holds the carrier at H1/H2 (under the OLED)
-  * real parts imported from cad/models (see REAL): LP1160100 cell (max envelope), Amphenol
-    waterproof USB-C, CES-571423-28PMB speakers (ears cut) in printed cradles with foam,
-    NHD-2.7 OLED module, Adafruit ICS-43434 mic and VEML7700 boards, PTS645 tactiles,
-    PS-7054 latching mute, FlexPIFA, SGGP GNSS patch, Molex 212570 LTE flex, pogo pads, magnets
-  * stand-ins still (no part chosen or no model): front Qi2 coil + NTC, vertical Qi2 TX board,
-    PD board, SIM7080G board, LRA, touch strip, button strip, GNSS ground-plane board
-  * the real carrier board, imported from cad/heartsync_carrier.step
-  * checks: fit (interference), clearance rules, grille open area, stack; then grouping,
-    side names and finishes, labels (hidden)
+    continuous 1 mm gasket channel, screw pads and holes (low-head screws under the back ring),
+    back-ring channel, engraved ID block (text from params.csv), cell ribs
+  * back ring (TPU, own STL), keypad (TPU, own STL), carrier bracket (own STL), speaker cradles
+  * display: bare 3.12 in SSD1322 panel (ADR 0015) with its FPC folded behind, foam ring,
+    front board behind it (ADR 0016)
+  * real parts from cad/models (see REAL) and our own boards (front board, power board, carrier
+    rev B tab, mute board, button strip, pogo board, GNSS ground plane) as outlines with their
+    main parts; stand-ins still: Qi coil + TX board, LRA
+  * the real carrier board, imported from cad/heartsync_carrier.step (rev A; rev B adds the tab)
+  * checks: fit (interference), clearance rules, layout rules, grille open area, stack; then
+    grouping, side names and finishes, labels (hidden)
+
+PHASE (env HS_PHASE, default 4) rebuilds an earlier stage of the 2026-11-19 pass.
 
 Other entry points (call on the open design after run()):
   print_checks()      thin walls (ray test) and overhangs for the print orientation
-  export_all()        cad/exports/: tray/lid 3MF + STL, bracket STL, full assembly STEP
-  make_net()          cad/net/heartsync_net.dxf + .pdf (TOP + BACK fabric, linked to the model)
+  export_all()        cad/exports/: tray/lid 3MF + STL, bracket, cradles, ring, keypad STL, STEP
+  make_net()          cad/net/heartsync_net.dxf + .pdf (FRONT + TOP fabric, linked to the model)
   make_renders()      cad/renders/_png/*.png (converted to JPG outside Fusion)
   save_doc()          saves as "HeartSync v1"
   sync_from_fusion()  reads moved anchor parts and rewrites the POS block in this file
@@ -54,18 +55,22 @@ CAD = os.path.normpath(os.path.join(HERE, ".."))
 # SETTINGS
 # ----------------------------------------------------------------------
 DOCK_SIDE = "bottom"       # "bottom" (stands on the dock) or "back"; only "bottom" is built
-DISPLAY = "2.7"            # "2.7" or "3.12"
+DISPLAY = "3.12 bare"      # bare SSD1322 256x64 panel, dead front (ADR 0015)
 GROUP = True               # group bodies into components after the checks
 CARRIER = True             # import the real carrier board STEP
 DOC_NAME = "HeartSync v1"
+# build stage of the 2026-11-19 full pass (1 size + front, 2 real parts, 3 safety + print,
+# 4 custom boards). Default 4 = everything; the runner sets HS_PHASE to rebuild an earlier stage.
+PHASE = int(os.environ.get("HS_PHASE", "4"))
 
 # One place for the finishes (hex colours)
 PALETTE = {
-    "shell_fabric": "#CBBFAE",   # fabric on TOP edge and BACK
-    "front_panel": "#1A1A1A",    # FRONT, whole face, matte black
-    "petg_bare": "#1A1A1A",      # BOTTOM edge, ENDS and inside faces (the tray filament)
+    "shell_fabric": "#CBBFAE",   # fabric on the FRONT and the TOP edge
+    "front_panel": "#CBBFAE",    # FRONT finish = fabric
+    "petg_bare": "#1A1A1A",      # BACK, BOTTOM edge, ENDS and inside faces (the tray filament)
     "oled_glass": "#050505",
-    "ring_inlay": "#C9A227",     # front ring = Qi2 marking, satin gold
+    "lens": "#101012",           # smoked polycarbonate dead-front lens
+    "ring_inlay": "#BFB3A2",     # Qi marking ring, raised under the fabric (no gold inlay)
     "buttons": "#CBBFAE",        # soft-touch, shell colour
     "mute_cap": "#E24B4A",
     "grille_mesh": "#2E2E2E",    # ePTFE membrane behind the honeycomb
@@ -169,6 +174,25 @@ MIN_WALL = prm("min_wall", 1.2)
 RING_OD = prm("ring_od", 56.0)
 RING_W = prm("ring_width", 1.0)
 RING_DEPTH = prm("ring_depth", 0.6)
+RING_H = prm("ring_height", 1.0)
+
+# display: bare 3.12 in SSD1322 panel behind a dead-front lens (FPC tail on the bottom edge)
+PANEL = (prm("display_panel_l", 88.0), prm("display_panel_w", 27.8), prm("display_panel_t", 2.15))
+VA = (prm("display_va_l", 78.78), prm("display_va_w", 21.18))
+VA_OFF = (prm("display_va_x", 4.61), prm("display_va_y", 2.0))
+DISP_LEFT = prm("display_left", 2.5)
+DISP_CY = prm("display_cy", 4.0)
+WIN_M = prm("window_margin", 0.5)
+LENS_T = prm("lens_thickness", 1.0)
+LENS_GW = prm("lens_gasket_w", 1.5)
+LENS_GT = prm("lens_gasket_t", 0.4)
+TUCK_W = prm("tuck_groove_w", 1.0)
+TUCK_D = prm("tuck_groove_d", 1.0)
+PANEL_FOAM = prm("panel_foam", 1.45)
+TOUCH_WALL = prm("touch_wall", 1.2)
+PHONE_W = prm("phone_width", 77.0)
+VA_PHONE_GAP = prm("va_phone_gap", 2.0)
+COIL_END_GAP = prm("coil_end_gap", 3.0)
 
 HC_HEX = prm("honeycomb_hex", 1.8)
 HC_PITCH = prm("honeycomb_pitch", 2.6)
@@ -191,18 +215,17 @@ GNSS_T = prm("gnss_patch_t", 4.0)
 # --- POS BEGIN ---
 POS = {
     "cell": (-4.00, 0.00),
-    "coil": (43.00, 0.00),
-    "oled": (-32.50, 4.00),
+    "coil": (47.95, 0.00),
     "carrier": (-36.00, 30.00),
-    "pd_board": (46.38, 20.25),
+    "pd_board": (45.25, 20.25),
     "usb_c": (46.00, 0.00),
     "qi2_tx": (51.80, -17.00),
-    "sim_board": (-42.25, -24.25),
-    "wifi": (-24.95, -27.55),
-    "gnss": (-60.00, -27.50),
-    "lte": (-8.00, 19.60),
+    "sim_board": (-40.25, -24.25),
+    "wifi": (-17.61, -27.55),
+    "gnss": (-50.00, -27.50),
+    "lte": (1.80, 19.50),
     "lra": (22.25, -29.00),
-    "buttons": (-70.00, 0.00),
+    "buttons": (-54.70, 0.00),
 }
 # --- POS END ---
 
@@ -226,15 +249,36 @@ CELL_X1 = CELL_X0 + CELL_L
 COIL_CX, COIL_CY = POS["coil"]
 COIL_Z0 = INNER - 2.8                       # ferrite bottom (24.8)
 
-if DISPLAY == "2.7":
-    GLASS = (73.0, 41.9, 1.8)
-    WIN = (63.0, 32.0)
-else:
-    GLASS = (89.2, 44.0, 6.0)
-    WIN = (82.0, 22.0)
-DCX, DCY = POS["oled"]
-GLASS_Z = INNER - GLASS[2]
-STRIP_C = (DCX, 28.0)
+# panel outline (glass against the front wall inner face), VA, window, lens, groove
+PAN_X0 = -LENGTH / 2.0 + DISP_LEFT
+PAN_X1 = PAN_X0 + PANEL[0]
+PAN_Y0, PAN_Y1 = DISP_CY - PANEL[1] / 2.0, DISP_CY + PANEL[1] / 2.0
+PAN_Z0 = INNER - PANEL[2]
+VA_X0, VA_X1 = PAN_X0 + VA_OFF[0], PAN_X0 + VA_OFF[0] + VA[0]
+VA_Y1 = PAN_Y1 - VA_OFF[1]                  # FPC edge is the bottom (-Y) edge
+VA_Y0 = VA_Y1 - VA[1]
+DCX, DCY = (VA_X0 + VA_X1) / 2.0, (VA_Y0 + VA_Y1) / 2.0
+WIN = (VA[0] + 2 * WIN_M, VA[1] + 2 * WIN_M)
+LENS = (WIN[0] + 2 * LENS_GW, WIN[1] + 2 * LENS_GW)
+LENS_REC = (LENS[0] + 2 * 0.2, LENS[1] + 2 * 0.2)       # 0.2 fit round the lens
+LENS_TOP = TRAY_H + FABRIC                  # lens outer face flush with the fabric
+LENS_REC_FLOOR = LENS_TOP - LENS_T - LENS_GT
+GROOVE = (LENS_REC[0] + 2 * TUCK_W, LENS_REC[1] + 2 * TUCK_W)
+# touch strip in a pocket from the inside (TOUCH_WALL left under it); mic and light holes
+TOUCH_C, TOUCH = (-19.0, 22.5), (40.0, 5.0)
+TOUCH_T = TRAY_H - TOUCH_WALL - INNER       # pocket depth = strip PCB thickness (1.0)
+MIC_C, LIGHT_C = (-48.0, 20.8), (-42.5, 20.8)
+MIC_HOLE, LIGHT_HOLE = 1.0, 2.0
+# panel FPC tail (WEX025664B drawing): 60 wide at the panel edge, 14.0 from the panel's left edge
+FPC_X0, FPC_X1 = PAN_X0 + 14.0, PAN_X0 + 74.0
+# front board (ours, ADR 0016): behind the panel, backs the foam ring; left edge clear of the
+# left speaker cradle
+FB_X0 = -58.0
+FB_Z0 = 22.8                                # front board 0.8 FR4, Z 22.8..23.6 (panel foam above)
+BRK_Z = (19.3, FB_Z0 - 0.1)                 # bracket bar A (H1-H2) under the front board
+BRK_BAR_Z0 = 21.4                           # bars B and C: above the Wi-Fi cable (Z 20.3) and U1
+FB_BOSS_D = 3.8                             # front-wall bosses for the front board's ears (M1.6, 1.25 wall)
+FB_EARS = ((-55.0, -13.6), (12.5, -12.0), (9.5, 20.0))   # bottom-left, H4 (bottom-right), top-right
 
 # carrier (KiCad board 70 x 45, origin top-left; local x right, y down)
 CAR_X0, CAR_Y1 = POS["carrier"]
@@ -264,19 +308,30 @@ SPK_CY = 0.0
 USB = (10.2, 3.6, 7.86)                     # receptacle front rim W x H, depth
 USB_X = POS["usb_c"][0]
 USB_ZC = PCB_TOP + 0.75
-BTN_ZC = 19.7                               # strip bottom 16.2, above the carrier top (16.0)
-BTN_X0 = POS["buttons"][0]
-BTN_GAP = 0.8
-BUTTONS = []                                # (name, centre X, body width)
-_x = BTN_X0
-for _n, _w in (("mute", 7.0), ("pwr", 6.0), ("vol_dn", 6.0), ("vol_up", 6.0), ("play", 6.0)):
-    BUTTONS.append((_n, _x + _w / 2.0, _w))
-    _x += _w + BTN_GAP
-BTN_X1 = _x - BTN_GAP
-SLOT_X, SLOT_DEPTH = HOLES["H1"][0], 1.0    # bracket tab slot in the top wall
+# buttons on the TOP edge, left to right: latching mute, PWR, VOL-, VOL+, PLAY (then the LTE flex
+# and the USB-C). The keys (TPU keypad) start KEY_IN inside the wall; every actuator top sits there.
+# * mute PS-7054DVB (12.4 deep released) on its own small board, PCB plane at KEY_IN - 12.4
+# * PTS645 tactiles on the button strip, plunger top 4.3 above it. PWR/VOL-/VOL+ turned 90 deg
+#   (terminals along Z, 6 wide in X, 6.8 pitch); PLAY flat (9 wide) because it sits over U1,
+#   where the strip must stay above the module (Z 18.5)
+BTN_ZC = 22.2
+KEY_IN = CAV_Y - 0.6 - 0.3                  # keypad sheet 0.6 on the wall + 0.3 nub: 33.15
+KEY_OUT = WIDTH / 2.0 + FABRIC + 0.5        # key tops 0.5 proud of the fabric
+MUTE_X = POS["buttons"][0]                  # mute centre
+MUTE_PCB_Y = KEY_IN - 12.4                  # mute board face (knob top released at KEY_IN)
+STRIP_Y = KEY_IN - 4.3                      # button strip face (tactile seating plane)
+BUTTONS = [("mute", MUTE_X, 7.0, False)]    # (name, centre X, body width in X, turned)
+_x = MUTE_X + 2.0 + 0.8                     # strip starts right of the mute knob (4 wide); 1.4 web between holes
+for _n, _turn in (("pwr", True), ("vol_dn", True), ("vol_up", True), ("play", False)):
+    _w = 6.0 if _turn else 9.0
+    BUTTONS.append((_n, _x + _w / 2.0, _w, _turn))
+    _x += _w + 0.8
+BTN_X0, BTN_X1 = MUTE_X + 2.8, _x - 0.8     # button strip X range
+KEY = {"mute": (4.0, 4.0), "tact": (4.0, 4.0)}   # key section X x Z (holes + 0.2 per side)
 
 # bottom edge (dock)
 POGO_X = (-12.0, -4.0, 4.0, 12.0)
+POGO_BOARD = (34.0, 6.0)                    # pogo board (ours) X 34 x Z 6, 1.0 thick, ears at X +-16
 POGO_Z = (TRAY_H - LID) / 2.0               # 13.8: middle of the 32 mm face (Z -2.2..29.8)
 MAG_X = (-58.0, -32.0, 32.0, 58.0)
 MAG_Z = 7.0
@@ -290,15 +345,48 @@ SCREWS = [(sx * SCREW_X, sy * SCREW_Y) for sx in (-1, 1) for sy in (-1, 1)]
 WIFI_C, WIFI = POS["wifi"], (40.12, 11.0, 2.5)
 WIFI_TAPE = 0.2
 WIFI_Z0 = INNER - WIFI_TAPE - WIFI[2]
-_wx, _wy = WIFI_C[0] - (40.685 - 20.06), WIFI_C[1] - (-5.0 - 5.5)     # cable stub end (model)
+_wx, _wy = WIFI_C[0] - (40.685 - 20.06), WIFI_C[1] - (-1.0 - 5.5)     # cable stub end (model)
 _wz = INNER - WIFI_TAPE - 0.565
-WIFI_STUB = 16.0                            # cable inside the antenna STEP (solder to stub end)
-WIFI_COAX = [(_wx, _wy, _wz), (_wx + 0.4, _wy + 0.6, _wz - 2.2), (_wx + 1.5, _wy + 0.4, 21.2),
-             (_wx + 4.5, _wy + 2.5, 20.3), (-40.0, -5.0, 20.3), (-25.0, -1.0, 20.3),
-             (-16.0, 9.0, 20.3), (-13.6, 21.0, 19.6), (UFL[0], UFL[1] - 1.5, PCB_TOP + 2.6),
-             (UFL[0], UFL[1], PCB_TOP + 1.9)]
+WIFI_STUB = 12.0                            # cable inside the antenna STEP (across the end + 1 mm)
+# route: leaves the thick end along +Y, an R 9 S-bend drops it under the panel's FPC bend and the
+# front board to Z 20.3, an R 8 turn runs it +X below the bracket's H2 post, a second R 8 turn
+# sends it +Y over U1 into the U.FL plug. Built from arcs and lines, sampled for the spline.
+COAX_Z, COAX_R1, COAX_R2 = 20.3, 9.0, 8.0
 
-PHONE_X0 = COIL_CX - 38.5                   # upright 77 x 163 phone on the ring covers X >= 4.5
+
+def _coax_points():
+    pts = []
+    x0, y0, z0 = _wx, _wy, _wz
+    dz = z0 - COAX_Z
+    th = math.acos(1.0 - dz / (2.0 * COAX_R1))
+    n = 14
+    for k in range(n + 1):                  # first arc, centre below the start
+        a = th * k / n
+        pts.append((x0, y0 + COAX_R1 * math.sin(a), z0 - COAX_R1 * (1 - math.cos(a))))
+    ym, zm = pts[-1][1], pts[-1][2]
+    for k in range(1, n + 1):               # second arc, back to level
+        a = th * (1 - k / float(n))
+        pts.append((x0, ym + COAX_R1 * (math.sin(th) - math.sin(a)), COAX_Z + COAX_R1 * (1 - math.cos(a))))
+    y1 = pts[-1][1]
+    cx, cy = x0 + COAX_R2, y1
+    for k in range(1, 11):                  # turn +Y -> +X
+        a = math.pi - (math.pi / 2.0) * k / 10.0
+        pts.append((cx + COAX_R2 * math.cos(a), cy + COAX_R2 * math.sin(a), COAX_Z))
+    yr = cy + COAX_R2
+    xt = UFL[0] - COAX_R2
+    for k in range(1, 4):                   # straight +X
+        pts.append((cx + (xt - cx) * k / 3.0, yr, COAX_Z))
+    for k in range(1, 11):                  # turn +X -> +Y
+        a = -math.pi / 2.0 + (math.pi / 2.0) * k / 10.0
+        pts.append((xt + COAX_R2 * math.cos(a), yr + COAX_R2 + COAX_R2 * math.sin(a), COAX_Z))
+    ys = yr + COAX_R2
+    ye = UFL[1] - 0.4
+    for k in range(1, 5):                   # straight +Y into the plug
+        pts.append((UFL[0], ys + (ye - ys) * k / 4.0, COAX_Z))
+    return pts
+
+
+PHONE_X0 = COIL_CX - PHONE_W / 2.0         # upright 77 wide phone centred on the coil
 
 COL = {
     "shell": (26, 26, 26), "pcb": (20, 110, 60), "chip": (22, 22, 22), "metal": (190, 190, 195),
@@ -500,6 +588,26 @@ def block(name, color, cx, cy, z0, w, h, t, register=True):
         rect(sk, cx, cy, w, h)
         sk.isVisible = False
         return new_bodies(sk.profiles.item(0), t, name, color, register)
+    except Exception:
+        G["fails"].append(name)
+        return []
+
+
+def poly_block(name, color, z0, pts, t, register=True):
+    """Closed polygon (model X/Y) extruded from z0 by t."""
+    try:
+        sk = G["comp"].sketches.add(plane_at(z0))
+        sk.isComputeDeferred = True
+        lines = sk.sketchCurves.sketchLines
+        first = lines.addByTwoPoints(P(*pts[0]), P(*pts[1]))
+        prev = first
+        for q in pts[2:]:
+            prev = lines.addByTwoPoints(prev.endSketchPoint, P(*q))
+        lines.addByTwoPoints(prev.endSketchPoint, first.startSketchPoint)
+        sk.isComputeDeferred = False
+        sk.isVisible = False
+        best = max(sk.profiles, key=lambda pr: pr.areaProperties().area)
+        return new_bodies(best, t, name, color, register)
     except Exception:
         G["fails"].append(name)
         return []
@@ -718,16 +826,30 @@ def build_tray():
         except Exception:
             G["fails"].append(name)
 
+    # dead front: window = VA + margin, lens recess (lens + gasket), fabric-tuck groove round it
     fcut("FRONT_window", lambda s: rect(s, DCX, DCY, WIN[0], WIN[1]), WALL * 1.5)
-    fcut("FRONT_touch_groove", lambda s: rect(s, STRIP_C[0], STRIP_C[1], 40.0, 5.0), 0.6)
+    def groove(s):
+        rounded_rect(s, DCX, DCY, GROOVE[0], GROOVE[1], 1.0 + TUCK_W)
+        rounded_rect(s, DCX, DCY, LENS_REC[0], LENS_REC[1], 1.0)
+    fcut("FRONT_tuck_groove", groove, TUCK_D, smallest=True)
+    fcut("FRONT_lens_recess", lambda s: rounded_rect(s, DCX, DCY, LENS_REC[0], LENS_REC[1], 1.0),
+         TRAY_H - LENS_REC_FLOOR)
+    # touch strip pocket from the inside: TOUCH_WALL of front wall left under the strip
+    try:
+        s = comp.sketches.add(plane_at(INNER))
+        s.isVisible = False
+        rect(s, TOUCH_C[0], TOUCH_C[1], TOUCH[0] + 0.4, TOUCH[1] + 0.4)
+        cut_z(s, s.profiles.item(0), TOUCH_T, tray, "FRONT_touch_pocket", up=True)
+    except Exception:
+        G["fails"].append("FRONT_touch_pocket")
 
     def ring(s):
         c = s.sketchCurves.sketchCircles
         c.addByCenterRadius(P(COIL_CX, COIL_CY), mm(RING_OD / 2.0))
         c.addByCenterRadius(P(COIL_CX, COIL_CY), mm(RING_OD / 2.0 - RING_W))
     fcut("FRONT_qi2_ring_groove", ring, RING_DEPTH, smallest=True)
-    fcut("FRONT_mic_hole", lambda s: s.sketchCurves.sketchCircles.addByCenterRadius(P(-66.5, 29.5), mm(0.5)), WALL * 1.5)
-    fcut("FRONT_light_hole", lambda s: s.sketchCurves.sketchCircles.addByCenterRadius(P(-58.5, 29.5), mm(1.0)), WALL * 1.5)
+    fcut("FRONT_mic_hole", lambda s: s.sketchCurves.sketchCircles.addByCenterRadius(P(*MIC_C), mm(MIC_HOLE / 2)), WALL * 1.5)
+    fcut("FRONT_light_hole", lambda s: s.sketchCurves.sketchCircles.addByCenterRadius(P(*LIGHT_C), mm(LIGHT_HOLE / 2)), WALL * 1.5)
 
     # TOP edge: USB-C, buttons, bracket slot
     ty = WIDTH / 2.0
@@ -735,12 +857,11 @@ def build_tray():
     side_cut("TOP_EDGE_usb_c", tray, "y", ty,
              [("rect", (USB_X - uw / 2, USB_ZC - uh / 2), (USB_X + uw / 2, USB_ZC + uh / 2))], 6.0)
     holes = []
-    for name, x, w in BUTTONS:
-        h = (6.4 if name == "mute" else 4.0) + 2 * FIT_BTN
-        holes.append(("rect", (x - h / 2, BTN_ZC - h / 2), (x + h / 2, BTN_ZC + h / 2)))
+    for name, x, w, turn in BUTTONS:
+        kx, kz = KEY["mute" if name == "mute" else "tact"]
+        hx, hz = kx + 2 * FIT_BTN, kz + 2 * FIT_BTN
+        holes.append(("rect", (x - hx / 2, BTN_ZC - hz / 2), (x + hx / 2, BTN_ZC + hz / 2)))
     side_cut("TOP_EDGE_buttons", tray, "y", ty, holes, 6.0)
-    side_cut("TOP_EDGE_bracket_slot", tray, "y", CAV_Y + SLOT_DEPTH / 2.0,
-             [("rect", (SLOT_X - 0.6, 19.3), (SLOT_X + 2.6, 23.2))], SLOT_DEPTH)   # off-centre: 3 mm to PLAY
 
     # BOTTOM edge: pogo pad holes, magnet pads + pockets (1.6 mm skin)
     side_cut("BOTTOM_EDGE_pogo_holes", tray, "y", -WIDTH / 2.0,
@@ -764,16 +885,16 @@ def build_tray():
         side_cut(name + "_honeycomb", tray, "x", side * LENGTH / 2.0,
                  [("poly", hex_points(y, z, HC_R)) for (y, z) in hc], 4.0)
 
-    # carrier bosses H3/H4 from the front wall + press-fit pins (flush with the board underside)
-    try:
-        tools = []
-        for h in ("H3", "H4"):
-            x, y = HOLES[h]
-            tools.append(tool_cyl(x, y, PCB_TOP, BOSS_D, INNER - PCB_TOP + 0.5))
-            tools.append(tool_cyl(x, y, ABOVE, PIN_D, PCB_T))
-        join(tray, tools, "INSIDE_carrier_bosses_H3_H4")
-    except Exception:
-        G["fails"].append("carrier_bosses")
+    # carrier: no bosses from the front wall any more (the panel covers H3 and H4); the bracket
+    # frame holds all four holes and the front board clamps it (front-wall bosses for the board's
+    # ears, phase 4)
+    if PHASE >= 4:
+        try:
+            tools = [tool_cyl(x, y, FB_Z0 + 0.8, FB_BOSS_D, INNER - FB_Z0 - 0.8 + 0.5) for (x, y) in FB_EARS]
+            join(tray, tools, "INSIDE_front_board_bosses")
+            cut(tray, [tool_cyl(x, y, FB_Z0 + 0.7, 1.3, 3.0) for (x, y) in FB_EARS], "INSIDE_front_board_screw_holes")
+        except Exception:
+            G["fails"].append("front_board_bosses")
 
     # LRA fin: grows from the front wall and the bottom wall (no supports front-down)
     try:
@@ -787,6 +908,15 @@ def build_tray():
 
     # Wi-Fi FlexPIFA: no clips. The real part is a 0.15 mm FPC with a foam end, held by its
     # 3M adhesive (datasheet); a hook would sit on the cable at the folded end.
+
+    # pogo board bosses on the bottom wall (M1.6 self-tapping), phase 3
+    if PHASE >= 3:
+        try:
+            tools = [side_body("tool", None, "y", -CAV_Y + 0.45 - 0.05, [("circle", (sx * 16.0, POGO_Z), 3.4)], 1.0,
+                               register=False)[0] for sx in (-1, 1)]
+            join(tray, tools, "BOTTOM_EDGE_pogo_board_bosses")
+        except Exception:
+            G["fails"].append("pogo_board_bosses")
 
     # corner bosses for M2 heat-set inserts, 45 deg chamfer toward the bed (front-down print)
     try:
@@ -926,9 +1056,22 @@ def engrave_id(lid):
 
 def build_trim():
     comp = G["comp"]
-    # front ring inlay fills the groove exactly
-    cyl("ring_inlay", "ring_inlay", COIL_CX, COIL_CY, TRAY_H - RING_DEPTH, RING_OD, RING_DEPTH,
-        inner=RING_OD - 2 * RING_W)
+    # Qi marking: printed ring in the groove, RING_H - RING_DEPTH proud, under the fabric
+    cyl("ring_inlay", "ring_inlay", COIL_CX, COIL_CY, TRAY_H - RING_DEPTH, RING_OD - 0.1, RING_H,
+        inner=RING_OD - 2 * RING_W + 0.1)
+    # dead front: smoked PC lens on an adhesive foam gasket in the recess, flush with the fabric
+    try:
+        s = G["comp"].sketches.add(plane_at(LENS_TOP - LENS_T))
+        rounded_rect(s, DCX, DCY, LENS[0], LENS[1], 0.8)
+        s.isVisible = False
+        new_bodies(s.profiles.item(0), LENS_T, "dead_front_lens", "lens")
+        s = G["comp"].sketches.add(plane_at(LENS_REC_FLOOR))
+        rounded_rect(s, DCX, DCY, LENS[0], LENS[1], 0.8)
+        rect(s, DCX, DCY, WIN[0], WIN[1])
+        s.isVisible = False
+        new_bodies(smallest_profile(s), LENS_GT, "lens_gasket", "foam")
+    except Exception:
+        G["fails"].append("dead_front_lens")
     # continuous TPU back ring (own STL): sits in the lid channel, BR_PROUD above the back face,
     # pockets in its underside over the low-head screw heads
     try:
@@ -943,6 +1086,11 @@ def build_trim():
             "BACK_ring_head_pockets")
     except Exception:
         G["fails"].append("back_ring")
+    # seals on the front holes (phase 3): clear PC window in the light hole, flush with the fabric;
+    # ePTFE acoustic membrane on the inside over the mic hole
+    if PHASE >= 3:
+        cyl("light_window", "lens", LIGHT_C[0], LIGHT_C[1], INNER, LIGHT_HOLE - 0.05, TRAY_H + FABRIC - INNER)
+        cyl("mic_membrane", "grille_mesh", MIC_C[0], MIC_C[1], INNER - 0.2, 3.0, 0.2)
     # M2 low-head screw heads on the channel floor (for the fit check)
     for k, (x, y) in enumerate(SCREWS):
         cyl("screw_head_%d" % (k + 1), "metal", x, y, -LID + BR_CH - HEAD_H, HEAD_D, HEAD_H)
@@ -960,18 +1108,21 @@ def build_trim():
 
 
 def build_bracket():
-    """Clip-in bracket for H1/H2 (printed flat, own STL): bar under the OLED, drop bosses with
-    press-fit pins, a web to the front wall beside the touch strip and a tab into the top wall."""
-    x = HOLES["H1"][0]
-    y_lo, y_hi = HOLES["H2"][1] - BOSS_D / 2.0, CAV_Y - 0.55
+    """Carrier bracket (printed, own STL): a frame between the carrier and the front board with
+    drop posts and press-fit pins into all four carrier holes. Bar A runs H2-H1 (X -33), bar B
+    H1-H3 above U1 and over the Wi-Fi cable, bar C H3-H4. The front board, screwed to its
+    front-wall bosses, clamps it; the carrier hangs on the pins (nothing rests on the cell)."""
+    zt = BRK_Z[1]
     try:
-        bar = block("carrier_bracket", "petg_bare", x, (y_lo + y_hi) / 2.0, 19.5, 5.0, y_hi - y_lo, 3.5)[0]
-        tab_y1 = CAV_Y + SLOT_DEPTH - 0.1
-        tools = [tool_block(x, (30.7 + y_hi) / 2.0, 23.0, 5.0, y_hi - 30.7, INNER - 0.2 - 23.0),
-                 tool_block(x + 1.0, (y_hi - 0.5 + tab_y1) / 2.0, 19.5, 2.8, tab_y1 - (y_hi - 0.5), 3.5)]
-        for h in ("H1", "H2"):
+        (x1, y1), (x2, y2), (x3, y3), (x4, y4) = (HOLES[h] for h in ("H1", "H2", "H3", "H4"))
+        r = BOSS_D / 2.0
+        bar = block("carrier_bracket", "petg_bare", x1, (y2 - r + y1 + r) / 2.0, BRK_Z[0], 5.0, y1 - y2 + 2 * r,
+                    zt - BRK_Z[0])[0]
+        tools = [tool_block((x1 + x3) / 2.0, (y1 + y3) / 2.0 - 0.5, BRK_BAR_Z0, x3 - x1, 3.0, zt - BRK_BAR_Z0),
+                 tool_block((x3 + x4) / 2.0, (y3 + y4) / 2.0, BRK_BAR_Z0, abs(x4 - x3) + 3.0, y3 - y4, zt - BRK_BAR_Z0)]
+        for h in ("H1", "H2", "H3", "H4"):
             hx, hy = HOLES[h]
-            tools.append(tool_cyl(hx, hy, PCB_TOP, BOSS_D, 19.5 - PCB_TOP + 0.5))
+            tools.append(tool_cyl(hx, hy, PCB_TOP, BOSS_D, zt - PCB_TOP))
             tools.append(tool_cyl(hx, hy, ABOVE, PIN_D, PCB_T + 0.5))
         join(bar, tools, "BRACKET_join")
     except Exception:
@@ -993,21 +1144,29 @@ def build_coil():
 
 def build_power():
     block("cell_pad", "foam", CELL_CX, CELL_CY, 0.0, CELL_L, CELL_W, CELL_PAD)
-    # LiPol LP1160100 at its MAX envelope (101 x 60.5 x 11.3), PCM end and leads at +X
-    place_step("cell", "cell", ("-X", "-Y", "Z"), (0.0, 0.0, 0.0), (CELL_X1, CELL_CY, Z_CELL))
+    # LiPol LP1160100 at its MAX envelope (101 x 60.5 x 11.3). From phase 3 the PCM (seal) end and
+    # the leads face -X, so the PD board over the +X (folded) end does not overhang the seal end
+    if PHASE >= 3:
+        place_step("cell", "cell", ("X", "Y", "Z"), (0.0, 0.0, 0.0), (CELL_X0, CELL_CY, Z_CELL))
+        build_cell_frame()
+    else:
+        place_step("cell", "cell", ("-X", "-Y", "Z"), (0.0, 0.0, 0.0), (CELL_X1, CELL_CY, Z_CELL))
     block("cell_insulator", "insul", CELL_CX, CELL_CY, CELL_TOP, CELL_L, CELL_W, INSUL)
     for b in block("keepout_swell_gap", "red", CELL_CX, CELL_CY, CELL_TOP + INSUL, CELL_L, CELL_W, SWELL):
         b.isLightBulbOn = False
 
-    # PD board (IP5328P) top-right, USB-C on the TOP edge; hot parts off the cell (X > 46)
-    px, py = POS["pd_board"]
-    block("pd_board", "pcb", px, py, ABOVE, 23.75, 24.5, PCB_T)
     # Amphenol 124019572112A: mouth (+X in the file) toward the TOP wall, rim on the gasket
     place_step("usb_c", "usb_c", ("Y", "-X", "Z"), (-2.75, 13.0, 0.0), (USB_X, CAV_Y - 0.8, USB_ZC))
-    block("pd_ip5328p", "chip", px + 5.6, py + 4.0, PCB_TOP, 5.0, 5.0, 0.9)
-    block("pd_inductor", "ferrite", px + 5.6, py - 6.0, PCB_TOP, 6.0, 6.0, 3.0)
-    grid("pd_caps", "passive", PCB_TOP, [(px - 4.0, py - 8.0, 3.2, 1.6), (px - 4.0, py + 1.0, 3.2, 1.6)], 1.6)
-    block("pd_jst_main_cell", "conn", px + 5.6, py - 10.0, ABOVE - 2.9, 4.0, 3.0, 2.9)   # underside
+    if PHASE >= 4:
+        build_power_board()
+    else:
+        # PD board stand-in top-right, USB-C on the TOP edge; hot parts off the cell (X > 46)
+        px, py = POS["pd_board"]
+        block("pd_board", "pcb", px, py, ABOVE, 21.5, 24.5, PCB_T)
+        block("pd_ip5328p", "chip", px + 5.6, py + 4.0, PCB_TOP, 5.0, 5.0, 0.9)
+        block("pd_inductor", "ferrite", px + 5.6, py - 6.0, PCB_TOP, 6.0, 6.0, 3.0)
+        grid("pd_caps", "passive", PCB_TOP, [(px - 4.0, py - 8.0, 3.2, 1.6), (px - 4.0, py + 1.0, 3.2, 1.6)], 1.6)
+        block("pd_jst_main_cell", "conn", px + 5.6, py - 10.0, ABOVE - 2.9, 4.0, 3.0, 2.9)   # underside
 
     # Qi2 TX board, vertical, 5 mm off the cell end, parts facing away from the cell
     tx, ty = POS["qi2_tx"]
@@ -1017,12 +1176,86 @@ def build_power():
                                          (tx + PCB_T / 2 + 0.8, ty + 8, 1.6, 3.2)], 1.6)
 
 
+# custom power board (ours, ADR 0016): IP5328P reference design shaped to its slot, USB-C in a
+# cut-out (mid-mount), hot parts at X >= 48 (past the cell's folded end at 46.5)
+PD_OUTLINE = [(34.5, 8.0), (56.0, 8.0), (56.0, 32.5), (52.3, 32.5), (52.3, 26.0), (39.7, 26.0),
+              (39.7, 32.5), (34.5, 32.5)]
+PD_PARTS = [  # name, colour, centre X, Y, size X, Y, Z (all on the top face)
+    ("pd_ip5328p", "chip", 52.0, 19.2, 6.0, 6.0, 0.9),          # QFN40 6 x 6
+    ("pd_inductor", "ferrite", 52.0, 11.8, 7.0, 7.0, 3.0),      # 2.2 uH, 7 x 7 x 3
+    ("pd_sense_r", "passive", 49.0, 23.5, 2.0, 1.25, 0.6),      # 10 mOhm 0805
+    ("pd_mosfet", "chip", 53.8, 24.0, 3.3, 3.3, 1.0),           # output switch, DFN 3.3
+    ("pd_cap_in", "passive", 42.5, 14.5, 3.2, 1.6, 1.6),
+    ("pd_cap_out1", "passive", 42.5, 17.5, 3.2, 1.6, 1.6),
+    ("pd_cap_out2", "passive", 42.5, 20.5, 3.2, 1.6, 1.6),
+    ("pd_sw_qi", "chip", 46.0, 15.0, 3.0, 3.0, 1.1),            # Qi TX load switch (input-fed)
+    ("pd_sw_dock", "chip", 46.0, 19.0, 3.0, 3.0, 1.1),          # dock pad load switch (seated only)
+    ("pd_conn_cell", "conn", 37.25, 24.0, 4.5, 9.9, 6.0),       # JST PH B3B-PH-K: BAT+, BAT-, NTC
+    ("pd_conn_carrier", "conn", 36.7, 13.5, 4.25, 10.0, 2.95),  # JST SH SM08B to carrier J1
+    ("pd_conn_dock_qi", "conn", 43.8, 10.2, 8.0, 4.25, 2.95),   # JST SH SM04B: dock in, Qi TX out
+]
+
+
+def build_power_board():
+    poly_block("pd_board", "pcb", ABOVE, PD_OUTLINE, PCB_T)
+    for n, c, x, y, w, h, t in PD_PARTS:
+        block(n, c, x, y, PCB_TOP, w, h, t)
+
+
+CELL_FOAM, RIB_T = 1.5, 1.2
+CELL_SIDE_X = ((-48.0, -38.0), (-10.0, 0.0), (14.0, 24.0))    # side pads and ribs (clear of magnets)
+LEAD_Y = (15.5, 26.5)                       # lead notch at the PCM end (leads at Y 17 / 21 / 25)
+
+
+def build_cell_frame():
+    """Cell held in X and Y by 1.5 mm foam bearing on printed ribs that grow from the lid (no hard
+    edge at the cell): full-width ribs at both ends (lead notch at the PCM end), short low ribs
+    on the long sides with the lead and dock-wire channels above them. Z: foam pad below on
+    stretch-release adhesive strips (no heat to open); the 1.2 swell gap above stays free."""
+    yh = CELL_W / 2.0
+    z1 = CELL_TOP
+    ribs = []
+    # ends: foam + rib, PCM end (-X) split round the lead notch
+    for x_face, sgn in ((CELL_X0, -1), (CELL_X1, 1)):
+        spans = [(-yh + 2.0, LEAD_Y[0]), (LEAD_Y[1], yh - 1.0)] if sgn < 0 else [(-yh + 2.0, yh - 2.0)]
+        for k, (y0, y1) in enumerate(spans):
+            xf = x_face + sgn * CELL_FOAM / 2.0
+            block("cell_foam_end_%s%d" % ("L" if sgn < 0 else "R", k + 1), "foam", xf, (y0 + y1) / 2.0,
+                  Z_CELL, CELL_FOAM - 0.05, y1 - y0, CELL_T)
+            xr = x_face + sgn * (CELL_FOAM + RIB_T / 2.0)
+            ribs.append(tool_block(xr, (y0 + y1) / 2.0, -0.1, RIB_T, y1 - y0, z1 + 0.1))
+    # long sides: foam pads to full height, ribs only to Z 6 (wires run above them)
+    for x0, x1 in CELL_SIDE_X:
+        for sy in (-1, 1):
+            block("cell_foam_side", "foam", (x0 + x1) / 2.0, sy * (yh + CELL_FOAM / 2.0), Z_CELL,
+                  x1 - x0, CELL_FOAM - 0.05, CELL_T)
+            ribs.append(tool_block((x0 + x1) / 2.0, sy * (yh + CELL_FOAM + RIB_T / 2.0), -0.1,
+                                   x1 - x0, RIB_T, 6.1))
+    G["cell_ribs"] = ribs
+
+
+CAR_TAB = (-40.0, -5.5, -31.5, -15.05)      # carrier rev B tab (X0, X1, Y0, Y1), ADR 0016
+CAR_TAB_PARTS = [  # name, colour, centre X, Y, size X, Y, Z (top face)
+    ("sim7080g_module", "metal", -27.7, -23.35, 17.6, 15.7, 2.4),   # LCC module on the carrier
+    ("nano_sim_holder", "metal", -11.8, -24.5, 12.5, 13.0, 1.4),    # push-push nano-SIM (1.8 V SIM)
+    ("ufl_gnss", "gold", -38.3, -29.5, 3.0, 3.0, 1.25),
+    ("ufl_lte", "gold", -7.0, -16.5, 3.0, 3.0, 1.25),
+    ("sim_vbat_cap", "passive", -38.2, -18.8, 3.2, 2.6, 1.9),       # 100 uF at the VBAT pins
+]
+
+
 def build_lte_gnss():
-    sx, sy = POS["sim_board"]
-    block("sim_board", "pcb", sx, sy, ABOVE, 32.0, 17.5, 1.0)
-    block("sim7080g_module", "metal", sx - 6.75, sy + 0.05, ABOVE + 1.0, 17.6, 15.7, 2.3)
-    block("nano_sim_holder", "metal", sx + 9.25, sy - 1.75, ABOVE + 1.0, 12.5, 13.0, 1.4)
-    grid("ufl_connectors", "gold", ABOVE + 1.0, [(sx + 3.75, sy + 6.75, 2.0, 2.0), (sx + 6.75, sy + 6.75, 2.0, 2.0)], 1.2)
+    if PHASE >= 4:
+        x0, x1, y0, y1 = CAR_TAB
+        block("carrier_tab_revB", "pcb", (x0 + x1) / 2.0, (y0 + y1) / 2.0, ABOVE, x1 - x0, y1 - y0, PCB_T)
+        for n, c, x, y, w, h, t in CAR_TAB_PARTS:
+            block(n, c, x, y, PCB_TOP, w, h, t)
+    else:
+        sx, sy = POS["sim_board"]
+        block("sim_board", "pcb", sx, sy, ABOVE, 32.0, 17.5, 1.0)
+        block("sim7080g_module", "metal", sx - 6.75, sy + 0.05, ABOVE + 1.0, 17.6, 15.7, 2.3)
+        block("nano_sim_holder", "metal", sx + 9.25, sy - 1.75, ABOVE + 1.0, 12.5, 13.0, 1.4)
+        grid("ufl_connectors", "gold", ABOVE + 1.0, [(sx + 3.75, sy + 6.75, 2.0, 2.0), (sx + 6.75, sy + 6.75, 2.0, 2.0)], 1.2)
     # GNSS: Taoglas SGGP.12.4.A.02 SMD patch on the FRONT wall (sky when lying on the back),
     # soldered to a small ground-plane board (our part, 16 x 13 x 1.0) behind it
     gx, gy = POS["gnss"]
@@ -1077,30 +1310,20 @@ def build_speakers():
 
 
 def build_ui():
-    # Newhaven NHD-2.7-12864WDW3 module: glass face (file -Z) on the front wall inner face,
-    # flex tail (file -Y edge) toward the carrier's bottom edge
-    place_step("oled", "oled", ("-X", "Y", "-Z"), (33.85, 46.22, 54.23), (DCX, DCY, INNER))
-    block("touch_strip_pcb", "copper", STRIP_C[0], STRIP_C[1], INNER - 1.6, 40.0, 5.0, 1.6)
-    # Adafruit 6049 (ICS-43434, bottom port): board underside toward the front-wall hole,
-    # 0.3 foam gasket; mic centre on the hole
-    place_step("mic", "mic", ("-X", "Y", "-Z"), (8.255, 7.11, 0.0), (-66.5, 29.5, INNER - 0.3))
-    # Adafruit 5378 right-angle VEML7700: board at right angles to the front wall, sensor
-    # (file +Y edge) looking out through the light hole
-    place_step("light", "light", ("X", "Z", "-Y"), (12.69, 17.65, 2.82), (-58.5, 29.5, INNER - 0.1))
+    # bare 3.12 in SSD1322 panel: glass on the front wall inner face behind the window
+    build_display()
+    block("touch_strip_pcb", "copper", TOUCH_C[0], TOUCH_C[1], INNER, TOUCH[0], TOUCH[1], TOUCH_T)
+    if PHASE >= 4:
+        build_front_board()
+    else:
+        # Adafruit 6049 (ICS-43434, bottom port): board underside toward the front-wall hole,
+        # 0.3 foam gasket; mic centre on the hole
+        place_step("mic", "mic", ("-X", "Y", "-Z"), (8.255, 7.11, 0.0), (MIC_C[0], MIC_C[1], INNER - 0.3))
+        # Adafruit 5378 right-angle VEML7700: board at right angles to the front wall, sensor
+        # (file +Y edge) looking out through the light hole
+        place_step("light", "light", ("X", "Z", "-Y"), (12.69, 17.65, 2.82), (LIGHT_C[0], LIGHT_C[1], INNER - 0.1))
 
-    # button strip on the TOP wall (left): latching mute + PWR, VOL-, VOL+, PLAY, parts on the
-    # +Y face of the strip (Y 29.8), actuators toward the top wall
-    block("button_strip_pcb", "pcb", (BTN_X0 + BTN_X1) / 2.0, 29.4, BTN_ZC - 3.5, BTN_X1 - BTN_X0, 0.8, 7.0)
-    for name, x, w in BUTTONS:
-        if name == "mute":
-            # G-Switch PS-7054DVB-6PL: case 7, knob to 12.4 (released); cap as before
-            place_step("btn_mute", "latch", ("X", "-Z", "Y"), (0.0, 0.0, 0.0), (x, 29.8, BTN_ZC))
-            block("btn_mute_cap", "mute_cap", x, (34.0 + 36.75) / 2.0, BTN_ZC - 3.2, 6.4, 2.75, 6.4)
-        else:
-            # C&K PTS645SM43SMTR92: plunger top 4.3 above the strip; cap starts on the plunger
-            place_step("btn_" + name, "tact", ("X", "-Z", "Y"), (0.0, 0.0, 0.0), (x, 29.8, BTN_ZC))
-            c0 = 29.8 + 4.3
-            block("btn_%s_cap" % name, "buttons", x, (c0 + 36.75) / 2.0, BTN_ZC - 2.0, 4.0, 36.75 - c0, 4.0)
+    build_buttons()
 
     # haptic LRA glued to the fin (disc in the YZ plane)
     lx, ly = POS["lra"]
@@ -1113,6 +1336,117 @@ def build_ui():
     wifi_coax()
 
 
+FB_OUTLINE = [(-58.0, -9.9), (-57.0, -9.9), (-57.0, -15.4), (-53.0, -15.4), (-53.0, -9.9), (10.5, -9.9),
+              (10.5, -14.0), (14.5, -14.0), (14.5, -5.0), (12.0, -5.0), (12.0, 17.9), (11.5, 17.9),
+              (11.5, 22.0), (7.5, 22.0), (7.5, 17.9), (-38.6, 17.9), (-38.6, 22.2), (-50.2, 22.2),
+              (-50.2, 17.0), (-58.0, 17.0)]
+FB_TOP = [  # name, colour, centre X, Y, size X, Y, Z (on the front face, toward the panel)
+    ("fe_fpc_conn", "conn", -32.0, 6.35, 19.4, 3.5, 1.0),       # Hirose FH19C-30S-0.5SH class
+    ("fe_boost_ic", "chip", -6.0, 9.0, 3.0, 3.0, 1.1),          # 12-15 V OLED VCC boost, SOT-23-6
+    ("fe_boost_l", "ferrite", -1.5, 9.0, 2.5, 2.0, 1.2),        # 10 uH 2520
+    ("fe_boost_c1", "passive", -6.0, 4.5, 2.0, 1.25, 1.0),
+    ("fe_boost_c2", "passive", -1.5, 4.5, 2.0, 1.25, 1.0),
+    ("fe_veml7700", "black", LIGHT_C[0], LIGHT_C[1], 6.8, 2.35, 3.0),   # top-looking, 6.8 x 2.35 x 3.0
+]
+FB_BACK = [  # on the back face (toward the carrier), hanging down from the board
+    ("fe_ics43434", "chip", MIC_C[0], MIC_C[1], 3.5, 2.65, 0.98),      # bottom port through the board
+    ("fe_carrier_conn", "conn", -3.0, 13.4, 13.0, 4.9, 2.0),          # 18-way 0.5 FPC to carrier J16
+]
+
+
+def build_front_board():
+    """Front board (ours, ADR 0016), 0.8 FR4 behind the panel: backs the panel foam ring, takes
+    the panel FPC, makes the OLED VCC, carries the mic and the light sensor behind their holes,
+    and has one 18-way flex to the carrier (replaces J8, J10, J11). Screwed at three ears to
+    front-wall bosses; it clamps the carrier bracket."""
+    poly_block("front_board", "pcb", FB_Z0, FB_OUTLINE, 0.8)
+    zt = FB_Z0 + 0.8
+    for n, c, x, y, w, h, t in FB_TOP:
+        block(n, c, x, y, zt, w, h, t)
+    for n, c, x, y, w, h, t in FB_BACK:
+        block(n, c, x, y, FB_Z0 - t, w, h, t)
+    # mic port: foam tube from the board to the membrane on the wall; light: foam ring round the hole
+    cyl("fe_mic_gasket", "foam", MIC_C[0], MIC_C[1], zt, 2.6, INNER - 0.2 - zt, inner=1.0)
+    cyl("fe_light_gasket", "foam", LIGHT_C[0], LIGHT_C[1], zt + 3.0, 3.6, INNER - zt - 3.0 - 0.02, inner=2.2)
+
+
+def build_buttons():
+    """Latching mute on its own board, four PTS645 on the button strip, keys through the top wall
+    (TPU keypad from phase 3 on). All actuator tops at KEY_IN."""
+    zc = BTN_ZC
+    for name, x, w, turn in BUTTONS:
+        if name == "mute":
+            # G-Switch PS-7054DVB-6PL: case 7, knob 4 x 3 to 12.4 (released), pins 3.5 below
+            block("mute_board", "pcb", x + 0.2, MUTE_PCB_Y - 0.5, zc - 4.0, 7.4, 1.0, 8.0)
+            place_step("btn_mute", "latch", ("X", "-Z", "Y"), (0.0, 0.0, 0.0), (x, MUTE_PCB_Y, zc))
+        else:
+            # C&K PTS645SM43SMTR92: plunger top 4.3 above the strip
+            axes = ("Z", "X", "Y") if turn else ("X", "-Z", "Y")
+            place_step("btn_" + name, "tact", axes, (0.0, 0.0, 0.0), (x, STRIP_Y, zc))
+    # strip: stepped outline (taller where the turned switches sit, above U1 under PLAY)
+    xp = BUTTONS[-1][1] - BUTTONS[-1][2] / 2.0 - 0.4        # step at the PLAY switch
+    lo, hi = zc - 4.6, zc + 4.6
+    lo2, hi2 = zc - 3.2, zc + 3.2
+    side_body("button_strip_pcb", "pcb", "y", STRIP_Y - 0.4,
+              [("poly", [(BTN_X0, lo), (xp, lo), (xp, lo2), (BTN_X1 + 0.2, lo2), (BTN_X1 + 0.2, hi2),
+                         (xp, hi2), (xp, hi), (BTN_X0, hi)])], 0.8)
+    if PHASE < 3:
+        for name, x, w, turn in BUTTONS:
+            kx, kz = KEY["mute" if name == "mute" else "tact"]
+            block("btn_%s_cap" % name, "mute_cap" if name == "mute" else "buttons", x, (KEY_IN + KEY_OUT) / 2.0,
+                  zc - kz / 2.0, kx, KEY_OUT - KEY_IN, kz)
+        return
+    # seal: one TPU keypad (own STL). A 0.6 sheet on the wall's inner face covers all five holes;
+    # each key is a plug through its hole, 0.5 proud of the fabric, with a 0.3 nub on the inside
+    # that the actuator pushes. The sheet perimeter is held on the wall by a PSA ring (peels off cold).
+    sx0, sx1 = MUTE_X - 4.3, BTN_X1 + 1.5
+    try:
+        sheet = side_body("button_keypad_tpu", "buttons", "y", CAV_Y - 0.3,
+                          [("rect", (sx0, zc - 4.0), (sx1, zc + 4.0))], 0.6)[0]
+        tools = []
+        for name, x, w, turn in BUTTONS:
+            kx, kz = KEY["mute" if name == "mute" else "tact"]
+            tools += side_body("tool", None, "y", (CAV_Y - 0.1 + KEY_OUT) / 2.0,
+                               [("rect", (x - kx / 2.0, zc - kz / 2.0), (x + kx / 2.0, zc + kz / 2.0))],
+                               KEY_OUT - CAV_Y + 0.1, register=False)
+            tools += side_body("tool", None, "y", KEY_IN + 0.2,
+                               [("rect", (x - 1.5, zc - 1.5), (x + 1.5, zc + 1.5))], 0.4, register=False)
+        join(sheet, tools, "TOP_EDGE_keypad")
+    except Exception:
+        G["fails"].append("button_keypad_tpu")
+
+
+def build_display():
+    """Bare panel on the front wall inner face; foam ring behind it (compressed between the
+    panel and the front board); a foam pad on the left speaker's top carries the panel's left
+    end, which sits over the speaker."""
+    cx, cy = (PAN_X0 + PAN_X1) / 2.0, DISP_CY
+    if "panel" in REAL and os.path.isfile(os.path.join(MODELS, REAL["panel"][0])):
+        # file frame: X 0..88, Y 0..27.8 with the FPC edge at Y 0, Z 0 = viewing face. File Z goes
+        # to world -Z, so X flips to stay right-handed (the panel is symmetric in X)
+        place_step("oled", "panel", ("-X", "Y", "-Z"), (0.0, 0.0, 0.0), (PAN_X1, PAN_Y0, INNER))
+    else:
+        block("oled", "oled_glass", cx, cy, PAN_Z0, PANEL[0], PANEL[1], PANEL[2])
+    z0 = PAN_Z0 - PANEL_FOAM
+    bx0, bx1 = FB_X0, PAN_X1                   # ring only where the front board backs the panel
+    w = 2.5
+    yt = PAN_Y1 - 0.9                          # top strip kept clear of the mute switch pins
+    rects = [((bx0 + bx1) / 2.0, yt - w / 2.0, bx1 - bx0, w),
+             (bx0 + w / 2.0, (PAN_Y0 + w + yt - w) / 2.0, w, yt - PAN_Y0 - 2 * w),
+             (bx1 - w / 2.0, (PAN_Y0 + w + yt - w) / 2.0, w, yt - PAN_Y0 - 2 * w)]
+    # bottom edge: only right of the FPC tail (the tail folds behind the panel there)
+    fx1 = FPC_X1 + 0.5
+    if bx1 - fx1 > 2.0:
+        rects.append(((fx1 + bx1) / 2.0, PAN_Y0 + w / 2.0, bx1 - fx1, w))
+    grid("panel_foam_ring", "foam", z0, rects, PANEL_FOAM)
+    # foam pad on the left speaker top (panel back 25.05, speaker top 23.3)
+    sz = SPK_Z0 + SPK_H
+    if PAN_Z0 - sz > 0.3:
+        x0, x1 = PAN_X0 + 0.5, -SPK_FACE_X + SPK_D - 0.5
+        block("panel_foam_speaker", "foam", (x0 + x1) / 2.0, cy, sz + 0.05, x1 - x0, PANEL[1] - 6.0,
+              PAN_Z0 - sz - 0.1)
+
+
 def build_dock():
     # pogo target pads (flush with the BOTTOM face) and 6 x 2 magnets in their blind pockets
     for k, x in enumerate(POGO_X):
@@ -1120,6 +1454,20 @@ def build_dock():
     y_lo = -CAV_Y + MAG_PAD_T - FIT_MAG - MAG_T
     for k, x in enumerate(MAG_X):
         place_step("dock_magnet_%d" % (k + 1), "magnet", ("X", "-Z", "Y"), (0.0, 0.0, 0.0), (x, y_lo, MAG_Z))
+    if PHASE < 3:
+        return
+    # seals: silicone washer under each pad flange; the pogo board holds the pads by their tails
+    for k, x in enumerate(POGO_X):
+        w = side_body("pogo_seal_%d" % (k + 1), "usb_c", "y", -CAV_Y + 0.25,
+                      [("circle", (x, POGO_Z), 3.9)], 0.5)
+        if w:
+            cut(w[0], side_body("tool", None, "y", -CAV_Y + 0.25, [("circle", (x, POGO_Z), 2.55)], 0.7,
+                                register=False), "DOCK_pogo_seal_hole_%d" % (k + 1))
+    ph = POGO_BOARD
+    b = block("pogo_board", "pcb", 0.0, -CAV_Y + 0.9 + 0.5, POGO_Z - ph[1] / 2.0, ph[0], 1.0, ph[1])
+    if b:
+        cut(b[0], [side_body("tool", None, "y", -CAV_Y + 1.4, [("circle", (x, POGO_Z), 1.2)], 1.2,
+                             register=False)[0] for x in POGO_X], "DOCK_pogo_board_holes")
 
 
 def wifi_coax():
@@ -1127,11 +1475,25 @@ def wifi_coax():
     try:
         sk = comp.sketches.add(comp.xYConstructionPlane)
         pc = adsk.core.ObjectCollection.create()
-        for p in WIFI_COAX:
+        for p in _coax_points():
             pc.add(P(*p))
         spl = sk.sketchCurves.sketchFittedSplines.add(pc)
         sk.isVisible = False
         G["wifi_coax_mm"] = spl.length * 10.0
+        try:
+            ev = spl.worldGeometry.evaluator
+            ok, t0, t1 = ev.getParameterExtents()
+            kmax, at = 0.0, None
+            for i in range(401):
+                t = t0 + (t1 - t0) * i / 400.0
+                okc, d, k = ev.getCurvature(t)
+                if okc and k > kmax:
+                    okp, pt = ev.getPointAtParameter(t)
+                    kmax, at = k, pt
+            G["wifi_coax_rmin"] = (10.0 / kmax if kmax > 0 else 1e9,
+                                   (at.x * 10, at.y * 10, at.z * 10) if at else None)
+        except Exception:
+            pass
         pi = comp.features.pipeFeatures.createInput(
             comp.features.createPath(spl), adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
         pi.sectionSize = vi(1.13)
@@ -1155,14 +1517,14 @@ REAL = {
     "usb_c": ("usbc_amphenol_124019572112a/124019572112a.step", (-9.76, 6.90, -2.15, -1.90, 19.10, 2.15)),
     "tact": ("btn_tact_pts645sm43smtr92/pts645sm43smtr92_kicad.step", (-4.5, -3.0, 0.0, 4.5, 3.0, 4.3)),
     "latch": ("btn_latch_ps-7054dvb-6pl/ps-7054dvb-6pl_from_drawing.step", (-3.5, -3.5, -3.5, 3.5, 3.5, 12.4)),
-    "oled": ("oled_nhd-2.7-12864wdw3/nhd-2.7-12864wdx3.step", (-7.11, 21.90, 54.23, 74.89, 72.39, 60.98)),
+    "panel": ("oled_wex025664b_panel_312/wex025664b_panel_from_drawing.step", (0.0, -1.5, 0.0, 88.0, 27.8, 2.95)),
     "mic": ("mic_adafruit-6049_ics-43434/adafruit_6049_ics-43434.step", (0.0, 0.0, -0.07, 16.51, 12.70, 2.53)),
     "light": ("light_adafruit-5378_veml7700/adafruit_5378_veml7700.step", (0.0, 0.0, 0.0, 25.40, 17.78, 4.53)),
-    "wifi": ("flexpifa_001-0014/flexpifa_001-0014_from_drawing.step", (0.0, -5.0, 0.0, 41.25, 11.0, 2.5)),
+    "wifi": ("flexpifa_001-0014/flexpifa_001-0014_from_drawing.step", (0.0, -1.0, 0.0, 41.25, 11.0, 2.5)),
     "gnss": ("gnss_taoglas_sggp.12.4.a.02/sggp.12.4.a.02_from_drawing.step", (-6.0, -6.0, 0.0, 6.0, 6.0, 4.0)),
     "lte": ("lte_molex_212570-0100/212570-0100_cable_cut.step", (-0.21, -0.18, -15.21, 47.01, 1.40, 0.21)),
     "cell": ("cell_lipol_lp1160100/lp1160100_from_drawing.step", (-4.0, -30.25, 0.0, 101.0, 30.25, 11.3)),
-    "pogo_pad": ("pogo_pad/pogo_pad_from_params.step", (-1.25, -1.25, 0.0, 1.25, 1.25, 2.2)),
+    "pogo_pad": ("pogo_pad/pogo_pad_from_params.step", (-2.0, -2.0, 0.0, 2.0, 2.0, 4.6)),
     "magnet": ("magnet_6x2/magnet_6x2_from_drawing.step", (-3.0, -3.0, 0.0, 3.0, 3.0, 2.0)),
 }
 
@@ -1287,7 +1649,7 @@ def body_label(b):
 
 
 # pairs that touch by design (THT pins through a PCB that has no holes modelled)
-EXPECTED = {("btn_mute", "button_strip_pcb")}
+EXPECTED = {("btn_mute", "mute_board"), ("fe_fpc_conn", "oled")}   # THT pins; FPC fingers in their connector
 # parts whose bodies cannot go into one interference run together: the Amphenol USB-C shell
 # (2457 faces) makes analyzeInterference return nothing against its own contacts. Pass 1
 # checks the listed bodies, pass 2 the rest, both against everything else.
@@ -1413,10 +1775,15 @@ def clearance_report():
                                              "qi2_magnet_ring", "qi2_winding", "pogo_pad", "dock_magnet")]
     rules += [("pd_inductor", a, 15.0) for a in ("wifi_flexpifa", "gnss_patch", "lte_flex")]
     rules += [("wifi_flexpifa", "oled", 5.0)]
+    # freed length (157): GNSS patch off the left speaker, PD and SIM boards off the speakers
+    sim = "carrier_tab_revB" if PHASE >= 4 else "sim_board"
+    rules += [("gnss_patch", "speaker_L", 3.0), ("pd_board", "speaker_cradle_R", 2.0),
+              ("pd_board", "speaker_R", 2.0), (sim, "speaker_cradle_L", 2.0), (sim, "speaker_L", 2.0)]
     for a, b, lim in rules:
         v = d(a, b)
         out.append("  %-18s %-18s %6s  rule >= %2.0f  %s" % (a, b, "%.1f" % v if v is not None else "-", lim,
                                                          "OK" if v is not None and v >= lim else "FAIL"))
+
     report = [("wifi_flexpifa", ("cell", "qi2_ferrite", "gnss_patch", "sim7080g_module",
                                  "nano_sim_holder", "pogo_pad", "speaker_L", "lte_flex", "oled")),
               ("gnss_patch", ("cell", "oled", "speaker_L", "sim7080g_module",
@@ -1457,12 +1824,48 @@ def grille_report():
 
 
 def stack_report():
-    return ("Stack: shell %.1f (tray %.1f + lid %.1f) + back ring %.1f proud = %.1f mm (limit 35; back is bare "
-            "PETG). Cell (max %.1f) %.1f..%.1f, insulator to %.1f, swell gap %.1f to %.1f, board %.1f..%.1f, "
-            "coil ferrite %.1f, front wall %.1f..%.1f. Lid: ring channel floor %.1f, gasket channel bottom %.1f "
-            "-> %.1f between" % (THICKNESS, TRAY_H, LID, BR_PROUD, THICKNESS + BR_PROUD, CELL_T, Z_CELL, CELL_TOP,
-                                 CELL_TOP + INSUL, SWELL, ABOVE, ABOVE, PCB_TOP, COIL_Z0, INNER, TRAY_H,
-                                 -LID + BR_CH, -GASKET_D, (-GASKET_D) - (-LID + BR_CH)))
+    front = TRAY_H + FABRIC + (RING_H - RING_DEPTH)
+    return ("Stack: lid %.1f + tray %.1f + front fabric %.1f + Qi ring %.1f under it + back ring %.1f proud = "
+            "%.1f mm (limit 35; %.1f away from the ring). Cell (max %.1f) %.1f..%.1f, insulator to %.1f, swell gap "
+            "%.1f to %.1f, board %.1f..%.1f, coil ferrite %.1f, front wall %.1f..%.1f, panel %.2f..%.1f, lens %.1f..%.1f "
+            "(flush with the fabric). Lid: ring channel floor %.1f, gasket channel bottom %.1f -> %.1f between" % (
+                LID, TRAY_H, FABRIC, RING_H - RING_DEPTH, BR_PROUD, front + LID + BR_PROUD,
+                TRAY_H + FABRIC + LID + BR_PROUD, CELL_T, Z_CELL, CELL_TOP, CELL_TOP + INSUL, SWELL, ABOVE,
+                ABOVE, PCB_TOP, COIL_Z0, INNER, TRAY_H, PAN_Z0, INNER, LENS_TOP - LENS_T, LENS_TOP,
+                -LID + BR_CH, -GASKET_D, (-GASKET_D) - (-LID + BR_CH)))
+
+
+def layout_report():
+    """Front layout rules: display VA vs the phone zone, coil magnet ring vs the right end,
+    left speaker vs the GNSS patch (in clearance_report), speaker_R magnet vs the coil ring."""
+    ring_r = 55.0 / 2.0
+    ring_x1 = COIL_CX + ring_r
+    out = ["Layout:",
+           "  panel X %.2f..%.2f (left edge %.2f from the left end), Y %.2f..%.2f; VA X %.2f..%.2f, Y %.2f..%.2f; "
+           "window %.1f x %.1f; lens %.1f x %.1f x %.1f" % (PAN_X0, PAN_X1, PAN_X0 + LENGTH / 2.0, PAN_Y0, PAN_Y1,
+                                                          VA_X0, VA_X1, VA_Y0, VA_Y1, WIN[0], WIN[1],
+                                                          LENS[0], LENS[1], LENS_T),
+           "  phone zone X >= %.2f (coil X %.2f, phone %.0f wide): VA ends %.2f before it (rule >= %.1f) %s" % (
+               PHONE_X0, COIL_CX, PHONE_W, PHONE_X0 - VA_X1, VA_PHONE_GAP,
+               "OK" if PHONE_X0 - VA_X1 >= VA_PHONE_GAP - 1e-6 else "FAIL"),
+           "  coil magnet ring X %.2f..%.2f: %.2f to the right end outer face (rule >= %.1f) %s, %.2f to its inner face" % (
+               COIL_CX - ring_r, ring_x1, LENGTH / 2.0 - ring_x1, COIL_END_GAP,
+               "OK" if LENGTH / 2.0 - ring_x1 >= COIL_END_GAP - 1e-6 else "FAIL", CAV_X - ring_x1)]
+    # speaker_R driver magnet: not in the STEP (closed box); the CMS-402008-18SP driver sits on the
+    # front baffle, magnet about 6 mm behind the cone face, centred on the box
+    mx, my, mz = SPK_FACE_X - 6.0, SPK_CY, SPK_Z0 + SPK_H / 2.0
+    dx = max(0.0, abs(mx - COIL_CX) - ring_r) if abs(my) < 1e-6 else 0.0
+    dz = (INNER - 2.0) - mz
+    out.append("  speaker_R driver magnet (estimated at X %.1f, Z %.1f) to the coil magnet ring: %.1f mm" % (
+        mx, mz, math.sqrt(dx * dx + dz * dz)))
+    try:
+        A = [b for b in G["parts"] if b.name == "qi2_magnet_ring"]
+        B = imp_bodies("speaker_R")
+        if A and B:
+            out.append("  speaker_R box to the coil magnet ring (min): %.1f mm" % min(_dist(A[0], b) for b in B))
+    except Exception:
+        pass
+    return "\n".join(out)
 
 
 # ----------------------------------------------------------------------
@@ -1475,18 +1878,19 @@ def group(n):
         return "lid"
     if n == "carrier_bracket":
         return "bracket"
-    if n.startswith(("back_ring", "screw_head", "usb_c_gasket")):
+    if n.startswith(("back_ring", "screw_head", "usb_c_gasket", "dead_front_lens", "lens_gasket",
+                     "light_window", "mic_membrane")):
         return "trim"
     if n == "cell" or n == "usb_c" or n.startswith(("cell_", "pd_", "qi2_", "keepout_")):
         return "power"
     if n.startswith(("speaker_", "grille_mesh")):
         return "speakers"
-    if n in ("sim_board", "sim7080g_module", "nano_sim_holder", "lte_flex") \
-            or n.startswith(("ufl_connectors", "gnss_")):
+    if n in ("sim_board", "sim7080g_module", "nano_sim_holder", "lte_flex", "carrier_tab_revB", "sim_vbat_cap") \
+            or n.startswith(("ufl_", "gnss_")):
         return "lte"
     if n.startswith("wifi_"):
         return "wifi"
-    if n.startswith(("dock_magnet", "pogo_pad")):
+    if n.startswith(("dock_magnet", "pogo_")):
         return "dock"
     return "ui"
 
@@ -1629,7 +2033,7 @@ def build_labels(design):
 ANCHORS = {"qi2_ferrite": ("coil", "xy"), "pd_board": ("pd_board", "xy"), "qi2_tx_board": ("qi2_tx", "xy"),
            "sim_board": ("sim_board", "xy"), "haptic_lra_10mm": ("lra", "xy"), "button_strip_pcb": ("buttons", "x"),
            # imported parts: the anchor sits on their largest body
-           "cell": ("cell", "xy"), "oled": ("oled", "xy"), "usb_c": ("usb_c", "x"),
+           "cell": ("cell", "xy"), "usb_c": ("usb_c", "x"),
            "wifi_flexpifa": ("wifi", "xy"), "gnss_patch": ("gnss", "xy"), "lte_flex": ("lte", "xz")}
 
 
@@ -1667,11 +2071,16 @@ def run(context):
         G["base_app"] = None
 
     build_tray()
-    build_lid()
+    lid = build_lid()
     build_trim()
     build_bracket()
     build_coil()
     build_power()
+    if G.get("cell_ribs"):
+        try:
+            join(lid, G["cell_ribs"], "BACK_cell_ribs")
+        except Exception:
+            G["fails"].append("cell_ribs")
     build_lte_gnss()
     build_speakers()
     build_ui()
@@ -1680,7 +2089,7 @@ def run(context):
     if CARRIER:
         import_carrier(design)
 
-    report = [stack_report(), grille_report()]
+    report = [stack_report(), layout_report(), grille_report()]
     try:
         report.append(clearance_report())
     except Exception as e:
@@ -1700,10 +2109,12 @@ def run(context):
     msg = ("heartsync STACK (%s display, dock %s)\n"
            "Shell %.1f x %.1f x %.1f, inside height %.1f, board layer Z %.1f\n"
            "Parts: %d bodies, %d real parts from cad/models (%d bodies), carrier STEP: %d bodies\n"
-           "Wi-Fi cable: %.1f stub (in the antenna STEP) + %.1f routed = %.1f mm of 100\n"
+           "Wi-Fi cable: %.1f stub (in the antenna STEP) + %.1f routed = %.1f mm of 100; min bend radius %s\n"
            "Components: %s\nSides: %s; labels %d (hidden)\n"
            % (DISPLAY, DOCK_SIDE, LENGTH, WIDTH, THICKNESS, INNER, ABOVE, n_parts, len(G["imp"]), n_imp,
               n_carrier, WIFI_STUB, G.get("wifi_coax_mm", 0), WIFI_STUB + G.get("wifi_coax_mm", 0),
+              ("%.1f mm at (%.1f, %.1f, %.1f) (rule >= 6)" % ((G["wifi_coax_rmin"][0],) + tuple(G["wifi_coax_rmin"][1]))
+               if G.get("wifi_coax_rmin") and G["wifi_coax_rmin"][1] else "-"),
               grouped, sides, labels))
     if G["fails"]:
         msg += "Could not build: %s\n" % ", ".join(G["fails"])
@@ -1724,7 +2135,8 @@ def print_checks():
     design = adsk.fusion.Design.cast(app.activeProduct)
     root = design.rootComponent
     lines = []
-    for name, down in (("shell_tray", 1), ("shell_lid", -1), ("carrier_bracket", 0)):
+    for name, down in (("shell_tray", 1), ("shell_lid", -1), ("carrier_bracket", 0), ("speaker_cradle_L", 0),
+                       ("button_keypad_tpu", 0)):
         body = find_body(design, name)
         if body is None:
             continue
@@ -1767,6 +2179,13 @@ def print_checks():
         thin.sort()
         web = [t for t in thin if abs(t[1]) > CAV_X - 0.5]
         thin = [t for t in thin if abs(t[1]) <= CAV_X - 0.5]
+        # the engraved ID text: the ribs left between letters are 0.3 tall surface detail, not walls
+        eng = [t for t in thin if name == "shell_lid" and abs(t[1] - ID_C[0]) <= ID_L / 2.0 + 0.1
+               and abs(t[2] - ID_C[1]) <= ID_W / 2.0 + 0.1 and t[3] < -LID + ID_DEPTH + 0.5]
+        thin = [t for t in thin if t not in eng]
+        if eng:
+            lines.append("%s: engraved ID text %d samples between letters, %.2f..%.2f mm (0.3 deep detail)" % (
+                name, len(eng), min(e[0] for e in eng), max(e[0] for e in eng)))
         if web:
             lines.append("%s: honeycomb webs %d samples, %.2f..%.2f mm (by spec)" % (
                 name, len(web), min(w[0] for w in web), max(w[0] for w in web)))
@@ -1833,7 +2252,8 @@ def export_all():
     for n, fn in (("shell_tray", "heartsync_tray.stl"), ("shell_lid", "heartsync_lid.stl"),
                   ("carrier_bracket", "heartsync_bracket.stl"), ("back_ring", "heartsync_back_ring_tpu.stl"),
                   ("speaker_cradle_L", "heartsync_speaker_cradle_L.stl"),
-                  ("speaker_cradle_R", "heartsync_speaker_cradle_R.stl")):
+                  ("speaker_cradle_R", "heartsync_speaker_cradle_R.stl"),
+                  ("button_keypad_tpu", "heartsync_keypad_tpu.stl")):
         b = find_body(design, n)
         if b:
             o = em.createSTLExportOptions(b, os.path.join(out, fn))
@@ -1852,30 +2272,66 @@ def export_all():
 # FLAT NET (TOP + BACK fabric), linked to the model constants
 # ----------------------------------------------------------------------
 def net_geometry():
-    """Net primitives in mm: one piece, the tray TOP edge (fabric only there; the back is bare
-    PETG). Seen from outside the top edge with the FRONT up: model +X is on the left. u = along
-    the edge incl. the quarter-round corner wraps, v = z from the lid seam (0) to the front edge.
-    ("cut", pts), ("fold", pts), ("circle_cut", centre, r), ("text", p, s, size)."""
-    L, r = LENGTH, CORNER_R
+    """Net primitives in mm: one piece, FRONT + tray TOP edge (fabric only there; back, bottom
+    and ends are bare PETG). Seen from outside with the TOP strip below the FRONT panel: model +X
+    is on the left. TOP strip: u = along the edge incl. the quarter-round corner wraps, v = z from
+    the lid seam (0) to the top-front edge (TRAY_H, a fold). FRONT panel: u = L/2 - x,
+    v = TRAY_H + W/2 - y. ("cut", pts), ("fold", pts), ("circle_cut", centre, r),
+    ("mark", pts) (dashed, not cut), ("text", p, s, size)."""
+    L, W, r = LENGTH, WIDTH, CORNER_R
     arc = math.pi / 2.0 * r
     prims = []
 
     def bu(x):
         return L / 2.0 - x
 
+    def fv(y):
+        return TRAY_H + W / 2.0 - y
+
+    def arc_pts(c, a0, a1, rad, n=12):
+        return [(c[0] + rad * math.cos(math.radians(a0 + (a1 - a0) * k / n)),
+                 c[1] + rad * math.sin(math.radians(a0 + (a1 - a0) * k / n))) for k in range(n + 1)]
+
+    def rrect(cu, cv, w, h, rr):
+        pts = []
+        pts += arc_pts((cu + w / 2 - rr, cv - h / 2 + rr), -90, 0, rr)
+        pts += arc_pts((cu + w / 2 - rr, cv + h / 2 - rr), 0, 90, rr)
+        pts += arc_pts((cu - w / 2 + rr, cv + h / 2 - rr), 90, 180, rr)
+        pts += arc_pts((cu - w / 2 + rr, cv - h / 2 + rr), 180, 270, rr)
+        return pts + [pts[0]]
+
     u0, u1 = r - arc, L - r + arc            # strip incl. the corner wraps onto the ends
-    prims.append(("cut", [(u0, 0), (u1, 0), (u1, TRAY_H), (u0, TRAY_H), (u0, 0)]))
-    prims.append(("fold", [(r, 0), (r, TRAY_H)]))           # corner tangent lines
-    prims.append(("fold", [(L - r, 0), (L - r, TRAY_H)]))
+    H = TRAY_H
+    outline = [(r, H), (u0, H), (u0, 0), (u1, 0), (u1, H), (L - r, H)]
+    outline += arc_pts((L - r, H + r), -90, 0, r)[1:]
+    outline += arc_pts((L - r, H + W - r), 0, 90, r)
+    outline += arc_pts((r, H + W - r), 90, 180, r)
+    outline += arc_pts((r, H + r), 180, 270, r)
+    prims.append(("cut", outline))
+    prims.append(("fold", [(r, H), (L - r, H)]))             # top-front edge
+    prims.append(("fold", [(r, 0), (r, H)]))                 # corner tangent lines on the strip
+    prims.append(("fold", [(L - r, 0), (L - r, H)]))
 
     def box(x, z, w, h):
         a, b = bu(x - w / 2), bu(x + w / 2)
         return [(a, z - h / 2), (b, z - h / 2), (b, z + h / 2), (a, z + h / 2), (a, z - h / 2)]
     prims.append(("cut", box(USB_X, USB_ZC, USB[0] + 2 * FIT_USB, USB[1] + 2 * FIT_USB)))
-    for name, x, w in BUTTONS:
-        h = (6.4 if name == "mute" else 4.0) + 2 * FIT_BTN
-        prims.append(("cut", box(x, BTN_ZC, h, h)))
-    prims.append(("text", (L / 2.0, TRAY_H + 6), "TOP_EDGE fabric (tray, lid seam at the bottom edge, FRONT at the top)", 3.5))
+    for name, x, w, turn in BUTTONS:
+        kx, kz = KEY["mute" if name == "mute" else "tact"]
+        prims.append(("cut", box(x, BTN_ZC, kx + 2 * FIT_BTN, kz + 2 * FIT_BTN)))
+    # FRONT: window opening (the fabric folds down the tuck groove's outer wall), mic and light
+    # holes (sealed edges), Qi ring and touch strip as marks
+    prims.append(("fold", rrect(bu(DCX), fv(DCY), GROOVE[0], GROOVE[1], 1.0 + TUCK_W)))
+    prims.append(("cut", rrect(bu(DCX), fv(DCY), GROOVE[0] - 2 * TUCK_D, GROOVE[1] - 2 * TUCK_D,
+                               max(1.0 + TUCK_W - TUCK_D, 0.3))))
+    prims.append(("circle_cut", (bu(MIC_C[0]), fv(MIC_C[1])), MIC_HOLE / 2.0))
+    prims.append(("circle_cut", (bu(LIGHT_C[0]), fv(LIGHT_C[1])), LIGHT_HOLE / 2.0))
+    prims.append(("mark", arc_pts((bu(COIL_CX), fv(COIL_CY)), 0, 360, RING_OD / 2.0 - RING_W / 2.0, 72)))
+    tx0, tx1 = bu(TOUCH_C[0] - TOUCH[0] / 2), bu(TOUCH_C[0] + TOUCH[0] / 2)
+    ty0, ty1 = fv(TOUCH_C[1] - TOUCH[1] / 2), fv(TOUCH_C[1] + TOUCH[1] / 2)
+    prims.append(("mark", [(tx0, ty0), (tx1, ty0), (tx1, ty1), (tx0, ty1), (tx0, ty0)]))
+    prims.append(("text", (L / 2.0, H + W + 7), "HeartSync fabric: FRONT + TOP edge, one piece (outer face up)", 3.5))
+    prims.append(("text", (L / 2.0, H + W + 2.5), "dashed: folds (top-front edge, groove) and marks (Qi ring, touch); seal hole edges", 2.5))
     prims.append(("fold", [(0, -12), (50, -12)]))
     prims.append(("text", (25, -17), "50 mm check (print at 100 %)", 3.0))
     return prims
@@ -1904,10 +2360,10 @@ def make_net():
     lines = sk.sketchCurves.sketchLines
     for pr in prims:
         kind = pr[0]
-        if kind in ("cut", "fold"):
+        if kind in ("cut", "fold", "mark"):
             for a, b in zip(pr[1], pr[1][1:]):
                 ln = lines.addByTwoPoints(P(a[0], a[1]), P(b[0], b[1]))
-                if kind == "fold":
+                if kind != "cut":
                     ln.isConstruction = True
         elif kind == "circle_cut":
             sk.sketchCurves.sketchCircles.addByCenterRadius(P(pr[1][0], pr[1][1]), mm(pr[2]))
@@ -1934,7 +2390,7 @@ def write_net_pdf(prims, path):
     k = 72.0 / 25.4
     xs, ys = [], []
     for pr in prims:
-        if pr[0] in ("cut", "fold"):
+        if pr[0] in ("cut", "fold", "mark"):
             xs += [p[0] for p in pr[1]]
             ys += [p[1] for p in pr[1]]
     m = 15.0
@@ -1945,9 +2401,9 @@ def write_net_pdf(prims, path):
         return (x - x0) * k, (y - y0) * k
     ops = ["0.35 w 0 0 0 RG 0 0 0 rg"]
     for pr in prims:
-        if pr[0] in ("cut", "fold"):
+        if pr[0] in ("cut", "fold", "mark"):
             pts = [tp(*p) for p in pr[1]]
-            ops.append(("[] 0 d " if pr[0] == "cut" else "[4 2] 0 d ") + "%.2f %.2f m " % pts[0] +
+            ops.append({"cut": "[] 0 d ", "fold": "[4 2] 0 d ", "mark": "[1 2] 0 d "}[pr[0]] + "%.2f %.2f m " % pts[0] +
                        " ".join("%.2f %.2f l" % p for p in pts[1:]) + " S")
         elif pr[0] == "circle_cut":
             cx, cy = tp(*pr[1])

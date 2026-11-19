@@ -10,7 +10,7 @@ FILE_DESCRIPTION(
 
 FILE_NAME(
 /* name */ 'ps-7054dvb-6pl_from_drawing.step',
-/* time_stamp */ '2026-11-19T15:38:13-05:00',
+/* time_stamp */ '2026-11-19T17:28:06-05:00',
 /* author */ (''),
 /* organization */ (''),
 /* preprocessor_version */ 'ST-DEVELOPER v20.2',
@@ -1299,7 +1299,7 @@ SOLID_ANGLE_UNIT()
 #1246=PRODUCT_DEFINITION_SHAPE('',$,#1249);
 #1247=SHAPE_REPRESENTATION('',(#785),#1239);
 #1248=PRODUCT_DEFINITION_CONTEXT('part definition',#1253,'design');
-#1249=PRODUCT_DEFINITION('2026-11-19-15-38-13-495',
+#1249=PRODUCT_DEFINITION('2026-11-19-17-28-05-950',
 'ps-7054dvb-6pl_from_drawing',#1250,#1248);
 #1250=PRODUCT_DEFINITION_FORMATION('',$,#1255);
 #1251=PRODUCT_RELATED_PRODUCT_CATEGORY('ps-7054dvb-6pl_from_drawing',
@@ -1309,7 +1309,7 @@ SOLID_ANGLE_UNIT()
 #1253=APPLICATION_CONTEXT(
 'Core Data for Automotive Mechanical Design Process');
 #1254=PRODUCT_CONTEXT('part definition',#1253,'mechanical');
-#1255=PRODUCT('2026-11-19-15-38-13-495','ps-7054dvb-6pl_from_drawing',$,
+#1255=PRODUCT('2026-11-19-17-28-05-950','ps-7054dvb-6pl_from_drawing',$,
 (#1254));
 #1256=PRESENTATION_STYLE_ASSIGNMENT((#1257));
 #1257=SURFACE_STYLE_USAGE(.BOTH.,#1258);

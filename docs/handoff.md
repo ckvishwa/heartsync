@@ -1,6 +1,6 @@
 # Handoff: where we are and what to do next
 
-Last updated: 2026-11-19 (real parts in the enclosure, fit check with real geometry, bare back with TPU ring; Phase 3 hardware test still pending). Read this first in a new session, then `CLAUDE.md`,
+Last updated: 2026-11-19 evening (enclosure full pass: 157 mm, dead-front 3.12 in panel, custom boards planned, fit check 0 clashes; Phase 3 hardware test still pending). Read this first in a new session, then `CLAUDE.md`,
 `docs/phases.md`, and the package `CLAUDE.md` for the area you touch.
 
 ## State
@@ -57,66 +57,50 @@ Last updated: 2026-11-19 (real parts in the enclosure, fit check with real geome
   - Antenna: **Ezurio FlexPIFA 001-0014** (ADR 0011), now on the front wall bottom-left, outside
     the phone footprint. Flex PIFA differs from the certified monopole: extra RF/EMC testing.
   - Next in order: route power, I2S, USB pair, rest; DRC clean; STEP fit check in Fusion.
-- **Enclosure** (`cad/fusion/heartsync_assembly.py`, dimensions from `cad/params.csv`,
-  positions in its POS block; real parts from `cad/models/`, read its README). One run (about
-  5 min) builds everything, imports the carrier STEP and 23 real parts, checks, groups, names
-  the sides and paints. Entry points: `fit_check`, `print_checks`, `export_all`, `make_net`,
-  `make_renders`, `save_doc`, `sync_from_fusion`. The last build (2026-11-19) is the open,
-  **unsaved** Fusion tab; "HeartSync v1" in the cloud is the older version. Fusion crashed once
-  this session (four large STEP imports at once); unsaved older tabs were lost.
-  - Use case: docked on the BOTTOM edge (4 pogo pads, 4 magnets); in use lying on the BACK on
-    the TPU ring; phone charges on the FRONT Qi coil (TX only, centre X 43).
-  - **Real parts in (ADR 0013):** LP1160100 cell at its max envelope (101 x 60.5 x 11.3),
-    Amphenol 124019572112A USB-C (mid-mount), CES-571423-28PMB speakers with ears cut + printed
-    cradle (1.5 back plate, arms to the end wall) + 1 mm foam, NHD-2.7-12864WDW3 module,
-    Adafruit 6049 mic and 5378 VEML7700 boards, PTS645 x 4, PS-7054DVB latching mute, FlexPIFA
-    (turned 180 deg, adhesive, no clips), SGGP.12.4.A.02 GNSS on a 16 x 13 ground board, Molex
-    212570 LTE flex on the TOP wall, pogo pads, 6 x 2 magnets. Still stand-ins: Qi coil + TX
-    board, PD board, SIM board, LRA, touch strip, button strip.
-  - Stack: cell (max 11.3) Z 1.0..12.3, insulator, 1.2 swell gap, **board layer Z 13.7** (was
-    14.4), coil ferrite 24.8. Shell 32.8 (tray 29.8 + **lid 3.0**) + ring 1.5 = **34.3 mm** of 35.
-  - Back: bare PETG, continuous TPU ring (4 wide, 2.5 in, R6, 1.0 channel, 1.5 proud, own STL)
-    over 4 M2 low-head screws at (+-66, +-31.7), 2.2 holes, no counterbore; engraved ID block
-    26 x 11 bottom-right seen from behind ("HeartSync" / "1 / 2" / "made with love 2026", text
-    in params.csv, 0.3 deep). Fabric only on the tray TOP edge; net regenerated (one piece);
-    the hand-drawn revD net and `net_d.py` were deleted.
-  - Lid sections: ring channel floor to gasket channel 1.2, screw hole to gasket 1.25, screw
-    hole to pad face 1.2 (`print_checks`: only thin samples left are the gaps between the
-    engraved ID letters). The tongue's top half was a loose body before (not in the lid STL):
-    fixed.
-  - **Fit check: 36 clashing pairs** (511 bodies). Worst (mm3): btn_mute x btn_mute_cap 112.6
-    (knob 12.4 tall), mic x oled 94.6, btn_mute x light 91.5, btn_vol_dn x light 62.2, btn_pwr x
-    light 59.9, pd_board x speaker_cradle_R 54.1, sim7080g_module x speaker_cradle_L 43.6, light x
-    mic 42.3, gnss_board x speaker_L 40.8 (0.7 in Z), mic x shell_tray 38.2, btn_vol_up x light
-    32.4, pd_board x usb_c 32.0 (no cut-out), sim_board x speaker_cradle_L 23.2, light x speaker_L
-    16.3, pd_board x speaker_foam_R 14.0, carrier_bracket x oled 12.5, button_strip_pcb x light
-    10.1, oled x touch_strip_pcb 9.1, gnss_board x speaker_cradle_L 8.1, btn_mute x shell_tray 6.1
-    (case into the wall), sim_board x speaker_foam_L 5.3, light x oled 5.2, oled x shell_tray 4.8
-    (H3 boss), oled x speaker_L 4.4 (module 1.2 into the speaker top), oled x wifi_coax 2.2,
-    btn_mute x speaker_L 1.9 (THT pins), then 10 under 1 mm3: tactile terminals touching their
-    neighbours (9 mm wide on a 6.8 pitch), btn_play x bracket, coax/antenna/OLED corner, the
-    IP5328P stand-in x USB-C. Full list with overlap boxes: the run report in the commit message.
-  - Clearance rule FAIL: Wi-Fi FlexPIFA touches the OLED module (rule >= 5). LTE flex rules all
-    pass (USB-C 20.1, coil 14.2); LTE is 3.6 from the cell and 3.3 from the touch strip.
-  - Plans (not built), `docs/hardware/board-plans.md`: (a) SIM7080G LCC on a carrier rev B tab
-    X -40..-8, Y -33..-15; (b) IP5328P board X 34.5..55.5, Y 8..32.5 with a USB-C cut-out, hot
-    parts at X >= 47; (c) 20 x 3.4 sensor board in the band Y 30.4..33.8 above the OLED module,
-    holes moved to Y 32.1, one 8-way flex to the carrier. Together they clear 19 of the 36 pairs (a: 3, b: 4, c: 12).
-  - Layout moves still needed beyond the plans: latching mute (12.4 tall) vs its cap and the
-    wall; OLED module vs the left speaker (1.2 in Z), the bracket bar, the H3 boss and the Wi-Fi
-    antenna; GNSS board vs the left speaker; tactile pitch (9.8 for PTS645 terminals).
-  - Safety review of this pass (2026-11-19): geometry passes (swell gap 1.2 over the 11.3 max
-    cell, stack 34.3, no clash with the swell-gap keep-out). Fixed in the docs: Qi TX fed from
-    the input only and gated on cell NTC, coil NTC and cold (plan b); charge-voltage strap at
-    4.20 V with an I2C/voltage stop at 4.08-4.10 V (verify the IP5328P has a charge-disable
-    register); NTC 10 k vs IP5328P curve and RSET <= 2.0 A to verify; cell JST and leads out
-    of the hot zone plus a barrier rib on the PCM end; ring is press-fit, no adhesive; no
-    underside parts over the cell on the new boards; mesh/window on the moved front holes.
-  - Safety review open points (2026-11-19), still open: cell side restraint (foam pad only);
-    Qi coil ferrite over the cell (cut TX on cell NTC); seals at pogo holes, buttons, mic/light
-    holes; dock pads dead until seated; inserts before the cell. Closed: lid 0.45 section,
-    USB-C part chosen, PD hot parts (plan b keeps them at X >= 47).
-  - Missing PDFs (vendors block scripts): Amphenol 124019572112A drawing, C&K PTS645.
+- **Enclosure, full pass (2026-11-19 evening): 157 x 72.5, fit check 0 clashes** (445 bodies).
+  `cad/fusion/heartsync_assembly.py`, dimensions in `cad/params.csv`, positions in its POS block.
+  `HS_PHASE` (env, default 4) rebuilds stage 1-4. One run is about 9 min (longer than the MCP
+  timeout): the runner opens a new document, loads the script with importlib, writes the report to
+  a file. The final build is the open, **unsaved** Fusion tab (not saved to the cloud; "HeartSync
+  v1" in the cloud is older). ADRs 0014 (length 157, front fabric, tray 29.4), 0015 (dead-front
+  bare SSD1322 panel), 0016 (custom boards, cell turned).
+  - Clashing pairs by phase: before 36 -> 1 size + front 23 -> 2 real parts 17 -> 3 safety +
+    print 17 (all 17 were the Adafruit sensor boards and the PD stand-in) -> 4 custom boards 1
+    (IP5328P vs its MOSFET, moved) -> **0**.
+  - Front: bare 3.12 in panel X -76..12 (2.5 from the left end), Y -9.9..17.9, FPC folded
+    behind; window 79.8 x 22.2 on the VA (VA ends **2.06** before the phone zone); smoked PC lens
+    82.8 x 25.2 x 1.0 flush with the fabric on a 1.5 foam gasket; tuck groove 1.0 wide, 0.8 deep
+    (same floor as the lens recess, so the ledge prints as one 2.7 mm overhang: check in PLA);
+    Qi ring 0.4 proud under the fabric; touch pocket from inside (1.2 wall); mic (-48, 20.8) and
+    light (-42.5, 20.8) holes, sealed.
+  - Qi coil at X 47.95: magnet ring **3.05** from the right end's outer face (0.85 from its inner
+    face); speaker_R box 1.9 from the magnet ring, ferrite 1.1 from it; driver magnet (estimated,
+    not modelled) about 13.4 from the ring.
+  - Stack **34.9** (lid 3.0 + tray 29.4 + fabric 0.6 + ring 0.4 + back ring 1.5). Swell gap 1.2
+    over the 11.3 max cell, board layer Z 13.7.
+  - Buttons (top edge, left to right: mute, PWR, VOL-, VOL+, PLAY, then LTE, then USB-C): mute
+    on its own board (12.4 deep), tactiles on a stepped strip (PWR/VOL turned 90 deg, PLAY flat
+    above U1), one TPU keypad (own STL) seals all five holes. LTE flex X -18.4..22.0: 10.3 from
+    USB-C, 11.7 from the coil ferrite, 5.6 from the PLAY switch.
+  - Wi-Fi coax: thick end -> R 9 S-bend under the panel FPC and front board -> R 8 turns -> U.FL;
+    min bend radius **6.2**, 79.8 of 100 mm used (stow 20 mm).
+  - Carrier: no front-wall bosses at H3/H4 (the panel covers them); a printed bracket frame holds
+    all four holes, the front board (3 x M1.6 into front-wall bosses) clamps it.
+  - Cell turned: PCM/seal end at -X, foam frame on lid ribs (ends full height, sides low), stretch-
+    release strips under it; leads along the top channel (order 150 mm leads, JST PH 3-pin).
+  - Seals: pogo pad flange + silicone washer + pogo board, keypad, mic ePTFE membrane, light PC
+    window, USB-C IPX8 + gasket.
+  - Print checks: tray 0 thin samples (honeycomb webs 0.8 by spec: PLA test print), lid 0 (ID text
+    letter gaps listed apart), bracket and cradles 0; keypad sheet 0.6 TPU by design.
+  - Generated: `cad/net/heartsync_net.dxf/.pdf` (FRONT + TOP, one piece), `cad/renders/*.jpg`
+    (`tools/renders_to_jpg.py`), `cad/exports/` (git-ignored; keypad STL added).
+  - New docs: `docs/hardware/assembly-order.md` (inserts first, cell last, pads dead until docked,
+    charge stop about 90 percent), `docs/hardware/board-plans.md` (carrier rev B tab, front board,
+    power board, Qi TX options), panel model `cad/models/oled_wex025664b_panel_312`.
+  - Still stand-ins: Qi coil + TX board (plan d recommends a 15 W PCBA flat under the coil), LRA.
+  - Open: verify the panel thickness/FPC on arrival; the SSD1322 needs a driver behind
+    `IDisplay` and a VCC enable pin; new pins (OLED_VCC_EN, QI_EN, DOCK_SEATED) wait for rev B;
+    IP5328P charge-disable register and NTC curve; LTE 700 MHz bands (Molex) vs carrier.
 - **Parts library and picks:** `cad/models/` (STEP, datasheet, README per part) and
   `cad/models/open_parts.md` (picks; 2 options per open part; magnetic Qi modules, no Qi2).
   **The Molex 212570 LTE flex misses the 700 MHz bands** (B12/B13/B28/B85): confirm the

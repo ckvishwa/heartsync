@@ -1,140 +1,143 @@
-# Board plans: SIM on the carrier, custom power board, front sensor board
+# Board plans: carrier rev B, front board, power board, Qi TX
 
-Status: **plan only, nothing built** (2026-11-19). Model coordinates as in
-`cad/fusion/heartsync_assembly.py`: X along the length (+X right end), Y across (+Y = TOP edge),
-Z thickness (+Z = FRONT). Board layer Z 13.7..15.3 (above the cell's swell gap). Carrier rev A
-sits at X -36..34, Y -15..30 (local origin top-left, world = (-36 + x, 30 - y)).
+Status: **plan only, not routed** (2026-11-19, ADR 0016). The assembly
+(`cad/fusion/heartsync_assembly.py`, phase 4) models every outline below with its main parts,
+and the fit check runs against them.
 
-Clash numbers are from the fit check of the build with the real parts (see `docs/handoff.md`).
+Model coordinates: X along the length (+X right end), Y across (+Y = TOP edge), Z thickness
+(+Z = FRONT), origin at the case centre, Z 0 = lid inner face. Case 157 x 72.5 (ADR 0014).
+Board layer Z 13.7..15.3 (above the cell's 1.2 swell gap). Front wall inner face Z 27.2.
+Carrier rev A sits at X -36..34, Y -15..30 (KiCad origin top-left: world = (-36 + x, 30 - y)).
 
-## (a) SIM7080G LCC module onto carrier rev B
+## (a) Carrier rev B
 
-**Today:** a separate `sim_board` (32 x 17.5, X -58.25..-26.25, Y -33.0..-15.5) with the module,
-a nano-SIM holder and two U.FL sockets, cabled to carrier J3 (SM06B: VBAT, GND, TXD, RXD,
-PWRKEY, VDD_EXT) on the far right edge at (30.0, 24.75). The cable crosses the whole carrier.
+**Outline:** rev A (70 x 45) plus a tab off the bottom edge, **X -40.0..-5.5, Y -31.5..-15.0**
+(34.5 x 16.5; KiCad x -4..30.5, y 45..61.5), same 1.6 mm board and layer, R1 corners. The tab
+stays 0.65 mm off the pogo board (Y -32.15) and 18 mm off the left speaker cradle.
 
-**Plan:**
+**On the tab** (no parts on the underside: it sits over the swell gap):
 
-- Rev B outline: rev A plus a tab off the bottom edge, **X -40..-8, Y -33.0..-15.0** (32 x 18),
-  same 1.6 mm board, same layer. Corner radius 1 mm.
-- SIM7080G (17.6 x 15.7 x 2.4, LCC) at X -38.0..-20.4, Y -32.2..-16.5, top at Z 17.7.
-- SIM: MFF2 eSIM (5 x 6 x 0.9, soldered, 1.8 V) at X -18..-12, Y -24..-19. It needs no holder
-  and no door, and the SIM7080G supports only 1.8 V SIMs anyway. A nano-SIM push-push holder
-  (12.5 x 13) also fits (X -20..-8) if a removable SIM is wanted.
-- U.FL x 2 on the tab's bottom edge, sockets facing -Y:
-  - GNSS at (-37.5, -32.0): 25 mm coax to the GNSS ground-plane board at (-60, -27.5).
-  - LTE at (-10.0, -16.5) (top-right corner of the tab): the Molex flex cable leaves the antenna
-    at (18.8, 33.4, 18.1); about 70 mm route, cable 93 mm (L2).
-- Power: VBAT straight from the cell rail already on the carrier (J2 net; SIM7080G takes 2.7 to
-  4.8 V, 0.5 A peak). 100 uF + 10 uF + 33 pF at the VBAT pins, short and wide.
-- Logic: U9 (TXS0102, 1.8 V <-> 3.3 V) and Q1 (PWRKEY) stay; they move next to the tab.
-- No parts on the tab's underside: it sits on the swell gap's top face (Z 13.7) over the cell.
-- Keep 5 mm between the tab copper and the FlexPIFA (antenna at Z 24.9..27.4 over X -45..-4.9,
-  Y -33.05..-22.05; the tab is 7 to 11 mm below it). The FlexPIFA is rated for mounting near metal;
-  check the return loss on the bench.
+| Ref | Part | Centre (X, Y) | Size | Notes |
+|---|---|---|---|---|
+| U10 | SIMCom SIM7080G, LCC | (-27.7, -23.35) | 17.6 x 15.7 x 2.4 | replaces the SIM breakout and J3 |
+| J13 | nano-SIM push-push holder | (-11.8, -24.5) | 12.5 x 13 x 1.4 | 1.8 V SIM only (SIM7080G); MFF2 eSIM footprint as an option |
+| J14 | U.FL, GNSS | (-38.3, -29.5) | 3 x 3 | 25 mm coax to the GNSS ground board at (-50, -27.5) |
+| J15 | U.FL, LTE | (-7.0, -16.5) | 3 x 3 | Molex 212570 cable (100 mm): about 85 mm route from the top wall |
+| C20-C22 | 100 uF + 10 uF + 33 pF | (-38.2, -18.8) | | at the VBAT pins, short and wide |
 
-**Removes:** `sim_board` with its holder, two U.FL sockets and the J3 cable. Clears these clashes:
-sim7080g_module x speaker_cradle_L (43.6 mm3), sim_board x speaker_cradle_L (23.2 mm3),
-sim_board x speaker_foam_L (5.3 mm3). It also frees X -58.25..-40, Y -33..-15.5, so the GNSS
-ground plane can grow.
+U9 (TXS0102, 1.8 V <-> 3.3 V) and Q1 (PWRKEY) move next to the tab.
 
-**Carrier changes:** delete J3, add the tab, two U.FL, the module footprint and the SIM. Re-run DRC
-and re-export `cad/heartsync_carrier.step`.
+**Connectors:**
 
-## (b) Custom IP5328P power-bank board shaped to its slot
+| Ref | Change | Position (world) | Pins |
+|---|---|---|---|
+| J3 | **delete** (SIM now on the board) | | |
+| J8, J10, J11 | **delete**, replaced by J16 | | |
+| J16 | **new**: 18-way 0.5 mm FPC (one flex to the front board) | under the front board's J2F at about (-3, 13) | see below |
+| J1 | 7 -> **8 pins**: add I2C_SDA, I2C_SCL; drop one GND | right edge (30.0, 14.25) | +5V x 2, GND, USB D+, D-, ALERT_N, SDA, SCL |
+| J2 | keep (VBAT sense) | | |
 
-**Today:** `pd_board` stand-in 23.75 x 24.5 at X 34.5..58.25, Y 8.0..32.5. Clashes:
-pd_board x speaker_cradle_R (54.1 mm3), pd_board x usb_c (32.0 mm3: no cut-out for the mid-mount
-receptacle), pd_board x speaker_foam_R (14.0 mm3), pd_ip5328p x usb_c (0.11 mm3). The safety
-review also flagged hot parts over the cell end.
+J16, 18 ways: 3V3, MIC_3V3, VBAT, OLED_SCK, OLED_MOSI,
+OLED_CS, OLED_DC, OLED_RST, OLED_VCC_EN, MIC_SCK, MIC_WS, MIC_SD, I2C_SDA, I2C_SCL, GND x 4.
+Use an 18-way 0.5 mm FPC (Hirose FH12-18S-0.5SH class); the model's connector block is sized for
+it (13.0 wide).
 
-**Plan** (reference: IP5328P datasheet typical application; QFN40 6 x 6, single 2.2 uH inductor,
-10 mOhm sense, NTC input, I2C):
+**Net changes:**
 
-- Outline **X 34.5..55.5, Y 8.0..32.5** (21.0 x 24.5), 4-layer 1.6 mm for heat spreading. The
-  right edge stays 0.75 mm off the right speaker cradle's back plate (X 56.25).
-- USB-C cut-out for the mid-mount Amphenol 124019572112A: **X 40.6..51.4, Y 25.0..32.5** (body
-  10.9 wide, back at Y 25.4). PCB top 0.75 below the receptacle centreline (from the STEP;
-  confirm against the Amphenol drawing).
-- Hot zone X >= 47 (the cell's max envelope ends at X 46.5): IP5328P at (51.5, 19.0), inductor
-  (about 7 x 7 x 3) at (51.5, 12.0), sense resistor and output MOSFET side by side at X 48..55.
-  Over the cell (X 34.5..46.5) only the input/output capacitors and connectors.
-- Connectors, all JST SH unless noted:
-  - **Cell**: JST PH 3-pin (BAT+, BAT-, NTC), top side at X 37..43 on the bottom edge (Y 8),
-    entry facing -Y, out of the hot zone. The leads leave the PCM end at X 46.5, Y -21/-25,
-    Z 5.7; route them down the cell end and along the bottom wall, away from the inductor.
-  - Thermal barrier on the cell's PCM end: Kapton over the end face plus a printed rib (X 47.0..
-    48.0, full cell height) between the cell end and the hot parts; the IP5328P and the inductor
-    are only 1.5 to 2 mm past the cell's max envelope in X, and the vertical Qi TX board is 5.3 mm
-    from the same end.
-  - **To carrier J1** (power + USB data + ALERT): left edge at (34.5, 14.0), 4.5 mm from J1 at
-    (30.0, 14.25). Make it 8-pin (SM08B) to add the IP5328P SDA/SCL (see below).
-  - **Qi TX power**: 2-pin, bottom edge at (54.0, 8.0), to the TX board at X 51.8, Y -32..-2.
-    It is fed from the **input** (USB-C VBUS or the dock), never from the IP5328P boost off the
-    cell, through a load switch that is ON only when all of these hold: input present, cell NTC
-    in range (0 to 45 deg C, the LP1160100 charge window), the coil NTC below its limit, and
-    firmware enable. The coil ferrite sits over the cell for 31.5 mm in X (X 15..46.5), 12.5 mm
-    above it, with the board layer between: the cell NTC cut-off is a hard requirement, not
-    firmware only.
-  - **Dock (pogo) input**: 2-pin, bottom edge at (40.0, 8.0); the wires run along the bottom wall
-    (3.8 mm channel between the cell, Y -30.25, and the wall, Y -34.05).
-- Charge stop at about 90 percent. The IP5328P's charge voltage settings are 4.20 / 4.35 /
-  4.40 / 4.50 V, so it cannot stop there by itself:
-  - strap the charge-voltage setting to **4.20 V**, so a hung or unflashed ESP32 falls back to
-    a normal full charge, never 4.35 or more;
-  - the ESP32 stops charging over I2C. **Verify against the datasheet that a charge-disable
-    register exists** (Injoinic register maps are often not public). If it does not, add a
-    load switch on the charger input that the ESP32 opens;
-  - stop on cell voltage (4.08 to 4.10 V), with the MAX17048 percentage as a second check.
-- NTC and current: the cell is ordered with a 10 k NTC. **Verify the IP5328P NTC curve**; if it
-  expects 100 k, order the cell with that NTC or add a divider, and bench-test hot and cold
-  cut-offs. Set the charge current (RSET) to at most 2.0 A, the LP1160100's maximum charge
-  current, and confirm the 0 to 45 deg C charge window is enforced.
-- No parts on the underside over the cell (X 34.5..46.5): the board sits on the swell gap's top
-  face at Z 13.7. The fit check includes the hidden swell-gap keep-out body; nothing clashes
-  with it in the current build.
-- Dock pads stay dead until the device is seated: a load switch on the pogo input, enabled by a
-  seated-detect pin.
+- Remove nets on J3 (SIM_TXD/RXD, SIM_PWRKEY, VDD_EXT now stay on the board, VBAT to U10).
+- New: `OLED_VCC_EN` (ESP32 output, panel VCC after logic; candidate IO3), `QI_EN` (candidate
+  IO45, pulled down so the TX is off at boot), `DOCK_SEATED` (input; candidate IO46, a strap pin:
+  check the boot levels). Update `docs/hardware/pinout.md` and `firmware/include/config.h`
+  together when rev B is drawn.
+- U.FL nets `GNSS_RF`, `LTE_RF`: 50 ohm coplanar, short, keep 5 mm from the FlexPIFA.
+- Re-run DRC, re-export `cad/heartsync_carrier.step`; the assembly then drops `carrier_tab_revB`.
 
-**Removes:** the generic module's two USB-A ports, micro-USB and 65 x 32.5 board; the four
-clashes above; hot parts over the cell.
+## (b) Front board (new)
 
-## (c) Front sensor board: ICS-43434 + VEML7700 behind the top-left holes
+**Outline:** 0.8 mm FR4 at **Z 22.8..23.6**, behind the panel. Main part X -58.0..12.0,
+Y -9.9..17.9 (X -58..-50.2 only to Y 17.0, clear of the mute switch pins), a sensor tab
+X -50.2..-38.6 up to Y 22.2, a bottom-right extension to X 14.5. Three ears with M1.6 screws into
+front-wall bosses (dia 3.8): (-55.0, -13.6), (12.5, -12.0) (over carrier H4), (9.5, 20.0).
 
-**Today:** Adafruit 6049 (16.5 x 12.7) and 5378 (25.4 x 17.8, right-angle) do not fit. Clashes:
-mic x oled 94.6, btn_mute x light 91.5, btn_vol_dn x light 62.2, btn_pwr x light 59.9,
-light x mic 42.3, mic x shell_tray 38.2, btn_vol_up x light 32.4, light x speaker_L 16.3,
-button_strip_pcb x light 10.1, light x oled 5.2, light x shell_tray 1.0, grille_mesh_L x mic 0.8
-(all mm3).
+It backs the panel's foam ring (1.45 compressed), clamps the carrier bracket (0.1 gap), and keeps
+every part out of the window (the lens recess ends at the panel border).
 
-**Free space found:** the NHD-2.7 module's PCB reaches Y 30.17 (top at Z 25.1). Between it and
-the top wall (Y 34.05) there is a band **Y 30.4..33.8** from the front wall (Z 27.6) down to the
-buttons (bodies top Z 22.7, latching mute 23.2).
+**Parts:**
 
-**Plan:**
+| Ref | Part | Centre (X, Y) | Face | Notes |
+|---|---|---|---|---|
+| J1F | Hirose FH19C-30S-0.5SH (panel FPC) | (-32.0, 6.35) | front | under the folded FPC's fingers (Y 2.1..6.1) |
+| U1F | 12 to 15 V boost (OLED VCC), SOT-23-6 | (-6.0, 9.0) | front | from VBAT; enabled by OLED_VCC_EN; verify VCC range on the panel datasheet |
+| L1F | 10 uH, 2520 | (-1.5, 9.0) | front | parts <= 1.2 tall under the panel (back face Z 25.05) |
+| U2F | ICS-43434 I2S mic, bottom port | (-48.0, 20.8) | back | port through a 0.8 board hole, foam tube to the wall hole, ePTFE membrane on the wall |
+| U3F | VEML7700 | (-42.5, 20.8) | front | looks out through the 2.0 light hole and its clear window; foam light ring |
+| J2F | 18-way 0.5 mm FPC to carrier J16 | (-3.0, 13.4) | back | one flex, about 25 mm |
+| C1F.. | VCC caps, VDD/VCI caps, IREF resistor, VCOMH/VSL parts per the SSD1322 reference | front, inside the foam ring | | |
 
-- Board 0.6 mm FR4, **20.0 x 3.4: X -71.5..-51.5, Y 30.4..33.8, Z 23.8..24.4**, parallel to the
-  front wall.
-- VEML7700 (6.8 x 2.35 x 3.0, top-looking) on the front side at **(-66.5, 32.1)**, top at Z 27.4
-  with a 0.2 mm light gasket to the wall.
-- ICS-43434 (3.5 x 2.65 x 0.98, bottom port) on the back side at **(-60.0, 32.1)**, Z 22.8..23.8.
-  Its port goes through the board and then a 3.2 mm tall foam gasket tube to the wall hole. It
-  sits at X >= -62.5 to clear the latching mute (X -70..-63, top Z 23.2); the PWR switch below it
-  tops out at Z 22.7 (0.1 mm).
-- Front-wall holes move from Y 29.5 to **Y 32.1**: light at X -66.5 (dia 2.0), mic at X -60.0
-  (dia 1.0).
-- Flex tail, 8-way 0.5 mm pitch (3V3 mic (muted), 3V3, GND, SCK, WS, SD, SDA, SCL). It leaves
-  the board's left end, drops at X -73..-71 (between the cavity wall, X -73.8, and the mute
-  switch, X -70) to Z 15.5, then runs +X under the button strip at Y 31..33 to an FPC connector
-  on the carrier's top edge at about (-34, 29.5) (clear of the H1 boss at (-33, 21)). About 50 mm.
-- Carrier rev B: replace J8 (mic, 5-pin, top edge) and J10 (light, 4-pin, bottom edge) with one
-  8-pin 0.5 mm FPC connector.
+**Nets:** SPI (OLED_SCK, OLED_MOSI, OLED_CS, OLED_DC, OLED_RST) to the panel, I2S (MIC_SCK, MIC_WS,
+MIC_SD) and MIC_3V3 (switched by the mute button) to the mic, I2C_SDA/SCL and 3V3 to the VEML7700,
+VBAT and OLED_VCC_EN to the boost. Replaces J8 (mic), J10 (light) and J11 (OLED).
 
-**Removes:** two breakout boards and two harnesses, all 12 sensor clashes above, and the light
-sensor standing 17.8 mm deep.
+Front holes moved to the sensor tab: mic (dia 1.0) at (-48.0, 20.8), light (dia 2.0) at
+(-42.5, 20.8). Touch strip pocket X -39..1, Y 20..25 (1.2 wall in front of it).
 
-**Seals (IP54):** acoustic mesh (ePTFE) on the mic hole and a clear window or sealed light pipe
-in the light hole, both on the inside of the front wall; the gaskets above double as the seal.
+## (c) Power board (new)
 
-**Check:** the band is tight. The board's front-side parts may be at most 3.2 mm tall, and the mic
-side clears the switches by only 0.1 mm. Print the board outline as a dummy in the PLA fit test.
+**Outline:** **X 34.5..56.0, Y 8.0..32.5** (21.5 x 24.5), board layer Z 13.7..15.3, with a cut-out
+X 39.7..52.3, Y 26.0..32.5 for the mid-mount Amphenol 124019572112A (USB-C on this board, body
+centred X 46.0, PCB top 0.75 below its centreline). 4-layer for heat spreading. Right edge
+2.75 mm off the right speaker cradle. The board sits over the cell's +X end (the folded end; the
+seal / PCM end is now at -X), and its hot parts are past the cell at X >= 48.
+
+**Parts** (IP5328P datasheet typical application):
+
+| Ref | Part | Centre (X, Y) | Size | Notes |
+|---|---|---|---|---|
+| U1P | IP5328P, QFN40 6 x 6 | (52.0, 19.2) | 6 x 6 x 0.9 | hot |
+| L1P | 2.2 uH | (52.0, 11.8) | 7 x 7 x 3 | hot |
+| R1P | 10 mOhm sense, 0805 | (49.0, 23.5) | | hot |
+| Q1P | output switch, DFN 3.3 | (53.8, 24.0) | | hot |
+| C1P-C3P | in / out caps | (42.5, 14.5 / 17.5 / 20.5) | 3.2 x 1.6 | over the cell: caps and connectors only |
+| U2P | Qi TX load switch | (46.0, 15.0) | SOT-23 | input-fed, QI_EN and the NTC window |
+| U3P | dock pad load switch | (46.0, 19.0) | SOT-23 | on only with DOCK_SEATED |
+| J1P | JST PH B3B-PH-K, cell (BAT+, BAT-, NTC) | (37.25, 24.0) | 4.5 x 9.9 x 6 | leads come up from the top channel |
+| J2P | JST SH SM08B to carrier J1 | (36.7, 13.5) | left edge | +5V x 2, GND, D+, D-, ALERT_N, SDA, SCL |
+| J3P | JST SH SM04B: dock in (2), Qi TX out (2) | (43.8, 10.2) | bottom edge | dock wires along the bottom channel |
+
+**Nets:** VBUS, CC1, CC2, D+, D- (USB-C); BAT+, BAT-, NTC (cell, 10 k: verify the IP5328P NTC
+curve; if it expects 100 k, add the divider or order the other NTC); 5V out (to carrier J1);
+I2C_SDA/SCL (IP5328P register access), ALERT_N (open drain, <= 3.3 V); DOCK_IN, DOCK_SEATED;
+QI_PWR, QI_EN.
+
+**Rules carried over:** charge voltage strapped to 4.20 V; the ESP32 stops charging at 4.08 to
+4.10 V (about 90 percent) over I2C, MAX17048 as a second check (verify the charge-disable
+register; else a load switch on the charger input); RSET <= 2.0 A (LP1160100 maximum); Qi TX fed
+from the input only, gated on cell NTC, coil NTC, input present and firmware enable; dock pads dead
+until seated; no parts on the underside over the cell.
+
+**The cell turns round** (phase 3): PCM end and leads at -X (X -54.5), leads (and the NTC lead)
+along the top channel above the side ribs to J1P, about 110 mm: order the cell with **150 mm
+leads** and a JST PH 3-pin housing.
+
+## (d) Qi transmitter: magnetic modules (coil + magnet ring + driver), no Qi2 certification
+
+Space at the front coil: dia <= 56 (ring groove), centred X 47.95; depth 2.8 behind the wall now
+(ferrite Z 24.4..25.2), at most about 3.9 over the right speaker (its top is Z 23.3) and 3.1 over
+the power board's cell connector. Driver slot today: the vertical 30 x 20 board at X 51.8,
+Y -32..-2; a flat board can also sit under the coil at Z about 21..23, X 22..46, Y -26..-2 (clear of
+the LRA, the carrier and the power board).
+
+| | Module | Size | Fit | Link |
+|---|---|---|---|---|
+| A | Huagon Charging 15 W magnetic TX module (coil + N52 ring + PCBA; non-certified version) | coil dia 55 (custom sizes), PCBA 40 x 30 x 3 | coil fits; PCBA too big for the 30 x 20 slot, fits flat under the coil only if they cut it to about 30 x 24 (they offer custom shapes) | https://www.huagoncharging.com/product/qi-2-magnetic-fast-wireless-charging-module-magnet-transmitter-receiver-15w-fast-qi-2-two-magnetic-wireless-charger-module.html |
+| B | Generic 15 W Qi TX PCBA with a 50 mm coil (WPC 1.2.3), plus an N52 ring OD 56 / ID 44 x 1.5 | PCBA 24 x 32 x 2.0 (seller listing) | coil + ring fit the groove; PCBA fits flat under the coil (X 22..46, Y -26..-2) or turned in the vertical slot if it is 20 tall: verify | https://www.newegg.com/p/2S7-07JP-1M3R3 |
+| C | Sealed coil + magnet-ring module (ConvenientPower MPP type) with our own driver from a TI / NXP 15 W reference design on the vertical slot | coil module about dia 54; driver ours | coil fits if <= 2.8 deep; driver shaped to the slot | https://texim-europe.com/getfile.ashx?id=122357 |
+
+Recommend **B** for the first build (cheapest, flat PCBA fits under the coil), then A if a
+custom-shaped module is worth the MOQ. None is Qi2-certified; the phone charges at the Qi (BPP or
+EPP) rate the module supports. All three need the thermal and NTC rules above.
+
+## Fit check against these plans
+
+See `docs/handoff.md` for the run: the phase-4 build includes all three boards, the bracket frame
+and the front board, and the fit check is clean (0 clashing pairs).

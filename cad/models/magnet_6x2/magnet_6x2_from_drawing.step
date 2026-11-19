@@ -10,7 +10,7 @@ FILE_DESCRIPTION(
 
 FILE_NAME(
 /* name */ 'magnet_6x2_from_drawing.step',
-/* time_stamp */ '2026-11-19T15:38:13-05:00',
+/* time_stamp */ '2026-11-19T17:28:06-05:00',
 /* author */ (''),
 /* organization */ (''),
 /* preprocessor_version */ 'ST-DEVELOPER v20.2',
@@ -193,7 +193,7 @@ SOLID_ANGLE_UNIT()
 #142=PRODUCT_DEFINITION_SHAPE('',$,#145);
 #143=SHAPE_REPRESENTATION('',(#83),#135);
 #144=PRODUCT_DEFINITION_CONTEXT('part definition',#149,'design');
-#145=PRODUCT_DEFINITION('2026-11-19-15-38-13-832',
+#145=PRODUCT_DEFINITION('2026-11-19-17-28-06-301',
 'magnet_6x2_from_drawing',#146,#144);
 #146=PRODUCT_DEFINITION_FORMATION('',$,#151);
 #147=PRODUCT_RELATED_PRODUCT_CATEGORY('magnet_6x2_from_drawing',
@@ -203,7 +203,7 @@ SOLID_ANGLE_UNIT()
 #149=APPLICATION_CONTEXT(
 'Core Data for Automotive Mechanical Design Process');
 #150=PRODUCT_CONTEXT('part definition',#149,'mechanical');
-#151=PRODUCT('2026-11-19-15-38-13-832','magnet_6x2_from_drawing',$,(#150));
+#151=PRODUCT('2026-11-19-17-28-06-301','magnet_6x2_from_drawing',$,(#150));
 #152=PRESENTATION_STYLE_ASSIGNMENT((#153));
 #153=SURFACE_STYLE_USAGE(.BOTH.,#154);
 #154=SURFACE_SIDE_STYLE('',(#155));

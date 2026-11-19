@@ -1,11 +1,11 @@
 name,value,unit,status,comment
-body_length,152,mm,model,"Outer length, as built in fusion/heartsync_assembly.py"
+body_length,157,mm,model,Outer length (was 152): the 3.12 in panel 2.5 from the left end and the Qi coil 3 mm from the right end both fit
 body_width,72.5,mm,model,Outer width
-body_thickness,32.8,mm,model,Shell thickness: tray 29.8 + lid 3.0. Stack with the back ring 1.5 proud: 34.3
+body_thickness,32.4,mm,model,"Shell thickness: tray 29.4 + lid 3.0. Stack with front fabric 0.6, Qi ring 0.4 under it and the back ring 1.5 proud: 34.9"
 body_thickness_max,35,mm,hard limit,HARD LIMIT. The stack-up must never exceed this
 wall_thickness,2.2,mm,model,Tray wall and front wall
 corner_radius,6,mm,assumption,Outer corner radius under the fabric wrap
-fabric_allowance,0.6,mm,assumption,Fabric thickness. Fabric only on the tray TOP edge; the back is bare PETG
+fabric_allowance,0.6,mm,assumption,"Fabric thickness. Fabric on the FRONT and the tray TOP edge; back, bottom and ends are bare PETG"
 panel_width,128,mm,verify against datasheet,64 px at 2 mm pitch
 panel_height,64,mm,verify against datasheet,32 px at 2 mm pitch
 panel_depth,0,mm,verify against datasheet,Panel plus connectors. Measure the real panel
@@ -41,9 +41,9 @@ fit_usb_c,0.3,mm,assumption,"USB-C receptacle to opening, per side"
 fit_pogo,0.1,mm,assumption,"Pogo pad to hole, per side"
 fit_magnet,0.1,mm,assumption,"Magnet to pocket, per side and depth"
 min_wall,1.2,mm,rule,Minimum printed wall (3 perimeters at 0.4)
-ring_od,56,mm,model,"Front ring groove = Qi2 marking, centred on the coil"
+ring_od,56,mm,model,"Front Qi ring = Qi marking under the fabric (no gold inlay), centred on the coil"
 ring_width,1.0,mm,model,Front ring groove width
-ring_depth,0.6,mm,model,Front ring groove depth (ring_inlay fills it)
+ring_depth,0.6,mm,model,Front Qi ring groove depth; the printed ring (ring_height 1.0) stands 0.4 proud under the fabric
 honeycomb_count,237,count,spec,End grille holes: 25 columns of 9/10 flat-top hexes
 honeycomb_hex,1.8,mm,spec,Hex hole across flats
 honeycomb_pitch,2.6,mm,spec,Hex pitch (web 0.8)
@@ -56,7 +56,7 @@ speaker_depth,14.85,mm,spec,CES-571423-28PMB (along X)
 pogo_pad_d,2.5,mm,assumption,Pogo target pad on the bottom edge
 gnss_patch,12,mm,spec,"Taoglas SGGP.12.4.A.02, 12 x 12 x 4 SMD patch on a small ground-plane board"
 gnss_patch_t,4,mm,spec,GNSS patch thickness
-screw_x,66,mm,model,Lid screw X (+-)
+screw_x,68.5,mm,model,"Lid screw X (+-): 10 from the ends, as before"
 screw_y,31.7,mm,model,Lid screw Y (+-): 2.2 hole edge 1.25 from the gasket channel and 1.2 from the pad face; head inside the ring band; insert boss 0.15 off the speaker
 screw_head_d,3.8,mm,verify against datasheet,"M2 low-head screw head (e.g. DIN 7984, dk 3.8, k 1.3). Sits on the ring-channel floor, under the ring"
 screw_head_h,1.3,mm,verify against datasheet,M2 low-head screw head height
@@ -75,3 +75,24 @@ id_text_2,1 / 2,text,spec,ID line 2 (device number of the pair)
 id_text_3,made with love 2026,text,spec,ID line 3
 speaker_cradle_wall,1.5,mm,model,"Printed speaker cradle: back frame and arms (PETG, own STL)"
 speaker_foam,1.0,mm,assumption,Foam pad between the cradle frame and the speaker back (pre-load on the face gasket)
+ring_height,1.0,mm,model,"Printed Qi marking ring in the 0.6 groove: 0.4 proud of the front face, under the fabric"
+display_panel_l,88.0,mm,datasheet,Bare 3.12 in SSD1322 256x64 panel (Winstar WEX025664B class): 88.0 +-0.3
+display_panel_w,27.8,mm,datasheet,Panel height 27.8 +-0.3; FPC tail on this long edge (bottom)
+display_panel_t,2.15,mm,spec,Panel thickness envelope (WEX025664B drawing 2.05; 2.15 used)
+display_va_l,78.78,mm,datasheet,Viewing area length (AA 76.778)
+display_va_w,21.18,mm,datasheet,Viewing area height (AA 19.178)
+display_va_x,4.61,mm,datasheet,VA left edge from the panel left edge
+display_va_y,2.0,mm,datasheet,VA top edge from the panel edge opposite the FPC (4.62 ledge on the FPC side)
+display_left,2.5,mm,spec,Panel left edge from the left end outer face
+display_cy,4.0,mm,spec,Panel centre Y
+window_margin,0.5,mm,spec,Front window = VA + this each side (79.8 x 22.2)
+lens_thickness,1.0,mm,spec,"Smoked polycarbonate dead-front lens, outer face flush with the fabric"
+lens_gasket_w,1.5,mm,spec,Adhesive foam gasket round the lens (lens = window + 2 x this)
+lens_gasket_t,0.4,mm,assumption,Gasket thickness under the lens border (compressed)
+tuck_groove_w,1.0,mm,spec,Fabric-tuck groove round the lens recess
+tuck_groove_d,0.8,mm,model,"Tuck groove depth = lens recess depth, so the ledge round the window prints as one 2.7 mm overhang on the bed side (1.4 wall left)"
+panel_foam,1.45,mm,model,"Foam ring behind the panel, compressed (2.0 free) between the panel and the front board"
+touch_wall,1.2,mm,spec,Front wall left under the touch strip (pocket from the inside)
+phone_width,77,mm,spec,"Upright phone width, centred on the Qi coil"
+va_phone_gap,2.0,mm,rule,Display VA ends at least this far before the phone zone
+coil_end_gap,3.0,mm,rule,"Coil magnet ring to the right end outer face, at least"

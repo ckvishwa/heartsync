@@ -23,4 +23,5 @@ Ours (made in this repo by `cad/models/from_drawing.py`). Datasheet PDF: copyrig
 - Modelled at the maximum envelope on purpose: the assembly puts the 1.2 mm swell gap above the thickest allowed cell (11.3).
 - **This datasheet says NTC: no.** Order it with a 10 k NTC and a JST lead (3 wires, e.g. JST PHR-3) instead of the Molex 51021 listing; the NTC goes to the IP5328P NTC pin.
 - Charge 2000 mA max, discharge 4000 mA continuous, cut-off 2.75 V, charge 4.2 V, 0 to 45 deg C charge.
-- Frame: X 0..101 with the PCM end at X 0..6, Y centred, Z 0..11.3; leads leave the PCM end at Y +21 / +25 (read off the drawing: verify).
+- Frame: X 0..101 with the PCM end at X 0..6, Y centred, Z 0..11.3; leads leave the PCM end at Y +21 / +25 (read off the drawing: verify), the NTC lead (dia 1.0, ordered option) at Y +17.
+- In the case (2026-11-19) the PCM end faces -X and the leads run about 110 mm along the top channel to the power board: order **150 mm leads** with a JST PH 3-pin housing (BAT+, BAT-, NTC).

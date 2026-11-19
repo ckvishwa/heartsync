@@ -10,7 +10,7 @@ FILE_DESCRIPTION(
 
 FILE_NAME(
 /* name */ 'shr-06v-s-b_from_drawing.step',
-/* time_stamp */ '2026-11-19T15:38:13-05:00',
+/* time_stamp */ '2026-11-19T17:28:05-05:00',
 /* author */ (''),
 /* organization */ (''),
 /* preprocessor_version */ 'ST-DEVELOPER v20.2',
@@ -506,7 +506,7 @@ SOLID_ANGLE_UNIT()
 #453=PRODUCT_DEFINITION_SHAPE('',$,#456);
 #454=SHAPE_REPRESENTATION('',(#288),#446);
 #455=PRODUCT_DEFINITION_CONTEXT('part definition',#460,'design');
-#456=PRODUCT_DEFINITION('2026-11-19-15-38-13-245',
+#456=PRODUCT_DEFINITION('2026-11-19-17-28-05-707',
 'shr-06v-s-b_from_drawing',#457,#455);
 #457=PRODUCT_DEFINITION_FORMATION('',$,#462);
 #458=PRODUCT_RELATED_PRODUCT_CATEGORY('shr-06v-s-b_from_drawing',
@@ -516,7 +516,7 @@ SOLID_ANGLE_UNIT()
 #460=APPLICATION_CONTEXT(
 'Core Data for Automotive Mechanical Design Process');
 #461=PRODUCT_CONTEXT('part definition',#460,'mechanical');
-#462=PRODUCT('2026-11-19-15-38-13-245','shr-06v-s-b_from_drawing',$,(#461));
+#462=PRODUCT('2026-11-19-17-28-05-707','shr-06v-s-b_from_drawing',$,(#461));
 #463=PRESENTATION_STYLE_ASSIGNMENT((#464));
 #464=SURFACE_STYLE_USAGE(.BOTH.,#465);
 #465=SURFACE_SIDE_STYLE('',(#466));

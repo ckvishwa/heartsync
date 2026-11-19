@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/board_setup_protocol.dart';
 import '../../data/board_setup_repository.dart';
 import '../../data/device_repository.dart';
+import '../../data/phone_wifi_repository.dart';
 
 /// Steps of "Set up a board" (docs/protocol.md "BLE provisioning", ADR 0009).
 enum SetupStep {
@@ -37,9 +38,11 @@ class SetupState {
     this.manualSsid = '',
     this.wifiAttempts = 0,
     this.message,
+    this.phoneSsid,
   });
 
   final SetupStep step;
+  final String? phoneSsid; // the phone's own Wi-Fi name (not a secret)
   final List<FoundBoard> boards;
   final FoundBoard? board;
   final BoardInfo? info;
@@ -72,7 +75,9 @@ class SetupState {
     String? manualSsid,
     int? wifiAttempts,
     String? message,
+    String? phoneSsid,
   }) => SetupState(
+    phoneSsid: phoneSsid ?? this.phoneSsid,
     step: step ?? this.step,
     boards: boards ?? this.boards,
     board: board ?? this.board,
@@ -158,10 +163,16 @@ class SetupController extends Notifier<SetupState> {
       }
       _statusSub = link.status().listen(_statuses.add, onError: (_) {});
       state = state.copyWith(step: SetupStep.pickWifi, info: info);
+      unawaited(_readPhoneSsid());
       await refreshWifi();
     } on BoardSetupFailure catch (e) {
       _fail(e.message);
     }
+  }
+
+  Future<void> _readPhoneSsid() async {
+    final ssid = await ref.read(phoneWifiRepositoryProvider).currentSsid();
+    if (ssid != null && ref.mounted) state = state.copyWith(phoneSsid: ssid);
   }
 
   /// Opens the network page for [network].

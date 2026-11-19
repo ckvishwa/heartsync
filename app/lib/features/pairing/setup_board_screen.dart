@@ -188,12 +188,29 @@ class _NetworkList extends StatelessWidget {
               style: Theme.of(context).textTheme.labelMedium,
             ),
           ),
-        for (final n in s.networks)
+        if (s.phoneSsid != null && !s.scanningWifi && !s.networks.any((n) => n.ssid == s.phoneSsid))
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              'Your phone is on "${s.phoneSsid}", but the board cannot see it. The board '
+              'needs a 2.4 GHz network; pick another or use Other network...',
+              key: const ValueKey('phone-ssid-missing'),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+        for (final n in [
+          ...s.networks.where((n) => n.ssid == s.phoneSsid),
+          ...s.networks.where((n) => n.ssid != s.phoneSsid),
+        ])
           ListTile(
             key: ValueKey('net-${n.ssid}'),
             leading: Icon(_wifiIcon(n.bars)),
             title: Text(n.ssid),
-            subtitle: Text('${n.signalLabel}${n.open ? ', open' : ''}'),
+            selected: n.ssid == s.phoneSsid,
+            subtitle: Text(
+              '${n.ssid == s.phoneSsid ? "Your phone's network. " : ""}'
+              '${n.signalLabel}${n.open ? ', open' : ''}',
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

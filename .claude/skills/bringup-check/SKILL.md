@@ -1,4 +1,5 @@
 ---
+name: bringup-check
 description: Walk the hardware bring-up checklist one part at a time
 argument-hint: [part name, optional]
 ---

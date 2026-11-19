@@ -23,6 +23,7 @@ user's go.
 - `cad/`: enclosure parameters, Fusion 360 scripts, print profiles.
 - `tools/`: repo-wide scripts (`pixel2header.py`, `seed_couple.py`).
 - `docs/`: PRD, architecture, phases, protocol, ADRs, hardware docs.
+- `Hardware/heartsync_kicad/`: carrier PCB (KiCad 10, SKiDL netlist, placement scripts).
 
 Each package has its own `CLAUDE.md`. Read it before working there.
 

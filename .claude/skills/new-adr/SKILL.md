@@ -1,4 +1,5 @@
 ---
+name: new-adr
 description: Create the next numbered ADR from the template
 argument-hint: <short title>
 ---

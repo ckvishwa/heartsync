@@ -45,3 +45,14 @@ cad/exports/*
 .idea/
 .DS_Store
 Thumbs.db
+
+# KiCad
+*-backups/
+_autosave-*
+*.lck
+fp-info-cache
+*.kicad_prl
+.history/
+
+# CAD renders (PNG intermediates)
+cad/renders/_png/

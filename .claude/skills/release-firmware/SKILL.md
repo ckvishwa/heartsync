@@ -1,6 +1,8 @@
 ---
+name: release-firmware
 description: Build, sign, record, and version-bump a firmware release
 argument-hint: <version, e.g. 0.2.0>
+disable-model-invocation: true
 ---
 
 Release firmware version "$ARGUMENTS".

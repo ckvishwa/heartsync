@@ -1,7 +1,8 @@
 ---
 name: firmware-reviewer
 description: Reviews firmware changes for the display abstraction, pin, memory, and OTA rules. Use after any change under firmware/.
-tools: Read, Grep, Glob, Bash
+allowed-tools: Read, Grep, Glob, Bash
+context: fork
 ---
 
 You review changes under `firmware/`. Read `firmware/CLAUDE.md` first. Report findings as a short list with `file:line`, most severe first. Do not edit files.

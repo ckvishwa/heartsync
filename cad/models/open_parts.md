@@ -1,5 +1,21 @@
 # Open parts: two options each
 
+## Picked (2026-11-19), in the assembly
+
+| Part | Pick | Notes |
+|---|---|---|
+| Cell | LiPol **LP1160100** (100 +-1 x 60 +-0.5 x 11 +-0.3) | Modelled at its max envelope; swell gap measured above 11.3. Order with a 10 k NTC and a JST lead (the LiPol datasheet says NTC: no) |
+| OLED | Newhaven **NHD-2.7-12864WDW3** | Module 82 x 47.5 x 6.7 deep; clashes listed in the handoff |
+| GNSS | Taoglas **SGGP.12.4.A.02** | SMD: needs a ground-plane board (16 x 13 modelled) |
+| LTE flex | Molex **212570-0100** | Fits the top wall (X -28.2..12.2, Z 11.9..27.3, no clash). **But it covers 824-960 / 1710-2170 MHz only: no 700 MHz LTE-M bands** (B12/B13/B28/B85). See the alternative below |
+
+**LTE alternative with the 700 MHz bands, same spot:** Linx (TE) **ANT-5GLFPC1-UFL-100**, flex
+with a 100 mm U.FL cable, 698-960 MHz plus the upper bands. Sources disagree on its size
+(39 x 15 x 0.2 or 42 x 12 x 0.2), and both fit the 40.4 x 15.4 spot. Its low-band efficiency is
+low (about 18 %, -8 dBi peak), as any 40 mm antenna is at 700 MHz. Pick by carrier: keep the
+Molex if the network uses only B3/B5/B8/B20, take the Linx if it needs B12/B13/B28/B85. A 90 to
+96 mm flex (Ezurio Revie Flex, Taoglas FXUB63) performs better but does not fit the top wall.
+
 Collected 2026-11-19 from maker and distributor pages. Prices are single-unit list prices
 as found that day (marketplace prices move a lot): check before ordering. **Nothing has been
 bought.** "STEP" means a free STEP from the maker or an official library, checked; "not
@@ -12,15 +28,13 @@ checked" means the maker may have one behind a login.
 | A | LP1160100, 3.7 V 10,000 mAh, PCM, 10 k NTC, Molex 51021-0300 | 11 x 60 x 100 | not listed (a 1160100 with PCM sells for $19.99 on Tindie) | no | https://www.lipobattery.us/cb-iec62133-un38-3-msds-certified-lp1160100-10000mah-3-7v-37wh-lipo-battery-with-pcm-and-wires-and-10k-ntc-and-molex-51021-0300/ |
 | B | LP1260100, 3.7 V 10,000 mAh, PCM, 10 k NTC, JST PHR-3 | 12 x 60 x 100 | not listed | no | https://www.lipolbattery.com (LP1260100 datasheet) |
 
-Leaning **A** (11 mm nominal, CB/IEC 62133/UN38.3 paperwork), with these checks before
-choosing either (from the hardware safety review):
+**A was picked** (see the top of this file). Resolved by the LiPol drawing:
 
-- **Thickness:** size the swell gap from the datasheet's *maximum* thickness, not the nominal.
-  The model allows 12.0 (Z 1..13) + 0.2 insulator + 1.2 gap. B at 12 nominal plus a typical
-  +0.3 to +0.5 tolerance eats into the 1.2 mm gap, possibly below the 1 mm minimum.
-- **Length:** check whether the 100 mm includes the folded PCM and tabs. The placeholder is
-  95 + 5 seal, the Qi2 TX board sits 5 mm off the cell end, and the PD board already
-  overhangs the seal end by about 11.5 mm: re-check both gaps against the real drawing.
+- **Thickness:** 11 +-0.3, so the model uses 11.3 (Z 1.0..12.3) + 0.2 insulator + 1.2 gap; the
+  board layer moved down to Z 13.7.
+- **Length:** 100 +-1 includes the folded PCM, so the model uses 101 (X -54.5..46.5). The vertical
+  Qi TX board is 4.5 mm off the cell end (5.3 to its far face); the PD board's hot parts move to
+  X >= 47 with a barrier (`docs/hardware/board-plans.md`).
 - **Connector:** the safety rule says a JST connector on the battery. A ships with a Molex
   51021-0300 (PicoBlade); B has a JST PHR-3. Ask for a JST lead on A, or record an
   exception in an ADR. The PD board header must match.
@@ -91,19 +105,25 @@ waterproof USB-C. Before choosing, check against the charger IC's datasheet:
 - dock pogo pads stay dead until the device is seated (the IP5328P can feed power back
   out of its USB-C/VBUS path).
 
-## Qi2 transmitter coil + driver
+## Qi transmitter: magnetic modules (coil + magnets + driver), no Qi2 certification needed
+
+Current model envelope: coil + magnet ring dia 55-56, 2.8 deep behind the front wall at
+X 43; vertical TX board 30 x 20 at X 51.8.
 
 | | Part | Size (mm) | Price | STEP | Link |
 |---|---|---|---|---|---|
-| A | ConvenientPower CPS823x Qi2 MPP TX module (coil + magnet ring, sealed) | coil loop dia 39 (module size not published) | not listed (Alibaba MPP TX PCBAs $6 to $12) | no | https://fcc.report/FCC-ID/K7SWIC008V2/7368098.pdf |
-| B | Infineon REF_WLC_TX15W_M1 Qi2-capable 15 W TX reference board | under 43 dia | not listed | not checked | https://www.infineon.com/cms/en/product/evaluation-boards/ref_wlc_tx15w_m1 |
+| A | Huagon Charging 15 W magnetic wireless charging module (coil + N52 magnet ring + TX PCBA; Qi2 and non-certified versions) | coil dia 55 (customisable), PCBA 40 x 30 x 3, 2-8 mm charging distance | quote, MOQ 100 | no | https://www.huagoncharging.com/product/qi-2-magnetic-fast-wireless-charging-module-magnet-transmitter-receiver-15w-fast-qi-2-two-magnetic-wireless-charger-module.html |
+| B | Generic 15 W Qi TX PCBA + 50 mm coil (5-12 V in), plus a separate N52 ring (OD 56 / ID 44 x 1.5, the magnet makers' Qi2-style spec) | PCBA about 45 x 30 x 2.7, coil dia 50 | PCBA about $6-23, ring about $1-3 | no | https://cowinlink.com/product/15w-qi-fast-wireless-charger-pcba-circuit-board-transmitter-module-coil-charging/ and https://www.aimmagnetic.com/qi2-magnet-ring-specifications-the-precision-engineering-behind-25w-wireless-charging |
+| C | Wurth WE-WPCC transmitter coil 760308111 + a TX driver reference design + the same N52 ring | coil 53 x 53 x 6 | coil about $10 | Wurth publishes STEP behind its catalog login (not checked) | https://www.we-online.com/katalog/datasheet/760308111.pdf |
 
-The weakest category: no Qi2 MPP TX part publishes both a dimensioned drawing and a price.
-Ask ConvenientPower or Generalplus (AH222-A, Qi2 certified, USB PD 9 V input) for a
-datasheet and quote before the coil position is fixed. Also ask for:
+Recommend **A** if the PCBA can be re-shaped to the 30 x 20 vertical slot (Huagon offers
+customisation), else **C** for a documented coil (datasheet, inductance, Q) with our own driver.
+A's 40 x 30 PCBA does not fit the current 30 x 20 slot as is. **B** is the cheapest bench test.
+None publish a STEP: model the coil and ring from the drawing on arrival. For any of them, also ask
+for:
 
 - thermal shutdown, foreign object detection, and the coil temperature sensor;
-- a way to cut TX from the cell's NTC (the coil ferrite overlaps the cell by 26 mm);
+- a way to cut TX from the cell's NTC (the coil ferrite is over the cell for 31.5 mm in X, X 15..46.5, 12.5 mm above it);
 - where its 9 V comes from: USB PD in from the wall, or a boost from the cell (more heat
   next to the cell).
 

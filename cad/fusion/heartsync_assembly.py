@@ -13,13 +13,17 @@ Builds (one run, rebuildable):
     magnet pockets (1.6 mm skin); both ENDS as a 237-hole honeycomb, thinned to 1.2 mm in
     front of the speaker, with an ePTFE membrane; carrier bosses H3/H4 with press-fit pins;
     LRA fin; Wi-Fi hook clips; 4 corner bosses for M2 heat-set inserts
-  * lid: 1.2 mm tongue (0.15 clearance, interrupted behind the speakers), continuous 1 mm
-    gasket channel, screw pads with counterbores, foot pockets over the screws, plate recess
+  * lid (3.0, bare PETG): 1.2 mm tongue (0.15 clearance, interrupted behind the speakers),
+    continuous 1 mm gasket channel, screw pads and holes (no counterbore: low-head heads sit
+    under the back ring), back-ring channel, engraved ID block (text from params.csv)
+  * back ring: continuous TPU ring (own STL) over the screws, 1.5 proud
   * bracket: separate clip-in part that holds the carrier at H1/H2 (under the OLED)
-  * internals: cell on a foam pad, insulator, swell-gap keep-out, front Qi2 coil + NTC,
-    vertical Qi2 TX board, PD board + USB-C, SIM7080G board, GNSS patch, LTE flex,
-    Wi-Fi FlexPIFA + tape + coax, CES-571423-28PMB speakers + foam gaskets, OLED, touch strip,
-    mic, light sensor, button strip, pogo pads, dock magnets, rubber feet, plate
+  * real parts imported from cad/models (see REAL): LP1160100 cell (max envelope), Amphenol
+    waterproof USB-C, CES-571423-28PMB speakers (ears cut) in printed cradles with foam,
+    NHD-2.7 OLED module, Adafruit ICS-43434 mic and VEML7700 boards, PTS645 tactiles,
+    PS-7054 latching mute, FlexPIFA, SGGP GNSS patch, Molex 212570 LTE flex, pogo pads, magnets
+  * stand-ins still (no part chosen or no model): front Qi2 coil + NTC, vertical Qi2 TX board,
+    PD board, SIM7080G board, LRA, touch strip, button strip, GNSS ground-plane board
   * the real carrier board, imported from cad/heartsync_carrier.step
   * checks: fit (interference), clearance rules, grille open area, stack; then grouping,
     side names and finishes, labels (hidden)
@@ -62,7 +66,6 @@ PALETTE = {
     "petg_bare": "#1A1A1A",      # BOTTOM edge, ENDS and inside faces (the tray filament)
     "oled_glass": "#050505",
     "ring_inlay": "#C9A227",     # front ring = Qi2 marking, satin gold
-    "plate": "#D6D6D6",          # "made with love", brushed aluminium
     "buttons": "#CBBFAE",        # soft-touch, shell colour
     "mute_cap": "#E24B4A",
     "grille_mesh": "#2E2E2E",    # ePTFE membrane behind the honeycomb
@@ -73,7 +76,7 @@ PALETTE = {
 # ----------------------------------------------------------------------
 # PARAMETERS (cad/params.csv)
 # ----------------------------------------------------------------------
-PARAMS, PARAM_NOTES = {}, []
+PARAMS, PARAM_STR, PARAM_NOTES = {}, {}, []
 
 
 def _load_params():
@@ -84,7 +87,7 @@ def _load_params():
                 try:
                     PARAMS[r["name"]] = float(r["value"])
                 except (TypeError, ValueError):
-                    pass
+                    PARAM_STR[r["name"]] = r["value"]
     except OSError:
         PARAM_NOTES.append("params.csv not found: all defaults used")
 
@@ -100,21 +103,29 @@ def prm(name, default):
     return v
 
 
+def prm_str(name, default):
+    v = PARAM_STR.get(name)
+    if v is None:
+        PARAM_NOTES.append("%s missing: default %r" % (name, default))
+        return default
+    return v
+
+
 _load_params()
 
 LENGTH = prm("body_length", 152.0)
 WIDTH = prm("body_width", 72.5)
-THICKNESS = prm("body_thickness", 32.0)
+THICKNESS = prm("body_thickness", 32.8)
 WALL = prm("wall_thickness", 2.2)
-LID = prm("lid_thickness", 2.2)
+LID = prm("lid_thickness", 3.0)
 CORNER_R = prm("corner_radius", 6.0)
 FABRIC = prm("fabric_allowance", 0.6)
 SWELL = prm("battery_swell_gap", 1.2)
 INSUL = prm("cell_insulator_top", 0.2)
 CELL_PAD = prm("cell_pad", 1.0)
-CELL_L = prm("battery_length", 95.0)        # placeholder until the cell is chosen
-CELL_W = prm("battery_width", 60.0)
-CELL_T = prm("battery_thickness", 12.0)
+CELL_L = prm("battery_length", 101.0)       # LP1160100 MAX envelope (100 +-1 x 60 +-0.5 x 11 +-0.3)
+CELL_W = prm("battery_width", 60.5)
+CELL_T = prm("battery_thickness", 11.3)
 PCB_T = prm("pcb_thickness", 1.6)
 
 LIP_W = prm("lip_width", 1.2)
@@ -127,9 +138,27 @@ INSERT_D = prm("insert_hole_d", 3.2)
 INSERT_DEPTH = prm("insert_hole_depth", 4.0)
 BOSS_INS_D = prm("insert_boss_d", 5.6)
 SCREW_D = prm("screw_clearance_d", 2.4)
-CBORE_D = prm("screw_counterbore_d", 4.0)
-CBORE_DEPTH = prm("screw_counterbore_depth", 1.4)
 SCREW_PAD = prm("screw_pad_h", 1.5)
+SCREW_X = prm("screw_x", 66.0)
+SCREW_Y = prm("screw_y", 31.6)
+HEAD_D = prm("screw_head_d", 3.8)
+HEAD_H = prm("screw_head_h", 1.3)
+
+# back: continuous TPU ring in a channel (replaces the feet), engraved ID block
+BR_W = prm("back_ring_width", 4.0)
+BR_INSET = prm("back_ring_inset", 2.5)
+BR_R = prm("back_ring_corner_r", 6.0)
+BR_CH = prm("back_ring_channel", 1.0)
+BR_PROUD = prm("back_ring_proud", 1.5)
+BR_POCKET_D = prm("back_ring_pocket_d", 4.4)
+BR_POCKET_H = prm("back_ring_pocket_h", 1.5)
+ID_L = prm("id_block_length", 26.0)
+ID_W = prm("id_block_width", 11.0)
+ID_DEPTH = prm("id_text_depth", 0.3)
+ID_TEXT = [prm_str("id_text_1", "HeartSync"), prm_str("id_text_2", "1 / 2"),
+           prm_str("id_text_3", "made with love 2026")]
+CRADLE_T = prm("speaker_cradle_wall", 1.5)
+SPK_FOAM = prm("speaker_foam", 1.0)
 
 FIT_BTN = prm("fit_button", 0.2)
 FIT_USB = prm("fit_usb_c", 0.3)
@@ -141,12 +170,6 @@ RING_OD = prm("ring_od", 56.0)
 RING_W = prm("ring_width", 1.0)
 RING_DEPTH = prm("ring_depth", 0.6)
 
-PLATE_L = prm("plate_length", 30.0)
-PLATE_W = prm("plate_width", 10.0)
-PLATE_RECESS = prm("plate_recess", 0.6)
-PLATE_T = prm("plate_thickness", 0.5)
-PLATE_TEXT = prm("plate_text_depth", 0.2)
-
 HC_HEX = prm("honeycomb_hex", 1.8)
 HC_PITCH = prm("honeycomb_pitch", 2.6)
 HC_WALL = prm("honeycomb_wall", 1.2)
@@ -156,9 +179,6 @@ SPK_L = prm("speaker_length", 57.5)          # along Y
 SPK_H = prm("speaker_height", 23.0)          # along Z
 SPK_D = prm("speaker_depth", 14.85)          # along X
 
-FOOT_D = prm("foot_d", 8.0)
-FOOT_H = prm("foot_h", 3.1)
-FOOT_POCKET = prm("foot_pocket_depth", 1.0)
 POGO_D = prm("pogo_pad_d", 2.5)
 MAG_D = prm("dock_magnet_diameter", 6.0)
 MAG_T = prm("dock_magnet_thickness", 2.0)
@@ -172,7 +192,7 @@ GNSS_T = prm("gnss_patch_t", 4.0)
 POS = {
     "cell": (-4.00, 0.00),
     "coil": (43.00, 0.00),
-    "oled": (-34.50, 4.00),
+    "oled": (-32.50, 4.00),
     "carrier": (-36.00, 30.00),
     "pd_board": (46.38, 20.25),
     "usb_c": (46.00, 0.00),
@@ -180,7 +200,7 @@ POS = {
     "sim_board": (-42.25, -24.25),
     "wifi": (-24.95, -27.55),
     "gnss": (-60.00, -27.50),
-    "lte": (-8.00, 20.00),
+    "lte": (-8.00, 19.60),
     "lra": (22.25, -29.00),
     "buttons": (-70.00, 0.00),
 }
@@ -196,12 +216,12 @@ CAV_Y = WIDTH / 2.0 - WALL                  # inside face of TOP/BOTTOM walls (3
 
 Z_CELL = CELL_PAD
 CELL_TOP = Z_CELL + CELL_T
-ABOVE = CELL_TOP + INSUL + SWELL            # board layer bottom (14.4)
+ABOVE = CELL_TOP + INSUL + SWELL            # board layer bottom (13.7 with the max cell)
 PCB_TOP = ABOVE + PCB_T
 
 CELL_CX, CELL_CY = POS["cell"]
-CELL_X0 = CELL_CX - (CELL_L + 5.0) / 2.0    # body + 5 mm seal edge
-CELL_X1 = CELL_X0 + CELL_L + 5.0
+CELL_X0 = CELL_CX - CELL_L / 2.0            # PCM folded inside the length, at the +X end
+CELL_X1 = CELL_X0 + CELL_L
 
 COIL_CX, COIL_CY = POS["coil"]
 COIL_Z0 = INNER - 2.8                       # ferrite bottom (24.8)
@@ -238,10 +258,12 @@ SPK_FACE_X = WALL_THIN_X - MEMBRANE - SPK_GASKET     # 73.6
 SPK_Z0 = 0.3                                # below the honeycomb centre: the GNSS patch clears it
 SPK_CY = 0.0
 
-# top edge
-USB = (8.94, 3.26, 7.35)                    # receptacle W x H x depth
+# top edge. Amphenol 124019572112A, mid-mount: front rim 10.2 x 3.6, PCB top 0.75 below its
+# centreline (wing underside in the STEP). The rim sits on the inside gasket; the plug enters
+# through the wall opening.
+USB = (10.2, 3.6, 7.86)                     # receptacle front rim W x H, depth
 USB_X = POS["usb_c"][0]
-USB_ZC = PCB_TOP + USB[1] / 2.0
+USB_ZC = PCB_TOP + 0.75
 BTN_ZC = 19.7                               # strip bottom 16.2, above the carrier top (16.0)
 BTN_X0 = POS["buttons"][0]
 BTN_GAP = 0.8
@@ -260,16 +282,21 @@ MAG_X = (-58.0, -32.0, 32.0, 58.0)
 MAG_Z = 7.0
 MAG_PAD_D, MAG_PAD_T = 9.0, 1.5
 
-# corner screws / inserts / feet (outside the cell and the speakers)
-SCREWS = [(sx * 66.0, sy * 31.8) for sx in (-1, 1) for sy in (-1, 1)]
+# corner screws / inserts (outside the cell and the speakers), heads under the back ring
+SCREWS = [(sx * SCREW_X, sy * SCREW_Y) for sx in (-1, 1) for sy in (-1, 1)]
 
-WIFI_C, WIFI = POS["wifi"], (40.1, 11.0, 2.5)        # long axis along X
+# Wi-Fi FlexPIFA 001-0014: FPC 40.12 x 11, foam end 2.5 thick; turned 180 deg about Z so the
+# folded end (and the cable) is at -X and the cable runs +Y toward the carrier
+WIFI_C, WIFI = POS["wifi"], (40.12, 11.0, 2.5)
 WIFI_TAPE = 0.2
 WIFI_Z0 = INNER - WIFI_TAPE - WIFI[2]
-WIFI_COAX = [(-10, -21.3, 25.6), (-10, -20.2, 23.4), (-9, -17.5, 21.0), (-6, -14, 21.0),
-             (3, -14, 21.0), (6, -11, 21.0), (3, -8, 21.0), (-6, -8, 21.0), (-9, -5, 21.0),
-             (-6, -2, 21.0), (3, -2, 21.0), (5, 2, 21.0), (1, 8, 21.0), (-6, 14, 21.0),
-             (-11, 21, 21.0), (UFL[0], 25.0, 20.6), (UFL[0], UFL[1], 19.6)]
+_wx, _wy = WIFI_C[0] - (40.685 - 20.06), WIFI_C[1] - (-5.0 - 5.5)     # cable stub end (model)
+_wz = INNER - WIFI_TAPE - 0.565
+WIFI_STUB = 16.0                            # cable inside the antenna STEP (solder to stub end)
+WIFI_COAX = [(_wx, _wy, _wz), (_wx + 0.4, _wy + 0.6, _wz - 2.2), (_wx + 1.5, _wy + 0.4, 21.2),
+             (_wx + 4.5, _wy + 2.5, 20.3), (-40.0, -5.0, 20.3), (-25.0, -1.0, 20.3),
+             (-16.0, 9.0, 20.3), (-13.6, 21.0, 19.6), (UFL[0], UFL[1] - 1.5, PCB_TOP + 2.6),
+             (UFL[0], UFL[1], PCB_TOP + 1.9)]
 
 PHONE_X0 = COIL_CX - 38.5                   # upright 77 x 163 phone on the ring covers X >= 4.5
 
@@ -294,7 +321,7 @@ for _k, _v in PALETTE.items():
     COL[_k] = hex_rgb(_v)
 
 MM = 0.1
-G = {"fails": [], "parts": [], "planes": {}, "apps": {}, "base_app": None}
+G = {"fails": [], "parts": [], "planes": {}, "apps": {}, "base_app": None, "imp": {}, "imp_box": {}}
 
 
 def mm(v):
@@ -758,17 +785,8 @@ def build_tray():
     except Exception:
         G["fails"].append("lra_fin")
 
-    # Wi-Fi FlexPIFA hook clips at both short ends (lip 1.2 thick under the ground plate edge)
-    try:
-        ax0, ax1 = WIFI_C[0] - WIFI[0] / 2.0, WIFI_C[0] + WIFI[0] / 2.0
-        zb = WIFI_Z0 - 1.2
-        tools = [tool_block(ax0 - 0.75, WIFI_C[1], zb, 1.5, 5.0, INNER - zb + 0.3),
-                 tool_block(ax0 + 0.5, WIFI_C[1], zb, 1.0, 5.0, 1.2),
-                 tool_block(ax1 + 0.75, WIFI_C[1], zb, 1.5, 5.0, INNER - zb + 0.3),
-                 tool_block(ax1 - 0.5, WIFI_C[1], zb, 1.0, 5.0, 1.2)]
-        join(tray, tools, "INSIDE_wifi_clips")
-    except Exception:
-        G["fails"].append("wifi_clips")
+    # Wi-Fi FlexPIFA: no clips. The real part is a 0.15 mm FPC with a foam end, held by its
+    # 3M adhesive (datasheet); a hook would sit on the cable at the folded end.
 
     # corner bosses for M2 heat-set inserts, 45 deg chamfer toward the bed (front-down print)
     try:
@@ -814,10 +832,12 @@ def build_lid():
         rounded_rect(s, 0, 0, LENGTH - 2 * (d0 + LIP_W), WIDTH - 2 * (d0 + LIP_W),
                      max(CORNER_R - d0 - LIP_W, 0.5))
         s.isVisible = False
-        tongue = new_bodies(smallest_profile(s), LIP_H, "tool", None, register=False)[0]
+        tongue = new_bodies(smallest_profile(s), LIP_H, "lid_tongue", None, register=False)[0]
         cut(tongue, [tool_block(sx * (LENGTH / 2.0 - 3.0), 0, -0.1, 6.0, 2 * (POCKET_Y + 0.8), LIP_H + 0.2)
                      for sx in (-1, 1)], "BACK_lid_tongue_gaps")
-        join(lid, [tongue], "BACK_lid_tongue")
+        # the gaps split the tongue in two (top and bottom halves): join both to the lid
+        halves = [b for b in comp.bRepBodies if b.name.startswith("lid_tongue")]
+        join(lid, halves, "BACK_lid_tongue")
     except Exception:
         G["fails"].append("lid_tongue")
 
@@ -832,8 +852,9 @@ def build_lid():
     except Exception:
         G["fails"].append("lid_gasket_channel")
 
-    # screw pads (D-shaped: clipped at the tray inner face and at the speaker), holes,
-    # counterbores and foot pockets (the feet cover the screws)
+    # screw pads (D-shaped: clipped at the tray inner face and at the speaker) and clearance
+    # holes. No counterbore: the low-head screw heads sit on the floor of the back-ring channel
+    # and the ring covers them, so nothing thins the lid next to the gasket channel.
     try:
         pads = []
         for (x, y) in SCREWS:
@@ -844,43 +865,50 @@ def build_lid():
                 "BACK_screw_pad_clip")
             pads.append(p)
         join(lid, pads, "BACK_screw_pads")
-        tools = []
-        for (x, y) in SCREWS:
-            tools.append(tool_cyl(x, y, -LID - 0.1, SCREW_D, LID + SCREW_PAD + 0.2))
-            tools.append(tool_cyl(x, y, -LID - 0.1, CBORE_D, FOOT_POCKET + CBORE_DEPTH + 0.1))
-            tools.append(tool_cyl(x, y, -LID - 0.1, FOOT_D + 0.2, FOOT_POCKET + 0.1))
-        cut(lid, tools, "BACK_screws_and_feet")
+        cut(lid, [tool_cyl(x, y, -LID - 0.1, SCREW_D, LID + SCREW_PAD + 0.2) for (x, y) in SCREWS],
+            "BACK_screw_holes")
     except Exception:
         G["fails"].append("lid_screws")
 
-    # plate recess (pill), centred on the back
+    # back-ring channel: continuous, BR_W wide, outer edge BR_INSET in from the outline
     try:
         s = comp.sketches.add(plane_at(-LID))
-        rounded_rect(s, 0, 0, PLATE_L, PLATE_W, PLATE_W / 2.0)
+        rounded_rect(s, 0, 0, LENGTH - 2 * BR_INSET, WIDTH - 2 * BR_INSET, BR_R)
+        rounded_rect(s, 0, 0, LENGTH - 2 * (BR_INSET + BR_W), WIDTH - 2 * (BR_INSET + BR_W),
+                     max(BR_R - BR_W, 0.5))
         s.isVisible = False
-        cut_z(s, s.profiles.item(0), PLATE_RECESS, lid, "BACK_plate_recess", up=True)
+        cut_z(s, smallest_profile(s), BR_CH, lid, "BACK_ring_channel", up=True)
     except Exception:
-        G["fails"].append("plate_recess")
+        G["fails"].append("ring_channel")
 
-    paint(lid, "shell_fabric")
+    # engraved ID block, bottom-right seen from behind (model -X, -Y), inside the ring
+    try:
+        engrave_id(lid)
+    except Exception:
+        G["fails"].append("id_block")
+
+    paint(lid, "petg_bare")
     return lid
 
 
-def build_trim():
+ID_C = (-LENGTH / 2.0 + BR_INSET + BR_W + 1.5 + ID_L / 2.0, -WIDTH / 2.0 + BR_INSET + BR_W + 1.5 + ID_W / 2.0)
+
+
+def engrave_id(lid):
+    """Frame (0.4 wide) and three text lines, ID_DEPTH deep into the back face, mirrored so
+    they read from behind. Text comes from params.csv (id_text_1..3)."""
     comp = G["comp"]
-    # front ring inlay fills the groove exactly
-    cyl("ring_inlay", "ring_inlay", COIL_CX, COIL_CY, TRAY_H - RING_DEPTH, RING_OD, RING_DEPTH,
-        inner=RING_OD - 2 * RING_W)
-    # plate with engraved text, 0.1 below the lid surface
-    try:
-        z = -LID + PLATE_RECESS - PLATE_T
-        s = comp.sketches.add(plane_at(z))
-        rounded_rect(s, 0, 0, PLATE_L - 0.2, PLATE_W - 0.2, (PLATE_W - 0.2) / 2.0)
-        s.isVisible = False
-        plate = new_bodies(s.profiles.item(0), PLATE_T, "plate", "plate")[0]
-        ts = comp.sketches.add(plane_at(z))
-        ti = ts.sketchTexts.createInput2("made with love", mm(3.2))
-        ti.setAsMultiLine(P(-PLATE_L / 2 + 2, -PLATE_W / 2 + 1), P(PLATE_L / 2 - 2, PLATE_W / 2 - 1),
+    cx, cy = ID_C
+    s = comp.sketches.add(plane_at(-LID))
+    rect(s, cx, cy, ID_L, ID_W)
+    rect(s, cx, cy, ID_L - 0.8, ID_W - 0.8)
+    s.isVisible = False
+    cut_z(s, smallest_profile(s), ID_DEPTH, lid, "BACK_id_frame", up=True)
+    rows = ((ID_TEXT[0], 3.0, cy + 2.9), (ID_TEXT[1], 2.4, cy - 0.1), (ID_TEXT[2], 1.9, cy - 3.0))
+    for k, (text, h, ry) in enumerate(rows):
+        ts = comp.sketches.add(plane_at(-LID))
+        ti = ts.sketchTexts.createInput2(text, mm(h))
+        ti.setAsMultiLine(P(cx - ID_L / 2 + 0.8, ry - h / 2 - 0.2), P(cx + ID_L / 2 - 0.8, ry + h / 2 + 0.2),
                           adsk.core.HorizontalAlignments.CenterHorizontalAlignment,
                           adsk.core.VerticalAlignments.MiddleVerticalAlignment, 0)
         txt = ts.sketchTexts.add(ti)
@@ -890,22 +918,42 @@ def build_trim():
             pass
         ts.isVisible = False
         ei = comp.features.extrudeFeatures.createInput(txt, adsk.fusion.FeatureOperations.CutFeatureOperation)
-        ei.setDistanceExtent(False, vi(PLATE_TEXT))
-        ei.participantBodies = [plate]
-        comp.features.extrudeFeatures.add(ei).name = "BACK_plate_text"
+        ei.setOneSideExtent(adsk.fusion.DistanceExtentDefinition.create(vi(ID_DEPTH)),
+                            adsk.fusion.ExtentDirections.PositiveExtentDirection)
+        ei.participantBodies = [lid]
+        comp.features.extrudeFeatures.add(ei).name = "BACK_id_text_%d" % (k + 1)
+
+
+def build_trim():
+    comp = G["comp"]
+    # front ring inlay fills the groove exactly
+    cyl("ring_inlay", "ring_inlay", COIL_CX, COIL_CY, TRAY_H - RING_DEPTH, RING_OD, RING_DEPTH,
+        inner=RING_OD - 2 * RING_W)
+    # continuous TPU back ring (own STL): sits in the lid channel, BR_PROUD above the back face,
+    # pockets in its underside over the low-head screw heads
+    try:
+        z0 = -LID + BR_CH - (BR_CH + BR_PROUD)
+        s = comp.sketches.add(plane_at(z0))
+        rounded_rect(s, 0, 0, LENGTH - 2 * BR_INSET - 0.2, WIDTH - 2 * BR_INSET - 0.2, BR_R - 0.1)
+        rounded_rect(s, 0, 0, LENGTH - 2 * (BR_INSET + BR_W) + 0.2, WIDTH - 2 * (BR_INSET + BR_W) + 0.2,
+                     max(BR_R - BR_W + 0.1, 0.5))
+        s.isVisible = False
+        ring = new_bodies(smallest_profile(s), BR_CH + BR_PROUD, "back_ring", "feet")[0]
+        cut(ring, [tool_cyl(x, y, -LID + BR_CH - BR_POCKET_H, BR_POCKET_D, BR_POCKET_H + 0.1) for (x, y) in SCREWS],
+            "BACK_ring_head_pockets")
     except Exception:
-        G["fails"].append("plate")
-    # rubber feet over the screws, 1.5 proud of the back fabric
-    for (x, y) in SCREWS:
-        cyl("foot", "feet", x, y, -LID + FOOT_POCKET - FOOT_H, FOOT_D, FOOT_H)
-    # USB-C rubber gasket on the inside of the top wall, around the receptacle
+        G["fails"].append("back_ring")
+    # M2 low-head screw heads on the channel floor (for the fit check)
+    for k, (x, y) in enumerate(SCREWS):
+        cyl("screw_head_%d" % (k + 1), "metal", x, y, -LID + BR_CH - HEAD_H, HEAD_D, HEAD_H)
+    # USB-C rubber gasket on the inside of the top wall; the receptacle rim presses on it
     try:
         g = side_body("usb_c_gasket", "usb_c", "y", CAV_Y - 0.4,
                       [("rect", (USB_X - USB[0] / 2 - 2, USB_ZC - USB[1] / 2 - 2),
                         (USB_X + USB[0] / 2 + 2, USB_ZC + USB[1] / 2 + 2))], 0.8)
         hole = side_body("tool", None, "y", CAV_Y - 0.4,
-                         [("rect", (USB_X - USB[0] / 2, USB_ZC - USB[1] / 2),
-                           (USB_X + USB[0] / 2, USB_ZC + USB[1] / 2))], 1.0, register=False)
+                         [("rect", (USB_X - USB[0] / 2 + 0.4, USB_ZC - USB[1] / 2 + 0.4),
+                           (USB_X + USB[0] / 2 - 0.4, USB_ZC + USB[1] / 2 - 0.4))], 1.0, register=False)
         cut(g[0], hole, "TOP_EDGE_usb_gasket_hole")
     except Exception:
         G["fails"].append("usb_c_gasket")
@@ -944,19 +992,18 @@ def build_coil():
 
 
 def build_power():
-    block("cell_pad", "foam", CELL_CX, CELL_CY, 0.0, CELL_L + 5.0, CELL_W, CELL_PAD)
-    body_cx = CELL_X0 + CELL_L / 2.0
-    block("cell_10000mAh", "cell", body_cx, CELL_CY, Z_CELL, CELL_L, CELL_W, CELL_T)
-    block("cell_seal_edge", "cell_seal", CELL_X1 - 2.5, CELL_CY, Z_CELL + 5.5, 5.0, CELL_W, 1.0)
-    block("cell_protection_pcb", "pcb", CELL_X1 - 2.5, CELL_CY, Z_CELL + 6.5, 4.0, 40.0, 1.2)
-    block("cell_insulator", "insul", body_cx, CELL_CY, CELL_TOP, CELL_L, CELL_W, INSUL)
-    for b in block("keepout_swell_gap", "red", CELL_CX, CELL_CY, CELL_TOP + INSUL, CELL_L + 5.0, CELL_W, SWELL):
+    block("cell_pad", "foam", CELL_CX, CELL_CY, 0.0, CELL_L, CELL_W, CELL_PAD)
+    # LiPol LP1160100 at its MAX envelope (101 x 60.5 x 11.3), PCM end and leads at +X
+    place_step("cell", "cell", ("-X", "-Y", "Z"), (0.0, 0.0, 0.0), (CELL_X1, CELL_CY, Z_CELL))
+    block("cell_insulator", "insul", CELL_CX, CELL_CY, CELL_TOP, CELL_L, CELL_W, INSUL)
+    for b in block("keepout_swell_gap", "red", CELL_CX, CELL_CY, CELL_TOP + INSUL, CELL_L, CELL_W, SWELL):
         b.isLightBulbOn = False
 
     # PD board (IP5328P) top-right, USB-C on the TOP edge; hot parts off the cell (X > 46)
     px, py = POS["pd_board"]
     block("pd_board", "pcb", px, py, ABOVE, 23.75, 24.5, PCB_T)
-    block("pd_usb_c", "metal", USB_X, (WIDTH / 2.0 - 0.7) - USB[2] / 2.0, PCB_TOP, USB[0], USB[2], USB[1])
+    # Amphenol 124019572112A: mouth (+X in the file) toward the TOP wall, rim on the gasket
+    place_step("usb_c", "usb_c", ("Y", "-X", "Z"), (-2.75, 13.0, 0.0), (USB_X, CAV_Y - 0.8, USB_ZC))
     block("pd_ip5328p", "chip", px + 5.6, py + 4.0, PCB_TOP, 5.0, 5.0, 0.9)
     block("pd_inductor", "ferrite", px + 5.6, py - 6.0, PCB_TOP, 6.0, 6.0, 3.0)
     grid("pd_caps", "passive", PCB_TOP, [(px - 4.0, py - 8.0, 3.2, 1.6), (px - 4.0, py + 1.0, 3.2, 1.6)], 1.6)
@@ -976,22 +1023,50 @@ def build_lte_gnss():
     block("sim7080g_module", "metal", sx - 6.75, sy + 0.05, ABOVE + 1.0, 17.6, 15.7, 2.3)
     block("nano_sim_holder", "metal", sx + 9.25, sy - 1.75, ABOVE + 1.0, 12.5, 13.0, 1.4)
     grid("ufl_connectors", "gold", ABOVE + 1.0, [(sx + 3.75, sy + 6.75, 2.0, 2.0), (sx + 6.75, sy + 6.75, 2.0, 2.0)], 1.2)
-    # GNSS patch 12 x 12 x 4 on the FRONT wall (sky when lying on the back), feed pin off-centre
+    # GNSS: Taoglas SGGP.12.4.A.02 SMD patch on the FRONT wall (sky when lying on the back),
+    # soldered to a small ground-plane board (our part, 16 x 13 x 1.0) behind it
     gx, gy = POS["gnss"]
-    block("gnss_patch_ceramic", "ceramic", gx, gy, INNER - GNSS_T, GNSS, GNSS, GNSS_T - 0.05)
-    block("gnss_patch_silver", "metal", gx, gy, INNER - 0.05, GNSS - 3.0, GNSS - 3.0, 0.05)
-    cyl("gnss_feed_pin", "gold", gx + 4.0, gy, INNER - GNSS_T - 1.0, 1.2, 1.0)
-    # LTE flex on the TOP wall inner face
+    place_step("gnss_patch", "gnss", ("X", "Y", "Z"), (0.0, 0.0, GNSS_T), (gx, gy, INNER))
+    block("gnss_board", "pcb", gx, -CAV_Y + 0.05 + 6.5, INNER - GNSS_T - 1.0, 16.0, 13.0, 1.0)
+    # LTE: Molex 212570-0100 side-fed flex (40.4 x 15.4) on the TOP wall inner face, adhesive
+    # side on the wall, cable leaving the +X end (STEP cropped 6.6 mm past the flex)
     lx, lz = POS["lte"]
-    block("lte_flex_antenna", "black", lx, CAV_Y - 0.15, lz - 4.0, 40.0, 0.3, 8.0)
+    place_step("lte_flex", "lte", ("X", "-Y", "-Z"), (20.2, -0.18, -7.5), (lx, CAV_Y, lz))
 
 
 def build_speakers():
-    """CES-571423-28PMB enclosed speakers, long side along Y, sealed to the membrane."""
+    """CES-571423-28PMB enclosed speakers (ears cut off), cone face (file -Z) on the face gasket
+    and membrane, long side along Y. Each is held by a printed cradle (own STL): a 1.5 mm back
+    plate pressing a foam pad on the speaker back, and two arms that bear on the end wall beside
+    the honeycomb pocket. The loop closes through the end wall, so nothing else holds it."""
     for side, tag in ((1, "R"), (-1, "L")):
         xf = side * SPK_FACE_X
-        block("speaker_" + tag, "speaker", xf - side * SPK_D / 2.0, SPK_CY, SPK_Z0, SPK_D, SPK_L, SPK_H)
+        axes = ("-Y", "Z", "-X") if side > 0 else ("Y", "Z", "X")
+        place_step("speaker_" + tag, "speaker", axes, (28.7, 11.5, 0.03), (xf, SPK_CY, SPK_Z0 + 11.5))
         y0, y1, z1 = SPK_CY - SPK_L / 2, SPK_CY + SPK_L / 2, SPK_Z0 + SPK_H
+        xb = xf - side * SPK_D                       # speaker back face
+        # foam pad on the back, then the cradle back plate (the four strips fill in) and arms
+        side_body("speaker_foam_" + tag, "foam", "x", xb - side * SPK_FOAM / 2.0,
+                  [("rect", (y0 + 1.5, SPK_Z0 + 1.0), (y1 - 1.5, z1 - 1.0))], SPK_FOAM - 0.1)
+        xm = xb - side * (SPK_FOAM + CRADLE_T / 2.0)
+        frame = side_body("speaker_cradle_" + tag, "petg_bare", "x", xm,
+                          [("rect", (y0, SPK_Z0), (y1, SPK_Z0 + 3.0)), ("rect", (y0, z1 - 3.0), (y1, z1)),
+                           ("rect", (y0, SPK_Z0 + 3.0), (y0 + 3.0, z1 - 3.0)),
+                           ("rect", (y1 - 3.0, SPK_Z0 + 3.0), (y1, z1 - 3.0)),
+                           ("rect", (y0 - 1.7, 8.0), (y0, 15.0)), ("rect", (y1, 8.0), (y1 + 1.7, 15.0))],
+                          CRADLE_T)
+        try:
+            xa0, xa1 = xm - side * CRADLE_T / 2.0, side * (CAV_X - 0.05)
+            arms = [tool_block((xa0 + xa1) / 2.0, sy * (SPK_L / 2.0 + 0.2 + 0.75), 8.0, abs(xa1 - xa0), 1.5, 7.0)
+                    for sy in (-1, 1)]
+            if len(frame) > 1:
+                rest = frame[1:]
+                G["parts"] = [b for b in G["parts"] if all(b != r for r in rest)]
+                join(frame[0], rest, "SPEAKER_cradle_frame_" + tag)
+            frame[0].name = "speaker_cradle_" + tag
+            join(frame[0], arms, "SPEAKER_cradle_arms_" + tag)
+        except Exception:
+            G["fails"].append("speaker_cradle_" + tag)
         z0 = max(SPK_Z0, POCKET_Z[0])       # ring sits on the face, above the rim ledge
         side_body("speaker_gasket_" + tag, "foam", "x", xf + side * SPK_GASKET / 2.0,
                   [("rect", (y0, z0), (y1, z0 + 2)), ("rect", (y0, z1 - 2), (y1, z1)),
@@ -1002,43 +1077,49 @@ def build_speakers():
 
 
 def build_ui():
-    block("oled_glass", "oled_glass", DCX, DCY, GLASS_Z, GLASS[0], GLASS[1], GLASS[2])
-    gy0 = DCY - GLASS[1] / 2.0
-    block("oled_fpc_flat", "fpc", DCX, gy0 + 3.55, GLASS_Z - 0.3, 20.0, 7.0, 0.3)
-    drop = (GLASS_Z - 0.3) - (PCB_TOP + 2.0)
-    if drop > 0.2:
-        block("oled_fpc_drop", "fpc", DCX, CAR_Y1 - 45.0 - 0.15, PCB_TOP + 2.0, 20.0, 0.3, drop)
+    # Newhaven NHD-2.7-12864WDW3 module: glass face (file -Z) on the front wall inner face,
+    # flex tail (file -Y edge) toward the carrier's bottom edge
+    place_step("oled", "oled", ("-X", "Y", "-Z"), (33.85, 46.22, 54.23), (DCX, DCY, INNER))
     block("touch_strip_pcb", "copper", STRIP_C[0], STRIP_C[1], INNER - 1.6, 40.0, 5.0, 1.6)
-    block("mic_inmp441_pcb", "mic_pcb", -66.5, 29.5, INNER - 2.6, 8.0, 8.0, 1.6)
-    block("mic_inmp441", "metal", -66.5, 29.5, INNER - 1.0, 4.0, 3.0, 1.0)
-    block("light_veml7700_pcb", "als_pcb", -58.5, 29.5, INNER - 2.6, 7.0, 7.0, 1.6)
-    block("light_veml7700", "white", -58.5, 29.5, INNER - 1.0, 3.0, 2.0, 1.0)
+    # Adafruit 6049 (ICS-43434, bottom port): board underside toward the front-wall hole,
+    # 0.3 foam gasket; mic centre on the hole
+    place_step("mic", "mic", ("-X", "Y", "-Z"), (8.255, 7.11, 0.0), (-66.5, 29.5, INNER - 0.3))
+    # Adafruit 5378 right-angle VEML7700: board at right angles to the front wall, sensor
+    # (file +Y edge) looking out through the light hole
+    place_step("light", "light", ("X", "Z", "-Y"), (12.69, 17.65, 2.82), (-58.5, 29.5, INNER - 0.1))
 
-    # button strip on the TOP wall (left): latching mute + PWR, VOL-, VOL+, PLAY
+    # button strip on the TOP wall (left): latching mute + PWR, VOL-, VOL+, PLAY, parts on the
+    # +Y face of the strip (Y 29.8), actuators toward the top wall
     block("button_strip_pcb", "pcb", (BTN_X0 + BTN_X1) / 2.0, 29.4, BTN_ZC - 3.5, BTN_X1 - BTN_X0, 0.8, 7.0)
     for name, x, w in BUTTONS:
         if name == "mute":
-            block("btn_mute_body", "black", x, 31.9, BTN_ZC - 3.5, 7.0, 4.2, 7.0)
+            # G-Switch PS-7054DVB-6PL: case 7, knob to 12.4 (released); cap as before
+            place_step("btn_mute", "latch", ("X", "-Z", "Y"), (0.0, 0.0, 0.0), (x, 29.8, BTN_ZC))
             block("btn_mute_cap", "mute_cap", x, (34.0 + 36.75) / 2.0, BTN_ZC - 3.2, 6.4, 2.75, 6.4)
         else:
-            block("btn_%s_body" % name, "black", x, 31.55, BTN_ZC - 3.0, w, 3.5, 6.0)
-            block("btn_%s_cap" % name, "buttons", x, (33.3 + 36.75) / 2.0, BTN_ZC - 2.0, 4.0, 3.45, 4.0)
+            # C&K PTS645SM43SMTR92: plunger top 4.3 above the strip; cap starts on the plunger
+            place_step("btn_" + name, "tact", ("X", "-Z", "Y"), (0.0, 0.0, 0.0), (x, 29.8, BTN_ZC))
+            c0 = 29.8 + 4.3
+            block("btn_%s_cap" % name, "buttons", x, (c0 + 36.75) / 2.0, BTN_ZC - 2.0, 4.0, 36.75 - c0, 4.0)
 
     # haptic LRA glued to the fin (disc in the YZ plane)
     lx, ly = POS["lra"]
     side_body("haptic_lra_10mm", "metal", "x", lx, [("circle", (ly, 21.0), 10.0)], 3.5)
 
-    # Wi-Fi FlexPIFA on the FRONT wall, element facing out, ground plate toward the board
-    block("wifi_flexpifa", "flexpifa", WIFI_C[0], WIFI_C[1], WIFI_Z0, WIFI[0], WIFI[1], WIFI[2])
+    # Wi-Fi FlexPIFA 001-0014 on the FRONT wall: adhesive (element) face on the tape, foam end
+    # and cable at -X (turned 180 deg about Z)
+    place_step("wifi_flexpifa", "wifi", ("-X", "-Y", "Z"), (20.06, 5.5, 2.5), (WIFI_C[0], WIFI_C[1], INNER - WIFI_TAPE))
     block("wifi_tape", "white", WIFI_C[0], WIFI_C[1], WIFI_Z0 + WIFI[2], WIFI[0], WIFI[1], WIFI_TAPE)
     wifi_coax()
 
 
 def build_dock():
-    side_body("pogo_pad", "gold", "y", -WIDTH / 2.0 + 1.35,
-              [("circle", (x, POGO_Z), POGO_D) for x in POGO_X], 2.7)
-    side_body("dock_magnet", "magnet", "y", -CAV_Y + MAG_PAD_T - FIT_MAG - MAG_T / 2.0,
-              [("circle", (x, MAG_Z), MAG_D) for x in MAG_X], MAG_T)
+    # pogo target pads (flush with the BOTTOM face) and 6 x 2 magnets in their blind pockets
+    for k, x in enumerate(POGO_X):
+        place_step("pogo_pad_%d" % (k + 1), "pogo_pad", ("X", "-Z", "Y"), (0.0, 0.0, 0.0), (x, -WIDTH / 2.0, POGO_Z))
+    y_lo = -CAV_Y + MAG_PAD_T - FIT_MAG - MAG_T
+    for k, x in enumerate(MAG_X):
+        place_step("dock_magnet_%d" % (k + 1), "magnet", ("X", "-Z", "Y"), (0.0, 0.0, 0.0), (x, y_lo, MAG_Z))
 
 
 def wifi_coax():
@@ -1061,6 +1142,95 @@ def wifi_coax():
         G["parts"].append(b)
     except Exception:
         G["fails"].append("wifi_coax")
+
+
+# ----------------------------------------------------------------------
+# REAL PARTS (STEP files in cad/models)
+# ----------------------------------------------------------------------
+MODELS = os.path.join(CAD, "models")
+AX = {"X": (1, 0, 0), "-X": (-1, 0, 0), "Y": (0, 1, 0), "-Y": (0, -1, 0), "Z": (0, 0, 1), "-Z": (0, 0, -1)}
+# name: (STEP under cad/models, local bbox x0, y0, z0, x1, y1, z1 as measured in the file)
+REAL = {
+    "speaker": ("speaker_ces-571423-28pmb/ces-571423-28pmb_ears_cut.step", (-0.08, -0.02, 0.03, 57.48, 23.02, 14.92)),
+    "usb_c": ("usbc_amphenol_124019572112a/124019572112a.step", (-9.76, 6.90, -2.15, -1.90, 19.10, 2.15)),
+    "tact": ("btn_tact_pts645sm43smtr92/pts645sm43smtr92_kicad.step", (-4.5, -3.0, 0.0, 4.5, 3.0, 4.3)),
+    "latch": ("btn_latch_ps-7054dvb-6pl/ps-7054dvb-6pl_from_drawing.step", (-3.5, -3.5, -3.5, 3.5, 3.5, 12.4)),
+    "oled": ("oled_nhd-2.7-12864wdw3/nhd-2.7-12864wdx3.step", (-7.11, 21.90, 54.23, 74.89, 72.39, 60.98)),
+    "mic": ("mic_adafruit-6049_ics-43434/adafruit_6049_ics-43434.step", (0.0, 0.0, -0.07, 16.51, 12.70, 2.53)),
+    "light": ("light_adafruit-5378_veml7700/adafruit_5378_veml7700.step", (0.0, 0.0, 0.0, 25.40, 17.78, 4.53)),
+    "wifi": ("flexpifa_001-0014/flexpifa_001-0014_from_drawing.step", (0.0, -5.0, 0.0, 41.25, 11.0, 2.5)),
+    "gnss": ("gnss_taoglas_sggp.12.4.a.02/sggp.12.4.a.02_from_drawing.step", (-6.0, -6.0, 0.0, 6.0, 6.0, 4.0)),
+    "lte": ("lte_molex_212570-0100/212570-0100_cable_cut.step", (-0.21, -0.18, -15.21, 47.01, 1.40, 0.21)),
+    "cell": ("cell_lipol_lp1160100/lp1160100_from_drawing.step", (-4.0, -30.25, 0.0, 101.0, 30.25, 11.3)),
+    "pogo_pad": ("pogo_pad/pogo_pad_from_params.step", (-1.25, -1.25, 0.0, 1.25, 1.25, 2.2)),
+    "magnet": ("magnet_6x2/magnet_6x2_from_drawing.step", (-3.0, -3.0, 0.0, 3.0, 3.0, 2.0)),
+}
+
+
+def _rot(axes):
+    return [AX[a] for a in axes]
+
+
+def _apply(R, p):
+    return tuple(sum(R[k][i] * p[k] for k in range(3)) for i in range(3))
+
+
+def place_step(name, key, axes, local_ref, world_ref):
+    """Imports cad/models/<REAL[key]> as component `name`. axes = world directions of the
+    file's local X, Y, Z ("X", "-Y", ...); local_ref (file mm) lands on world_ref (model mm).
+    The wrapper is placed before the import (moving it afterwards loses nested parts). Bodies
+    are renamed "<name>|<body>" so the fit check can tell parts apart."""
+    rel, lb = REAL[key]
+    path = os.path.join(MODELS, rel)
+    if not os.path.isfile(path):
+        G["fails"].append("%s (STEP not found: %s)" % (name, rel))
+        return None
+    R = _rot(axes)
+    rl = _apply(R, local_ref)
+    t = [world_ref[i] - rl[i] for i in range(3)]
+    m = adsk.core.Matrix3D.create()
+    m.setWithCoordinateSystem(P(*t), adsk.core.Vector3D.create(*R[0]), adsk.core.Vector3D.create(*R[1]),
+                              adsk.core.Vector3D.create(*R[2]))
+    app = adsk.core.Application.get()
+    occ = G["design"].rootComponent.occurrences.addNewComponent(m)
+    occ.component.name = name
+    opts = app.importManager.createSTEPImportOptions(path)
+    opts.isViewFit = False
+    app.importManager.importToTarget(opts, occ.component)
+    comps = [occ.component] + [o.component for o in occ.component.allOccurrences]
+    seen = set()
+    for c in comps:
+        if c.entityToken in seen:
+            continue
+        seen.add(c.entityToken)
+        for i in range(c.bRepBodies.count):
+            b = c.bRepBodies.item(i)
+            b.name = "%s|%s" % (name, b.name)
+    bodies = occ_bodies(occ)
+    G["imp"][name] = (occ, bodies, rel)
+    # placement check: world bbox against the transformed file bbox
+    corners = [_apply(R, (x, y, z)) for x in (lb[0], lb[3]) for y in (lb[1], lb[4]) for z in (lb[2], lb[5])]
+    exp_lo = [min(c[i] for c in corners) + t[i] for i in range(3)]
+    exp_hi = [max(c[i] for c in corners) + t[i] for i in range(3)]
+    if bodies:
+        lo = [min(getattr(b.boundingBox.minPoint, a) for b in bodies) * 10 for a in "xyz"]
+        hi = [max(getattr(b.boundingBox.maxPoint, a) for b in bodies) * 10 for a in "xyz"]
+        err = max(max(abs(lo[i] - exp_lo[i]), abs(hi[i] - exp_hi[i])) for i in range(3))
+        G["imp_box"][name] = (lo, hi)
+        if err > 0.1:
+            G["fails"].append("%s placed %.2f mm off the expected box" % (name, err))
+    else:
+        G["fails"].append("%s (no bodies imported)" % name)
+    return occ
+
+
+def imp_bodies(n):
+    """Bodies of imported parts named n or n_<suffix>."""
+    out = []
+    for k, (occ, bodies, rel) in G["imp"].items():
+        if k == n or k.startswith(n + "_"):
+            out += bodies
+    return out
 
 
 # ----------------------------------------------------------------------
@@ -1116,28 +1286,110 @@ def body_label(b):
     return "%s/%s" % (ctx.name, b.name) if ctx else b.name
 
 
-def interference_report(design, tray, lid):
-    ents = adsk.core.ObjectCollection.create()
-    ours = G["parts"] + [tray, lid]
-    for b in ours:
-        ents.add(b)
-    carrier = occ_bodies(G["carrier"]) if G.get("carrier") else []
-    for b in carrier:
-        ents.add(b)
-    res = design.analyzeInterference(design.createInterferenceInput(ents))
-    names = set(b.name for b in ours)
-    lines, internal = [], 0
-    for i in range(res.count):
-        r = res.item(i)
-        a, b = r.entityOne, r.entityTwo
-        if a.name not in names and b.name not in names:
+# pairs that touch by design (THT pins through a PCB that has no holes modelled)
+EXPECTED = {("btn_mute", "button_strip_pcb")}
+# parts whose bodies cannot go into one interference run together: the Amphenol USB-C shell
+# (2457 faces) makes analyzeInterference return nothing against its own contacts. Pass 1
+# checks the listed bodies, pass 2 the rest, both against everything else.
+FIT_SPLIT = {"usb_c": ("Body1",)}
+
+
+def _all_bodies(design):
+    """(body proxy, owner) for every visible solid in the design. Owner: the imported part
+    ("name|body"), "carrier" for anything under the carrier occurrence, else the body name."""
+    root = design.rootComponent
+    out = []
+    for i in range(root.bRepBodies.count):
+        b = root.bRepBodies.item(i)
+        out.append((b, b.name.split("|")[0]))
+    for oc in root.allOccurrences:
+        if oc.component.name in ("labels", "net"):
+            continue
+        in_carrier = "carrier:" in oc.fullPathName
+        for i in range(oc.bRepBodies.count):
+            b = oc.bRepBodies.item(i)
+            if not b.isSolid:
+                continue
+            n = b.name
+            out.append((b, "carrier" if in_carrier and "|" not in n else n.split("|")[0]))
+    return out
+
+
+def fit_check(design=None):
+    """Every overlap between different parts, with volume and the overlap box, on the design
+    as it stands (rerun after moving parts by hand). Overlaps inside one imported part or
+    inside the carrier STEP are ignored. Lines are kept in G["clashes"]."""
+    if design is None:
+        design = adsk.fusion.Design.cast(adsk.core.Application.get().activeProduct)
+    found = _all_bodies(design)
+    own = {b.entityToken: o for b, o in found}
+
+    def sub(b, o):
+        return b.name.split("|", 1)[1] if "|" in b.name else ""
+
+    # pass 1 keeps only the listed bodies of a split part, pass 2 only the others
+    passes = [[b for b, o in found if o not in FIT_SPLIT or sub(b, o) in FIT_SPLIT[o]],
+              [b for b, o in found if o not in FIT_SPLIT or sub(b, o) not in FIT_SPLIT[o]]]
+    results, seen = [], set()
+    for bodies in passes:
+        ents = adsk.core.ObjectCollection.create()
+        for b in bodies:
+            ents.add(b)
+        res = design.analyzeInterference(design.createInterferenceInput(ents))
+        if res is None:
+            return "Fit check could not run (analyzeInterference returned nothing for %d bodies)." % len(bodies)
+        for i in range(res.count):
+            r = res.item(i)
+            k = tuple(sorted((r.entityOne.entityToken, r.entityTwo.entityToken)))
+            if k not in seen:
+                seen.add(k)
+                results.append(r)
+
+    def owner(e):
+        o = own.get(e.entityToken)
+        if o:
+            return o
+        if "|" in e.name:
+            return e.name.split("|")[0]
+        # our bodies all have explicit names; generic STEP names belong to the carrier
+        return "carrier" if re.match(r"^(Body\d+|.*:\d+)$", e.name) or e.name not in set(own.values()) else e.name
+
+    pairs, internal, expected = {}, 0, 0
+    for r in results:
+        oa, ob = owner(r.entityOne), owner(r.entityTwo)
+        if oa == ob:
             internal += 1
             continue
-        lines.append("%s x %s (%.3f mm3)" % (body_label(a), body_label(b), r.interferenceBody.volume * 1000.0))
-    note = " (%d carrier-internal overlaps ignored)" % internal if internal else ""
-    if not lines:
-        return "Fit check: 0 clashes%s." % note
-    return "Fit check: %d clashes%s:\n  %s" % (len(lines), note, "\n  ".join(lines))
+        key = tuple(sorted((oa, ob)))
+        ib = r.interferenceBody
+        v = ib.volume * 1000.0
+        bb = ib.boundingBox
+        lo, hi = bb.minPoint, bb.maxPoint
+        near_ufl = abs((lo.x + hi.x) * 5 - UFL[0]) < 3.0 and abs((lo.y + hi.y) * 5 - UFL[1]) < 5.0
+        if key in EXPECTED or tuple(reversed(key)) in EXPECTED or \
+                (key == ("carrier", "wifi_coax") and near_ufl):      # cable into its U.FL plug
+            expected += 1
+            continue
+        if key not in pairs:
+            pairs[key] = [0.0, [lo.x, lo.y, lo.z], [hi.x, hi.y, hi.z], []]
+        p = pairs[key]
+        p[0] += v
+        p[1] = [min(p[1][0], lo.x), min(p[1][1], lo.y), min(p[1][2], lo.z)]
+        p[2] = [max(p[2][0], hi.x), max(p[2][1], hi.y), max(p[2][2], hi.z)]
+        if oa == "carrier" or ob == "carrier":
+            p[3].append(body_label(r.entityOne if oa == "carrier" else r.entityTwo))
+    lines = []
+    for (a, b), (v, lo, hi, cb) in sorted(pairs.items(), key=lambda kv: -kv[1][0]):
+        d = [(hi[k] - lo[k]) * 10 for k in range(3)]
+        what = " [%s]" % ", ".join(sorted(set(x.split("/")[-1] for x in cb))[:4]) if cb else ""
+        lines.append("%s x %s%s: %.2f mm3, overlap %.2f x %.2f x %.2f at X %.1f..%.1f Y %.1f..%.1f Z %.1f..%.1f" % (
+            a, b, what, v, d[0], d[1], d[2], lo[0] * 10, hi[0] * 10, lo[1] * 10, hi[1] * 10, lo[2] * 10, hi[2] * 10))
+    G["clashes"] = lines
+    note = " (%d bodies, %d same-part overlaps ignored, %d expected THT-pin contacts)" % (len(found), internal, expected)
+    msg = ("Fit check: 0 clashes%s." % note) if not lines else \
+        ("Fit check: %d clashing pairs%s:\n  %s" % (len(lines), note, "\n  ".join(lines)))
+    print(msg)
+    return msg
 
 
 def _dist(a, b):
@@ -1146,7 +1398,7 @@ def _dist(a, b):
 
 def clearance_report():
     def named(n):
-        return [b for b in G["parts"] if b.name == n or b.name.startswith(n + "_")]
+        return [b for b in G["parts"] if b.name == n or b.name.startswith(n + "_")] + imp_bodies(n)
 
     car = occ_bodies(G["carrier"]) if G.get("carrier") else []
 
@@ -1157,23 +1409,23 @@ def clearance_report():
         return min(_dist(x, y) for x in A for y in B)
 
     out = ["Clearances (minimum distance, mm):"]
-    rules = [("lte_flex_antenna", x, 10.0) for x in ("pd_usb_c", "pd_inductor", "qi2_ferrite",
-                                                     "qi2_magnet_ring", "qi2_winding", "pogo_pad", "dock_magnet")]
-    rules += [("pd_inductor", a, 15.0) for a in ("wifi_flexpifa", "gnss_patch_ceramic", "lte_flex_antenna")]
-    rules += [("wifi_flexpifa", "oled_glass", 5.0)]
+    rules = [("lte_flex", x, 10.0) for x in ("usb_c", "pd_inductor", "qi2_ferrite",
+                                             "qi2_magnet_ring", "qi2_winding", "pogo_pad", "dock_magnet")]
+    rules += [("pd_inductor", a, 15.0) for a in ("wifi_flexpifa", "gnss_patch", "lte_flex")]
+    rules += [("wifi_flexpifa", "oled", 5.0)]
     for a, b, lim in rules:
         v = d(a, b)
         out.append("  %-18s %-18s %6s  rule >= %2.0f  %s" % (a, b, "%.1f" % v if v is not None else "-", lim,
                                                          "OK" if v is not None and v >= lim else "FAIL"))
-    report = [("wifi_flexpifa", ("cell_10000mAh", "qi2_ferrite", "gnss_patch_ceramic", "sim7080g_module",
-                                 "nano_sim_holder", "pogo_pad", "speaker_L", "lte_flex_antenna")),
-              ("gnss_patch_ceramic", ("cell_10000mAh", "oled_glass", "speaker_L", "sim7080g_module",
-                                      "wifi_flexpifa", "dock_magnet", "mic_inmp441_pcb")),
-              ("lte_flex_antenna", ("cell_10000mAh", "touch_strip_pcb", "button_strip_pcb", "btn_play_body",
-                                    "qi2_ferrite", "pd_usb_c", "pd_inductor")),
-              ("speaker_R", ("qi2_tx_board", "qi2_ferrite", "qi2_magnet_ring", "cell_10000mAh", "pd_board")),
-              ("speaker_L", ("cell_10000mAh", "gnss_patch_ceramic", "sim_board", "btn_mute_body")),
-              ("qi2_ferrite", ("pd_board", "pd_usb_c", "qi2_tx_board", "speaker_R"))]
+    report = [("wifi_flexpifa", ("cell", "qi2_ferrite", "gnss_patch", "sim7080g_module",
+                                 "nano_sim_holder", "pogo_pad", "speaker_L", "lte_flex", "oled")),
+              ("gnss_patch", ("cell", "oled", "speaker_L", "sim7080g_module",
+                              "wifi_flexpifa", "dock_magnet", "mic")),
+              ("lte_flex", ("cell", "touch_strip_pcb", "button_strip_pcb", "btn_play",
+                            "qi2_ferrite", "usb_c", "pd_inductor", "oled")),
+              ("speaker_R", ("qi2_tx_board", "qi2_ferrite", "qi2_magnet_ring", "cell", "pd_board")),
+              ("speaker_L", ("cell", "gnss_patch", "gnss_board", "sim_board", "btn_mute", "oled")),
+              ("qi2_ferrite", ("pd_board", "usb_c", "qi2_tx_board", "speaker_R"))]
     for a, others in report:
         parts = []
         for o in others:
@@ -1205,11 +1457,12 @@ def grille_report():
 
 
 def stack_report():
-    feet = FOOT_H - FOOT_POCKET - FABRIC
-    return ("Stack: shell %.1f + back fabric %.1f + feet %.1f proud of the fabric = %.1f mm (limit 35). "
-            "Cell %.1f..%.1f, insulator to %.1f, swell gap to %.1f, board %.1f..%.1f, coil ferrite %.1f, "
-            "front wall %.1f..%.1f" % (THICKNESS, FABRIC, feet, THICKNESS + FABRIC + feet, Z_CELL, CELL_TOP,
-                                       CELL_TOP + INSUL, ABOVE, ABOVE, PCB_TOP, COIL_Z0, INNER, TRAY_H))
+    return ("Stack: shell %.1f (tray %.1f + lid %.1f) + back ring %.1f proud = %.1f mm (limit 35; back is bare "
+            "PETG). Cell (max %.1f) %.1f..%.1f, insulator to %.1f, swell gap %.1f to %.1f, board %.1f..%.1f, "
+            "coil ferrite %.1f, front wall %.1f..%.1f. Lid: ring channel floor %.1f, gasket channel bottom %.1f "
+            "-> %.1f between" % (THICKNESS, TRAY_H, LID, BR_PROUD, THICKNESS + BR_PROUD, CELL_T, Z_CELL, CELL_TOP,
+                                 CELL_TOP + INSUL, SWELL, ABOVE, ABOVE, PCB_TOP, COIL_Z0, INNER, TRAY_H,
+                                 -LID + BR_CH, -GASKET_D, (-GASKET_D) - (-LID + BR_CH)))
 
 
 # ----------------------------------------------------------------------
@@ -1222,13 +1475,13 @@ def group(n):
         return "lid"
     if n == "carrier_bracket":
         return "bracket"
-    if n.startswith(("plate", "foot", "usb_c_gasket")):
+    if n.startswith(("back_ring", "screw_head", "usb_c_gasket")):
         return "trim"
-    if n.startswith(("cell_", "pd_", "qi2_", "keepout_")):
+    if n == "cell" or n == "usb_c" or n.startswith(("cell_", "pd_", "qi2_", "keepout_")):
         return "power"
     if n.startswith(("speaker_", "grille_mesh")):
         return "speakers"
-    if n in ("sim_board", "sim7080g_module", "nano_sim_holder", "lte_flex_antenna") \
+    if n in ("sim_board", "sim7080g_module", "nano_sim_holder", "lte_flex") \
             or n.startswith(("ufl_connectors", "gnss_")):
         return "lte"
     if n.startswith("wifi_"):
@@ -1255,7 +1508,15 @@ def group_components(design):
     while root.bRepBodies.count:
         b = root.bRepBodies.item(root.bRepBodies.count - 1)
         b.moveToComponent(occs[group(b.name)])
-    return ", ".join("%s %d" % (g, o.component.bRepBodies.count) for g, o in occs.items())
+    moved = 0
+    for name, (occ, bodies, rel) in G["imp"].items():
+        try:
+            occ.moveToComponent(occs[group(name)])
+            moved += 1
+        except Exception:
+            G["fails"].append("group %s" % name)
+    return ", ".join("%s %d" % (g, o.component.bRepBodies.count) for g, o in occs.items()) + \
+        "; %d imported parts moved into their groups" % moved
 
 
 def find_body(design, name):
@@ -1289,7 +1550,7 @@ def side_of(face, body_name):
     return None
 
 
-SIDE_FINISH = {"FRONT": "front_panel", "BACK": "shell_fabric", "TOP_EDGE": "shell_fabric",
+SIDE_FINISH = {"FRONT": "front_panel", "BACK": "petg_bare", "TOP_EDGE": "shell_fabric",
                "BOTTOM_EDGE": "petg_bare", "LEFT_END": "petg_bare", "RIGHT_END": "petg_bare",
                "CORNER": "petg_bare"}
 
@@ -1310,7 +1571,8 @@ def name_and_paint_sides(design):
                 f.attributes.add("heartsync", "side", s)
             except Exception:
                 pass
-            a = appearance(SIDE_FINISH[s])
+            # fabric only on the tray's TOP edge: the lid (back and its edges) is bare PETG
+            a = appearance("petg_bare" if name == "shell_lid" else SIDE_FINISH[s])
             if a:
                 try:
                     f.appearance = a
@@ -1364,23 +1626,28 @@ def build_labels(design):
     return made
 
 
-ANCHORS = {"cell_10000mAh": ("cell", "xy"), "qi2_ferrite": ("coil", "xy"), "oled_glass": ("oled", "xy"),
-           "pd_board": ("pd_board", "xy"), "pd_usb_c": ("usb_c", "x"), "qi2_tx_board": ("qi2_tx", "xy"),
-           "sim_board": ("sim_board", "xy"), "wifi_flexpifa": ("wifi", "xy"),
-           "gnss_patch_ceramic": ("gnss", "xy"), "lte_flex_antenna": ("lte", "xz"),
-           "haptic_lra_10mm": ("lra", "xy"), "button_strip_pcb": ("buttons", "x")}
+ANCHORS = {"qi2_ferrite": ("coil", "xy"), "pd_board": ("pd_board", "xy"), "qi2_tx_board": ("qi2_tx", "xy"),
+           "sim_board": ("sim_board", "xy"), "haptic_lra_10mm": ("lra", "xy"), "button_strip_pcb": ("buttons", "x"),
+           # imported parts: the anchor sits on their largest body
+           "cell": ("cell", "xy"), "oled": ("oled", "xy"), "usb_c": ("usb_c", "x"),
+           "wifi_flexpifa": ("wifi", "xy"), "gnss_patch": ("gnss", "xy"), "lte_flex": ("lte", "xz")}
 
 
 def tag_anchors():
-    for b in G["parts"]:
-        if b.name in ANCHORS:
-            key, axes = ANCHORS[b.name]
-            bb = b.boundingBox
-            try:
-                b.attributes.add("heartsync", "anchor", json.dumps(
-                    {"pos": key, "axes": axes, "ref": [bb.minPoint.x * 10, bb.minPoint.y * 10, bb.minPoint.z * 10]}))
-            except Exception:
-                pass
+    tagged = [b for b in G["parts"] if b.name in ANCHORS]
+    for name, (occ, bodies, rel) in G["imp"].items():
+        if name in ANCHORS and bodies:
+            tagged.append((name, max(bodies, key=lambda b: b.volume)))
+    for item in tagged:
+        name, b = item if isinstance(item, tuple) else (item.name, item)
+        key, axes = ANCHORS[name]
+        bb = b.boundingBox
+        try:
+            nb = b.nativeObject or b
+            nb.attributes.add("heartsync", "anchor", json.dumps(
+                {"pos": key, "axes": axes, "ref": [bb.minPoint.x * 10, bb.minPoint.y * 10, bb.minPoint.z * 10]}))
+        except Exception:
+            pass
 
 
 # ----------------------------------------------------------------------
@@ -1399,8 +1666,8 @@ def run(context):
     except Exception:
         G["base_app"] = None
 
-    tray = build_tray()
-    lid = build_lid()
+    build_tray()
+    build_lid()
     build_trim()
     build_bracket()
     build_coil()
@@ -1415,26 +1682,29 @@ def run(context):
 
     report = [stack_report(), grille_report()]
     try:
-        report.append(interference_report(design, tray, lid))
-    except Exception as e:
-        report.append("Fit check could not run: %s" % e)
-    try:
         report.append(clearance_report())
     except Exception as e:
         report.append("Clearance report could not run: %s" % e)
     n_parts = len(G["parts"])
     n_carrier = len(occ_bodies(G["carrier"])) if G.get("carrier") else 0
     grouped = group_components(design) if GROUP else "off"
+    try:
+        report.insert(2, fit_check(design))
+    except Exception as e:
+        report.insert(2, "Fit check could not run: %s" % e)
     sides = name_and_paint_sides(design)
     labels = build_labels(design)
 
     app.activeViewport.fit()
+    n_imp = sum(len(v[1]) for v in G["imp"].values())
     msg = ("heartsync STACK (%s display, dock %s)\n"
            "Shell %.1f x %.1f x %.1f, inside height %.1f, board layer Z %.1f\n"
-           "Parts: %d bodies, carrier STEP: %d bodies, Wi-Fi coax %.1f mm (cable 100)\n"
+           "Parts: %d bodies, %d real parts from cad/models (%d bodies), carrier STEP: %d bodies\n"
+           "Wi-Fi cable: %.1f stub (in the antenna STEP) + %.1f routed = %.1f mm of 100\n"
            "Components: %s\nSides: %s; labels %d (hidden)\n"
-           % (DISPLAY, DOCK_SIDE, LENGTH, WIDTH, THICKNESS, INNER, ABOVE, n_parts, n_carrier,
-              G.get("wifi_coax_mm", 0), grouped, sides, labels))
+           % (DISPLAY, DOCK_SIDE, LENGTH, WIDTH, THICKNESS, INNER, ABOVE, n_parts, len(G["imp"]), n_imp,
+              n_carrier, WIFI_STUB, G.get("wifi_coax_mm", 0), WIFI_STUB + G.get("wifi_coax_mm", 0),
+              grouped, sides, labels))
     if G["fails"]:
         msg += "Could not build: %s\n" % ", ".join(G["fails"])
     if PARAM_NOTES:
@@ -1561,7 +1831,9 @@ def export_all():
             em.execute(o)
             done.append(fn)
     for n, fn in (("shell_tray", "heartsync_tray.stl"), ("shell_lid", "heartsync_lid.stl"),
-                  ("carrier_bracket", "heartsync_bracket.stl")):
+                  ("carrier_bracket", "heartsync_bracket.stl"), ("back_ring", "heartsync_back_ring_tpu.stl"),
+                  ("speaker_cradle_L", "heartsync_speaker_cradle_L.stl"),
+                  ("speaker_cradle_R", "heartsync_speaker_cradle_R.stl")):
         b = find_body(design, n)
         if b:
             o = em.createSTLExportOptions(b, os.path.join(out, fn))
@@ -1580,51 +1852,30 @@ def export_all():
 # FLAT NET (TOP + BACK fabric), linked to the model constants
 # ----------------------------------------------------------------------
 def net_geometry():
-    """Net primitives in mm, origin at the bottom-left of the BACK panel seen from outside:
+    """Net primitives in mm: one piece, the tray TOP edge (fabric only there; the back is bare
+    PETG). Seen from outside the top edge with the FRONT up: model +X is on the left. u = along
+    the edge incl. the quarter-round corner wraps, v = z from the lid seam (0) to the front edge.
     ("cut", pts), ("fold", pts), ("circle_cut", centre, r), ("text", p, s, size)."""
-    L, W, T, r = LENGTH, WIDTH, THICKNESS, CORNER_R
+    L, r = LENGTH, CORNER_R
     arc = math.pi / 2.0 * r
     prims = []
 
-    def bu(x):              # seen from behind, model +X is on the left
+    def bu(x):
         return L / 2.0 - x
 
-    SEAM_GAP = 12.0
-
-    def tv(z):              # TOP edge: lid part (z < 0) stays on the BACK piece; tray part is a
-        return W + (z + LID) + (SEAM_GAP if z >= 0 else 0.0)   # separate piece, so the seam opens
-
-    def arc_pts(cx, cy, a0, a1, n=8):
-        return [(cx + r * math.cos(math.radians(a0 + (a1 - a0) * k / n)),
-                 cy + r * math.sin(math.radians(a0 + (a1 - a0) * k / n))) for k in range(n + 1)]
-
-    u0, u1 = r - arc, L - r + arc          # TOP strips incl. the quarter-round corner wraps
-    va, vb0, vb1 = W + LID, W + LID + SEAM_GAP, W + LID + SEAM_GAP + TRAY_H
-    # piece 1: BACK panel + the lid's top edge (2.2), cut at the seam
-    outline = [(r, 0), (L - r, 0)] + arc_pts(L - r, r, -90, 0)[1:] + [(L, W - r)] +         arc_pts(L - r, W - r, 0, 90)[1:] + [(u1, W), (u1, va), (u0, va), (u0, W), (r, W)] +         arc_pts(r, W - r, 90, 180)[1:] + [(0, r)] + arc_pts(r, r, 180, 270)[1:]
-    prims.append(("cut", outline))
-    prims.append(("fold", [(r, W), (L - r, W)]))
-    # piece 2: tray TOP edge, seam (z = 0) to the FRONT edge
-    prims.append(("cut", [(u0, vb0), (u1, vb0), (u1, vb1), (u0, vb1), (u0, vb0)]))
-    prims.append(("text", (L / 2.0, W / 2.0 + 14), "BACK", 5.0))
-    prims.append(("text", (L / 2.0, vb0 + 8), "TOP_EDGE (tray, from the lid seam)", 4.0))
-    prims.append(("text", (L / 2.0, va + SEAM_GAP / 2.0), "seam: separate pieces, case opens without peeling", 2.5))
-    for (x, y) in SCREWS:                    # feet over the screws
-        prims.append(("circle_cut", (bu(x), y + W / 2.0), FOOT_D / 2.0 + 0.2))
-    pl = []                                  # plate window
-    for (cx, a0) in ((PLATE_L / 2 - PLATE_W / 2, -90), (-(PLATE_L / 2 - PLATE_W / 2), 90)):
-        for k in range(13):
-            a = math.radians(a0 + 180 * k / 12)
-            pl.append((bu(cx + PLATE_W / 2 * math.cos(a)), W / 2.0 + PLATE_W / 2 * math.sin(a)))
-    prims.append(("cut", pl + [pl[0]]))
+    u0, u1 = r - arc, L - r + arc            # strip incl. the corner wraps onto the ends
+    prims.append(("cut", [(u0, 0), (u1, 0), (u1, TRAY_H), (u0, TRAY_H), (u0, 0)]))
+    prims.append(("fold", [(r, 0), (r, TRAY_H)]))           # corner tangent lines
+    prims.append(("fold", [(L - r, 0), (L - r, TRAY_H)]))
 
     def box(x, z, w, h):
         a, b = bu(x - w / 2), bu(x + w / 2)
-        return [(a, tv(z - h / 2)), (b, tv(z - h / 2)), (b, tv(z + h / 2)), (a, tv(z + h / 2)), (a, tv(z - h / 2))]
+        return [(a, z - h / 2), (b, z - h / 2), (b, z + h / 2), (a, z + h / 2), (a, z - h / 2)]
     prims.append(("cut", box(USB_X, USB_ZC, USB[0] + 2 * FIT_USB, USB[1] + 2 * FIT_USB)))
     for name, x, w in BUTTONS:
         h = (6.4 if name == "mute" else 4.0) + 2 * FIT_BTN
         prims.append(("cut", box(x, BTN_ZC, h, h)))
+    prims.append(("text", (L / 2.0, TRAY_H + 6), "TOP_EDGE fabric (tray, lid seam at the bottom edge, FRONT at the top)", 3.5))
     prims.append(("fold", [(0, -12), (50, -12)]))
     prims.append(("text", (25, -17), "50 mm check (print at 100 %)", 3.0))
     return prims

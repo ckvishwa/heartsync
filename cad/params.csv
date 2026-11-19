@@ -1,43 +1,41 @@
 name,value,unit,status,comment
 body_length,152,mm,model,"Outer length, as built in fusion/heartsync_assembly.py"
 body_width,72.5,mm,model,Outer width
-body_thickness,32,mm,model,Shell thickness (tray 29.8 + lid 2.2). Stack with back fabric and feet: 34.1
+body_thickness,32.8,mm,model,Shell thickness: tray 29.8 + lid 3.0. Stack with the back ring 1.5 proud: 34.3
 body_thickness_max,35,mm,hard limit,HARD LIMIT. The stack-up must never exceed this
 wall_thickness,2.2,mm,model,Tray wall and front wall
 corner_radius,6,mm,assumption,Outer corner radius under the fabric wrap
-fabric_allowance,0.6,mm,assumption,Fabric thickness per side. Measure the real fabric
+fabric_allowance,0.6,mm,assumption,Fabric thickness. Fabric only on the tray TOP edge; the back is bare PETG
 panel_width,128,mm,verify against datasheet,64 px at 2 mm pitch
 panel_height,64,mm,verify against datasheet,32 px at 2 mm pitch
 panel_depth,0,mm,verify against datasheet,Panel plus connectors. Measure the real panel
 panel_pitch,2,mm,spec,P2
-battery_length,0,mm,verify against datasheet,10000 mAh cell not chosen. Fill in from the datasheet
-battery_width,0,mm,verify against datasheet,Fill in from the datasheet
-battery_thickness,0,mm,verify against datasheet,Fill in from the datasheet
+battery_length,101,mm,datasheet max,LiPol LP1160100: 100 +-1 (PCM folded inside the length). Max used for fit
+battery_width,60.5,mm,datasheet max,LP1160100: 60 +-0.5. Max used for fit
+battery_thickness,11.3,mm,datasheet max,"LP1160100: 11 +-0.3. Max used, so the 1.2 swell gap sits above the thickest cell"
 battery_swell_gap,1.2,mm,safety,Free space over the cell face. At least 1 mm (1.2 used)
 pcb_thickness,1.6,mm,assumption,Standard FR4
 gasket_width,1.0,mm,model,"Gasket channel in the lid rim under the tray wall (IP54), continuous"
 gasket_compression,0.3,mm,assumption,Tune to the gasket material
 dock_magnet_count,4,count,spec,Four magnets in the dock
-dock_magnet_diameter,6,mm,assumption,Placeholder until the magnet is chosen
-dock_magnet_thickness,2,mm,assumption,Placeholder until the magnet is chosen
+dock_magnet_diameter,6,mm,spec,6 x 2 NdFeB disc (cad/models/magnet_6x2)
+dock_magnet_thickness,2,mm,spec,6 x 2 NdFeB disc
 pogo_pin_count,4,count,spec,4 pads centred on the bottom edge
 fit_clearance,0.2,mm,assumption,General clearance between printed parts. Tune per printer
-lid_thickness,2.2,mm,model,Back cover
+lid_thickness,3.0,mm,model,Back cover. 3.0 keeps 1.2 between the back-ring channel (1.0) and the gasket channel (0.8)
 corner_radius_inner,3.8,mm,model,Inside corner radius (outer 6 minus wall)
 cell_pad,1.0,mm,model,"Foam pad under the cell (cell holder, no heat path to the lid)"
 cell_insulator_top,0.2,mm,safety,"Insulator on the cell top face, below the swell gap"
 lip_width,1.2,mm,model,Lid tongue that stands inside the tray wall
 lip_height,1.5,mm,model,Lid tongue height. Interrupted behind the speakers
 lip_clearance,0.15,mm,assumption,Tongue to tray inner face. Tune after the PLA test print
-gasket_depth,0.8,mm,model,Gasket channel depth (lid 1.4 thick under it)
+gasket_depth,0.8,mm,model,Gasket channel depth (lid 2.2 thick under it)
 gasket_cord,1.1,mm,assumption,Silicone cord diameter for the channel
 insert_hole_d,3.2,mm,verify against datasheet,M2 heat-set insert hole. General M2 guidance 3.0-3.2; confirm with the insert maker
 insert_hole_depth,4.0,mm,verify against datasheet,Insert length 3 plus 1
 insert_boss_d,5.6,mm,model,Tray corner boss (insert wall 1.2)
-screw_clearance_d,2.4,mm,model,M2 clearance hole in the lid
-screw_counterbore_d,3.6,mm,model,M2 ISO 7380 button head (dk 3.5)
-screw_counterbore_depth,1.4,mm,model,Counterbore depth below the foot pocket
-screw_pad_h,1.5,mm,model,Lid pad under each screw (counterbore floor 1.3)
+screw_clearance_d,2.2,mm,model,M2 close-fit hole in the lid (keeps 1.2 to the gasket channel)
+screw_pad_h,1.5,mm,model,Lid pad under each screw
 fit_button,0.2,mm,assumption,"Button cap to hole, per side"
 fit_usb_c,0.3,mm,assumption,"USB-C receptacle to opening, per side"
 fit_pogo,0.1,mm,assumption,"Pogo pad to hole, per side"
@@ -46,11 +44,6 @@ min_wall,1.2,mm,rule,Minimum printed wall (3 perimeters at 0.4)
 ring_od,56,mm,model,"Front ring groove = Qi2 marking, centred on the coil"
 ring_width,1.0,mm,model,Front ring groove width
 ring_depth,0.6,mm,model,Front ring groove depth (ring_inlay fills it)
-plate_length,30,mm,model,"""made with love"" pill plate, back centre"
-plate_width,10,mm,model,Plate width (pill ends R5)
-plate_recess,0.6,mm,model,Recess in the lid (lid 1.6 left)
-plate_thickness,0.5,mm,model,"Brushed aluminium plate, sits 0.1 below the lid surface"
-plate_text_depth,0.2,mm,model,Engraving depth
 honeycomb_count,237,count,spec,End grille holes: 25 columns of 9/10 flat-top hexes
 honeycomb_hex,1.8,mm,spec,Hex hole across flats
 honeycomb_pitch,2.6,mm,spec,Hex pitch (web 0.8)
@@ -60,9 +53,25 @@ speaker_gasket,1.0,mm,assumption,"Foam gasket, speaker face to membrane"
 speaker_length,57.5,mm,spec,CES-571423-28PMB enclosed speaker (along Y)
 speaker_height,23,mm,spec,CES-571423-28PMB (along Z)
 speaker_depth,14.85,mm,spec,CES-571423-28PMB (along X)
-foot_d,6,mm,assumption,Rubber foot over each lid screw (peel off to open). 6 keeps 1.3 mm to the lid edge
-foot_h,3.1,mm,assumption,Rubber foot height
-foot_pocket_depth,1.0,mm,model,Foot pocket in the lid
 pogo_pad_d,2.5,mm,assumption,Pogo target pad on the bottom edge
-gnss_patch,12,mm,spec,12 x 12 x 4 GNSS patch (18 x 18 does not fit outside cell/OLED/phone)
+gnss_patch,12,mm,spec,"Taoglas SGGP.12.4.A.02, 12 x 12 x 4 SMD patch on a small ground-plane board"
 gnss_patch_t,4,mm,spec,GNSS patch thickness
+screw_x,66,mm,model,Lid screw X (+-)
+screw_y,31.7,mm,model,Lid screw Y (+-): 2.2 hole edge 1.25 from the gasket channel and 1.2 from the pad face; head inside the ring band; insert boss 0.15 off the speaker
+screw_head_d,3.8,mm,verify against datasheet,"M2 low-head screw head (e.g. DIN 7984, dk 3.8, k 1.3). Sits on the ring-channel floor, under the ring"
+screw_head_h,1.3,mm,verify against datasheet,M2 low-head screw head height
+back_ring_width,4.0,mm,spec,"Continuous TPU ring on the back (replaces the 4 feet). Press/stretch fit in its channel, no adhesive: it peels off by hand to reach the screws (case opens without heat)"
+back_ring_inset,2.5,mm,spec,"Ring outer edge, in from the back outline"
+back_ring_corner_r,6.0,mm,spec,Ring outer corner radius
+back_ring_channel,1.0,mm,spec,Ring channel depth in the lid
+back_ring_proud,1.5,mm,spec,Ring height above the back face
+back_ring_pocket_d,4.0,mm,model,Pocket in the ring underside over each screw head (head 3.8). Opens the ring sides locally; 1.0 rubber stays over the head
+back_ring_pocket_h,1.5,mm,model,Pocket depth (head 1.3 + 0.2)
+id_block_length,26,mm,spec,"Engraved ID block on the back, bottom-right seen from behind"
+id_block_width,11,mm,spec,ID block height
+id_text_depth,0.3,mm,spec,Engraving depth
+id_text_1,HeartSync,text,spec,ID line 1
+id_text_2,1 / 2,text,spec,ID line 2 (device number of the pair)
+id_text_3,made with love 2026,text,spec,ID line 3
+speaker_cradle_wall,1.5,mm,model,"Printed speaker cradle: back frame and arms (PETG, own STL)"
+speaker_foam,1.0,mm,assumption,Foam pad between the cradle frame and the speaker back (pre-load on the face gasket)

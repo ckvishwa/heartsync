@@ -152,6 +152,36 @@ def magnet():
     part("magnet_6x2_from_drawing", pieces)
 
 
+def cell():
+    """LiPol LP1160100 10,000 mAh pouch with PCM, drawing FD_0110_10 (2020-06-08), modelled at
+    the MAXIMUM envelope for fit and swell checks: 100 +-1 x 60 +-0.5 x 11 +-0.3 -> 101 x 60.5
+    x 11.3. The PCM is folded inside the length at one end (about 6 mm). Frame: X 0..101 with
+    the PCM end at X 0..6, Y centred, Z 0..11.3. Two AWG22 UL1007 leads (dia 1.6) leave the PCM
+    end at Y +21 / +25, mid-height, modelled as 4 mm stubs (the real leads are 100 mm, to be
+    ordered with a JST connector). Lead positions are read off the drawing: verify."""
+    L, W, T, pcm = 101.0, 60.5, 11.3, 6.0
+    pieces = [("pouch", [box(pcm, -W / 2, 0, L, W / 2, T)]),
+              ("pcm_end", [box(0, -W / 2, 0, pcm, W / 2, T)]),
+              ("lead_red", [cyl((0, 21.0, T / 2), (-4.0, 21.0, T / 2), 1.6)]),
+              ("lead_black", [cyl((0, 25.0, T / 2), (-4.0, 25.0, T / 2), 1.6)])]
+    part("lp1160100_from_drawing", pieces)
+
+
+def gnss():
+    """Taoglas SGGP.12.4.A.02 SMD GNSS patch, datasheet SPE-15-8-034-D section 5: 12 x 12 x 4
+    ceramic, silver top electrode with one cut corner, feed pad on the underside. Frame: X/Y
+    centred, Z 0 = solder (bottom) face, top at Z 4. The electrode inset (1.2) and cut corner
+    (2.0) are read off the drawing: verify."""
+    s, t, e = 12.0, 4.0, 0.05
+    a = s / 2 - 1.2
+    elec = box(-a, -a, t - e, a, a, t)
+    G["tbm"].booleanOperation(elec, box(a - 2.0, a - 2.0, t - e - 0.1, a + 0.1, a + 0.1, t + 0.1),
+                              adsk.fusion.BooleanTypes.DifferenceBooleanType)
+    pieces = [("ceramic", [box(-s / 2, -s / 2, 0, s / 2, s / 2, t - e)]),
+              ("electrode", [elec])]
+    part("sggp.12.4.a.02_from_drawing", pieces)
+
+
 def run(_context):
     app = adsk.core.Application.get()
     doc = app.documents.add(adsk.core.DocumentTypes.FusionDesignDocumentType)
@@ -167,9 +197,14 @@ def run(_context):
         "pogo_pad_from_params": ("pogo_pad", "pogo_pad_from_params.step"),
         "magnet_6x2_from_drawing": ("magnet_6x2", "magnet_6x2_from_drawing.step"),
     }
+    G["targets"]["lp1160100_from_drawing"] = ("cell_lipol_lp1160100", "lp1160100_from_drawing.step")
+    G["targets"]["sggp.12.4.a.02_from_drawing"] = ("gnss_taoglas_sggp.12.4.a.02",
+                                                     "sggp.12.4.a.02_from_drawing.step")
     for n in (2, 4, 5, 6, 7):
         G["targets"]["shr-%02dv-s-b_from_drawing" % n] = ("jst_sh", "shr-%02dv-s-b_from_drawing.step" % n)
     try:
+        cell()
+        gnss()
         flexpifa()
         for n in (2, 4, 5, 6, 7):
             shr(n)

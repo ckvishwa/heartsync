@@ -2,7 +2,7 @@
   (version "D")
   (design
     (source "heartsync_carrier.py")
-    (date "11/18/2026 08:41 PM")
+    (date "11/19/2026 01:09 AM")
     (tool "SKiDL (3.0.0)")
     (sheet
       (number 1)
@@ -1438,12 +1438,12 @@
       (ref "U1")
       (value "ESP32-S3-WROOM-1-N16R8")
       (description "")
-      (footprint "RF_Module:ESP32-S3-WROOM-1")
+      (footprint "heartsync:ESP32-S3-WROOM-1_NoVias")
       (fields
         (field
           (name "Description"))
         (field
-          (name "Footprint") "RF_Module:ESP32-S3-WROOM-1")
+          (name "Footprint") "heartsync:ESP32-S3-WROOM-1_NoVias")
         (field
           (name "Datasheet"))
         (field

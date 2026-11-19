@@ -89,7 +89,9 @@ esp_pins = [(1, "GND"), (2, "3V3"), (3, "EN"), (4, "IO4"), (5, "IO5"), (6, "IO6"
             (26, "IO45"), (27, "IO0"), (28, "IO35"), (29, "IO36"), (30, "IO37"), (31, "IO38"),
             (32, "IO39"), (33, "IO40"), (34, "IO41"), (35, "IO42"), (36, "RXD0"), (37, "TXD0"),
             (38, "IO2"), (39, "IO1"), (40, "GND"), (41, "GND_EP")]
-U1 = part("U1", "ESP32-S3-WROOM-1", "ESP32-S3-WROOM-1-N16R8", "RF_Module:ESP32-S3-WROOM-1",
+# Project footprint (heartsync.pretty, ADR 0010): stock RF_Module:ESP32-S3-WROOM-1 with the 0.2 mm
+# pad-41 vias replaced by a 3x3 grid of 0.3 mm vias, to meet the 0.3 mm fab minimum drill.
+U1 = part("U1", "ESP32-S3-WROOM-1", "ESP32-S3-WROOM-1-N16R8", "heartsync:ESP32-S3-WROOM-1_NoVias",
           esp_pins, "ESP32-S3-WROOM-1-N16R8", "Antenna end flush with the board top edge")
 GND += U1[1], U1[40], U1[41]
 P3V3 += U1[2]

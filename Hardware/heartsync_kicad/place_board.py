@@ -71,7 +71,7 @@ def holes():
             break
     if not lib:
         raise RuntimeError("footprint folder not found; add 4x MountingHole_2.2mm_M2 by hand")
-    for i, (x, y) in enumerate(((3.0, 3.0), (3.0, 26.0), (45.5, 14.0), (48.5, 42.0))):
+    for i, (x, y) in enumerate(((3.0, 9.0), (3.0, 26.0), (45.5, 14.0), (48.5, 42.0))):
         fp = pcbnew.FootprintLoad(lib, "MountingHole_2.2mm_M2")
         fp.SetReference("H%d" % (i + 1))
         fp.SetPosition(pt(x, y))

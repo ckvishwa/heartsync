@@ -32,8 +32,10 @@ Pins must match `docs/hardware/pinout.md` and `firmware/include/config.h`.
 
 - U1 pad 41 thermal vias are 0.2 mm drill (below 0.3 mm min). Fix: footprint variant without
   thermal vias, then add 0.3 mm vias by hand. Do not lower the min-drill rule.
-- Placement still has courtyard overlaps (incl. H1 inside the U1 antenna keepout). Fix in `replace_parts.py`
-  and verify with DRC; an offline check is not proof.
+- Placement errors (courtyard, keepout, hole) are 0, verified with DRC. H1 now at (3, 9), below the
+  U1 antenna keepout. After any PLACE edit, re-run DRC; an offline check is not proof.
+- Starved thermals on GND pads (11): the pour is cut into islands until routing. Recheck after GND vias.
+- J6, J7, J9 are not on a board edge yet (J7 sits behind the U1 keepout). Open item.
 - Keep "Footprint has no courtyard defined" as an error, not ignored, or overlaps go unseen.
 - Silkscreen overlaps are warnings: fix last (move reference text), after placement is clean.
 
@@ -42,6 +44,8 @@ Pins must match `docs/hardware/pinout.md` and `firmware/include/config.h`.
 kicad-cli: `C:\Program Files\KiCad\10.0\bin\kicad-cli.exe`
 
 - DRC: `kicad-cli pcb drc --severity-all --all-track-errors -o DRC.rpt heartsync_carrier.kicad_pcb`
+- Re-place headless (board CLOSED in KiCad): `"C:\Program Files\KiCad\10.0\bin\python.exe" replace_parts.py heartsync_carrier.kicad_pcb`.
+  Saving headless adds a `heartsync_carrier.kicad_sch` entry to `top_level_sheets` in the `.kicad_pro`: revert it (there is no schematic).
 - STEP for Fusion: `kicad-cli pcb export step -o ../../cad/heartsync_carrier.step heartsync_carrier.kicad_pcb`
 - Gerbers / drill go to `fab_output/` (git-ignored until we decide).
 

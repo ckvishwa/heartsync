@@ -35,20 +35,48 @@ pad-41 change as ADR 0010 (a 3x3 grid of 0.3 mm drill vias).
 
 ## Consequences
 
-- **Antenna part:** 2.4 GHz flex antenna with a U.FL/IPEX MHF1 plug and a short cable (about
-  50 to 100 mm). Pick one from Espressif's list of antennas tested with the WROOM-1U. The module's
-  radio certification is tied to the antenna types it was tested with, so a different antenna
-  may need its own testing. **The MPN is still to be chosen**, and the cable length set after the
-  Fusion fit check.
+- **Antenna part: still to be chosen by the user** (see "External antenna" below). Cable length
+  is at most 100 mm, set after the Fusion fit check.
 - **Board layout:** U1's U.FL socket faces the board's top edge, with 3 mm of clearance around
   it. `replace_parts.py` checks this instead of snapping the antenna to the edge. There is no
   antenna keepout any more.
 - **Handling:** U.FL sockets are rated for few mating cycles (about 30). Plug the cable once at
   assembly, and strain-relieve it against the shell.
-- **The board STEP has no U1 body:** KiCad 10 ships no 3D model for the WROOM-1U. Add Espressif's
-  STEP model to the project footprint before the module's 3.2 mm height counts in the Fusion fit
-  check.
+- **3D model:** KiCad 10 ships none for the WROOM-1U. The project carries Espressif's STEP in
+  `Hardware/heartsync_kicad/3dmodels/` (CC-BY-SA 4.0, attribution in its README), so U1's body
+  is in the board STEP for the Fusion fit check.
 - **The old footprint stays:** `ESP32-S3-WROOM-1_NoVias` stays in `heartsync.pretty` (ADR 0010)
   but is no longer used.
 - **Firmware is unchanged:** same chip, same flash and PSRAM, same pins. The 1U has no on-board
   antenna, so the radio must never run without the external antenna attached.
+
+## External antenna
+
+Source: *ESP32-S3-WROOM-1 & WROOM-1U Datasheet* v1.8 (2026-03-02), section 10.2 "Dimensions of
+External Antenna Connector", and section 7 (RF characteristics).
+
+- **Connector:** first-generation external antenna connector, compatible with Hirose U.FL,
+  I-PEX MHF I and Amphenol AMC.
+- **Antenna used for certification:** one antenna only, a first-generation **monopole**,
+  Espressif material code **TFPD05H08750011**, gain **2.33 dBi**. The datasheet gives no list of
+  other tested antennas. Certificates: https://espressif.com/en/support/documents/certificates.
+- **Recommended requirements:** 2.4 GHz band, 50 ohm impedance, maximum gain not above
+  2.33 dBi, and a connector matching section 10.2. RF figures in section 7 are measured at the
+  antenna port with 50 ohm external antennas.
+- **Different type or gain:** "If you use an external antenna of a different type or gain,
+  additional testing, such as EMC, may be required beyond the existing antenna test reports for
+  Espressif modules. Specific requirements depend on the certification type." A flex antenna is
+  a different type from the certified monopole, so **any flex antenna may need extra testing**,
+  even with gain at or below 2.33 dBi. Gain at or below 2.33 dBi keeps that testing smallest.
+
+Candidates (2.4 GHz flex, U.FL/MHF1, cable at most 100 mm). Gains are vendor free-space peak
+figures, and the parts are not yet verified against current datasheets. Vendors note that a
+real enclosure lowers peak gain by 1 to 2 dB.
+
+| Part | Peak gain | Cable | Notes |
+|---|---|---|---|
+| Ezurio (Laird) 2.4 GHz FlexPIFA, 001-0014 | 2 dBi | 100 mm, MHF1 (confirm on the datasheet) | Only candidate at or below 2.33 dBi. A PIFA tolerates mounting near metal or on curved surfaces. Thicker than a plain flex (about 2.5 mm). |
+| Taoglas FXP73.07.0100A (Blue Diamond) | 2.5 dBi | 100 mm, 1.13 mm coax, I-PEX MHF I | 47 x 7 x 0.1 mm. 0.17 dB above the certified gain. |
+| Molex 146153-0100 | about 2.8 to 3.0 dBi (sources differ) | 100 mm, MHF | Above the certified gain. 50 mm version 146153-0050 also exists. |
+
+Not chosen yet: the user picks.

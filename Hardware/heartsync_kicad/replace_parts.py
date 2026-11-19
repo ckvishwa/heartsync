@@ -124,6 +124,31 @@ def check_ufl():
           % ((x0 + x1) / 2, (y0 + y1) / 2, dist, edge))
 
 
+# 3D models for the board STEP (Fusion fit check). U1: Espressif's model, stored in the project
+# (3dmodels/README.md). U4, U5, U8: KiCad has no model for their exact exposed-pad sizes, so they use
+# the generic package of the same body (3x3 TQFN-16, 2x2 DFN-8; only the hidden exposed pad differs).
+KICAD_3D = "${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/"
+MODELS = {
+    "U1": ("${KIPRJMOD}/3dmodels/ESP32-S3-WROOM-1U.step", (-9.0, -9.6, 0.0)),
+    "U4": (KICAD_3D + "TQFN-16-1EP_3x3mm_P0.5mm_EP1.6x1.6mm.step", (0.0, 0.0, 0.0)),
+    "U5": (KICAD_3D + "TQFN-16-1EP_3x3mm_P0.5mm_EP1.6x1.6mm.step", (0.0, 0.0, 0.0)),
+    "U8": (KICAD_3D + "DFN-8-1EP_2x2mm_P0.5mm_EP0.6x1.2mm.step", (0.0, 0.0, 0.0)),
+}
+
+
+def set_models():
+    for ref, (path, off) in MODELS.items():
+        fp = board.FindFootprintByReference(ref)
+        if fp is None:
+            raise RuntimeError(ref + " not on the board")
+        m = pcbnew.FP_3DMODEL()
+        m.m_Filename = path
+        m.m_Offset = pcbnew.VECTOR3D(*off)
+        models = fp.Models()
+        models.clear()
+        models.push_back(m)
+
+
 def rules():
     ds = board.GetDesignSettings()
     ds.m_MinClearance = mm(0.127)
@@ -139,6 +164,7 @@ def refill():
 
 step("place parts", place)
 step("U1 U.FL socket at an edge, 3 mm clear", check_ufl)
+step("3D models (U1, U4, U5, U8)", set_models)
 step("clearance rules 0.127 / 0.15 mm", rules)
 step("refill zones", refill)
 if HEADLESS:

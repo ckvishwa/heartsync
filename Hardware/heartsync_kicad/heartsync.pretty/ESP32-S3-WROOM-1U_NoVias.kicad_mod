@@ -676,9 +676,9 @@
 		(uuid "b89859ee-240d-4a00-9d73-8d76445ce69f")
 	)
 	(embedded_fonts no)
-	(model "${KICAD10_3DMODEL_DIR}/RF_Module.3dshapes/ESP32-S3-WROOM-1U.step"
+	(model "${KIPRJMOD}/3dmodels/ESP32-S3-WROOM-1U.step"
 		(offset
-			(xyz 0 0 0)
+			(xyz -9 -9.6 0)
 		)
 		(scale
 			(xyz 1 1 1)

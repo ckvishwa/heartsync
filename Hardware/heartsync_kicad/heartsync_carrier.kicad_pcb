@@ -1289,7 +1289,7 @@
 			(uuid "fe9cca37-18c8-4e8b-b521-cd14772321cf")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm.step"
+		(model "${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/TQFN-16-1EP_3x3mm_P0.5mm_EP1.6x1.6mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -3682,7 +3682,7 @@
 			(uuid "f17a540f-e788-4eef-a8b9-877bd24e4dc3")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/TDFN-8-1EP_2x2mm_P0.5mm_EP0.8x1.2mm.step"
+		(model "${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/DFN-8-1EP_2x2mm_P0.5mm_EP0.6x1.2mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -4928,7 +4928,7 @@
 			(uuid "c2b2a93d-a473-403f-9d03-b5fa5a48d729")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm.step"
+		(model "${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/TQFN-16-1EP_3x3mm_P0.5mm_EP1.6x1.6mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -5860,9 +5860,9 @@
 			(uuid "b42ba6aa-2d23-4260-b2f8-c236e3e6ad88")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/RF_Module.3dshapes/ESP32-S3-WROOM-1U.step"
+		(model "${KIPRJMOD}/3dmodels/ESP32-S3-WROOM-1U.step"
 			(offset
-				(xyz 0 0 0)
+				(xyz -9 -9.6 0)
 			)
 			(scale
 				(xyz 1 1 1)

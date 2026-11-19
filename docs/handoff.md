@@ -1,6 +1,6 @@
 # Handoff: where we are and what to do next
 
-Last updated: 2026-11-16 (Phase 3 BLE slice built; setup protocol 2 committed, hardware test pending). Read this first in a new session, then `CLAUDE.md`,
+Last updated: 2026-11-19 (carrier U1 to WROOM-1U, enclosure assembly script; Phase 3 hardware test still pending). Read this first in a new session, then `CLAUDE.md`,
 `docs/phases.md`, and the package `CLAUDE.md` for the area you touch.
 
 ## State
@@ -46,6 +46,27 @@ Last updated: 2026-11-16 (Phase 3 BLE slice built; setup protocol 2 committed, h
   `--dart-define-from-file=config/emulator.json` (git-ignored; copy the example).
 - Repo: private github.com/ckvishwa/heartsync (`main`). CI runs on push; the cloud
   deploy job stays off until a `FIREBASE_PROJECT_ID` repo variable exists.
+
+## Carrier board and enclosure (2026-11-19)
+
+- **Carrier PCB** (`Hardware/heartsync_kicad/`, read its `CLAUDE.md`): placement done, not routed.
+  - U1 is now the **ESP32-S3-WROOM-1U-N16R8** (ADR 0011, Proposed): U.FL socket, external 2.4 GHz
+    flex antenna on the shell wall, no antenna keepout. Socket faces the top edge at (23.0, 2.96) mm.
+  - J4 (left speaker) on the left edge, J5 (right) on the right edge.
+  - DRC: 0 courtyard, keepout, hole and drill errors. 11 starved thermals wait for routing.
+  - Open: antenna MPN (user picks from the ADR 0011 list; any flex antenna differs from the
+    certified monopole, so extra RF testing may be needed). Board STEP has every body.
+  - Next in order: route power, I2S, USB pair, rest; DRC clean; STEP fit check in Fusion.
+- **Enclosure assembly** (`cad/fusion/heartsync_assembly.py`): builds the assembled stack (52
+  bodies, fit check clean) in a Hybrid design. The Fusion doc "HeartSync v1" needs saving by
+  the user. Groups: shell, power, lte, ui, dock.
+  - Battery swell gap is now 1.2 mm (rule "at least 1 mm"). ADR 0006 still says 0.5 to 1 mm.
+  - Free space for speakers: right end 45.6 x 41.5 x 24.8 mm. Left end is tight: the cell
+    reaches the wall, and the carrier board (70 x 45) fills the space above it. Needs a layout
+    decision before the stereo speakers (next CAD step).
+  - Safety reviewer open points: cell overlaps the Qi2 coil by ~8 mm (1.7 mm gap); insulate
+    board undersides facing the cell; no gaskets on openings; script dims differ from
+    `params.csv` (152 x 72.5 vs 160 x 75).
 
 ## Where we stopped (2026-11-16 evening, user said stop and save)
 

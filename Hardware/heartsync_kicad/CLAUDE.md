@@ -40,8 +40,9 @@ Pins must match `docs/hardware/pinout.md` and `firmware/include/config.h`.
   Do not lower the min-drill rule. `ESP32-S3-WROOM-1_NoVias` stays in the library, unused.
 - Placement errors (courtyard, keepout, hole) are 0, verified with DRC. After any PLACE edit,
   re-run DRC; an offline check is not proof.
-- The board STEP has no U1 body: KiCad 10 ships no WROOM-1U 3D model (MAX17048 and MAX98357A
-  models are missing too). Add Espressif's model before trusting the Fusion fit check near U1.
+- 3D models: every part has a body in the board STEP except test points and mounting holes.
+  U1 uses Espressif's model from `3dmodels/` (see its README); U4, U5 (MAX98357A) and U8 (MAX17048)
+  use KiCad's generic 3x3 TQFN-16 and 2x2 DFN-8 bodies. `replace_parts.py` sets all four.
 - Starved thermals on GND pads (11): the pour is cut into islands until routing. Recheck after GND vias.
 - J9 is on the top edge. Open item: J6 and J7 are off-edge (no room on any edge); J7's cable
   faces right.

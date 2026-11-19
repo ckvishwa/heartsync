@@ -10,7 +10,7 @@ You review against `docs/hardware/safety.md`. Report findings as a short list, m
 Checklist:
 
 1. **LiPo safety respected.** Single 3.7 V cell with a protection board. JST connector on the battery. No design step that needs heat to open the case.
-2. **Swelling gap.** `cad/params.csv` keeps 0.5 to 1 mm of free space over the battery.
+2. **Swelling gap.** `cad/params.csv` keeps at least 1 mm (1.2 mm used) of free space over the battery.
 3. **Charge limit.** Docked charging stops at about 90 percent.
 4. **Phase gate.** No LiPo wiring or battery-powered instructions before Phase 8. Bench work is USB only.
 5. **Brightness and current.** Software cap (25 percent) and current limit are intact until power is characterised.

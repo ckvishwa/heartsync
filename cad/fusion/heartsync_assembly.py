@@ -60,6 +60,7 @@ RING_DIA = 56.0
 COIL_CX = 0.0              # Qi2 coil on the back, centred in X under the cell
 
 INSUL = 0.2                # insulator sheet on the cell top (below the swell gap)
+INSUL_BOT = 0.5            # thermal insulator on the cell bottom (coil side)
 GRAPHITE = 0.1             # graphite sheet between the coil ferrite and the cell
 GROUP = True               # group the bodies into components after the checks
 CARRIER = True             # import the real carrier board STEP
@@ -71,6 +72,18 @@ STEP_BOARD_X0, STEP_BOARD_Y1, STEP_BOARD_Z0 = 100.0, -100.0, 0.0
 
 SPK = (16.0, 30.0, 20.0)   # speaker box: depth (X), face width (Y), face height (Z)
 SPK_CY, SPK_Z0 = 10.0, 4.0
+
+# Wi-Fi FlexPIFA 001-0014: centre, size (X, Y, thickness), tape on the element side
+WIFI_C, WIFI = (41.5, 1.05), (11.0, 40.1, 2.5)
+WIFI_TAPE = 0.2
+
+# carrier mounting holes (H1-H4, M2 NPTH 2.2 mm) in model coordinates. The board hangs from
+# bosses on the front shell with press-fit pins, flush with the board underside: no screw
+# head, nut or clip barb below the board, so nothing enters the swell gap and no metal
+# faces the cell. H1/H2 sit under the OLED glass, so their bosses drop from a rib that is
+# cantilevered from the top wall between the board and the glass.
+HOLES = {"H1": (-33.0, 21.0), "H2": (-33.0, 4.0), "H3": (9.5, 16.0), "H4": (12.5, -12.0)}
+BOSS_D, PIN_D = 5.0, 2.1
 
 # top-wall buttons: (name, centre X, body size). Latching mic mute is 7 x 7 mm.
 BTN_ZC = 21.5
@@ -102,6 +115,7 @@ CELL_X0 = -50.0                          # cell + seal edge span X -50..50 (cent
 CAV_X = LENGTH / 2.0 - WALL              # inside face of the end walls (73.8)
 CAV_Y = WIDTH / 2.0 - WALL               # inside face of the top/bottom walls (34.05)
 USB_ZC = ABOVE + PCB_T + 3.26 / 2.0      # USB-C receptacle centre height
+WIFI_Z0 = INNER - WIFI_TAPE - WIFI[2]    # FlexPIFA ground plate (board side)
 TZ = (5 * EXPLODE_GAP + 10.0) if EXPLODE else 0.0   # tray lift in exploded view
 
 COL = {
@@ -386,6 +400,30 @@ def side_cuts(tray, plane, corners, depth=10.0):
     comp.features.extrudeFeatures.add(ei)
 
 
+def join_to_tray(tray, bodies):
+    coll = adsk.core.ObjectCollection.create()
+    for b in bodies:
+        coll.add(b)
+    ci = G["comp"].features.combineFeatures.createInput(tray, coll)
+    ci.operation = adsk.fusion.FeatureOperations.JoinFeatureOperation
+    G["comp"].features.combineFeatures.add(ci)
+
+
+def shell_block(cx, cy, z0, w, h, t):
+    """A tray feature body (not a part): extruded rectangle, joined to the tray later."""
+    sk = G["comp"].sketches.add(plane_at(TZ + z0))
+    rect(sk, cx, cy, w, h)
+    sk.isVisible = False
+    return new_bodies(sk.profiles.item(0), t, "shell_feature", "shell", register=False)[0]
+
+
+def shell_cyl(cx, cy, z0, dia, t):
+    sk = G["comp"].sketches.add(plane_at(TZ + z0))
+    sk.sketchCurves.sketchCircles.addByCenterRadius(P(cx, cy), mm(dia / 2.0))
+    sk.isVisible = False
+    return new_bodies(sk.profiles.item(0), t, "shell_feature", "shell", register=False)[0]
+
+
 # ----------------------------------------------------------------------
 # SHELL
 # ----------------------------------------------------------------------
@@ -473,13 +511,58 @@ def build_tray():
         sk.sketchCurves.sketchLines.addTwoPointRectangle(P(-16.0, y0), P(-4.0, y1))
         sk.isVisible = False
         rib = new_bodies(sk.profiles.item(0), 1.5, "shell_rib_lra", "shell", register=False)[0]
-        coll = adsk.core.ObjectCollection.create()
-        coll.add(rib)
-        ci = comp.features.combineFeatures.createInput(tray, coll)
-        ci.operation = adsk.fusion.FeatureOperations.JoinFeatureOperation
-        comp.features.combineFeatures.add(ci)
+        # round every free edge (r 0.6): nothing sharp faces the cell. Skip edges that lie
+        # in the wall-side face (buried in the wall after the join).
+        edges = adsk.core.ObjectCollection.create()
+        for e in rib.edges:
+            if e.boundingBox.maxPoint.y > mm(y0) + 1e-4:
+                edges.add(e)
+        fi = comp.features.filletFeatures.createInput()
+        fi.addConstantRadiusEdgeSet(edges, vi(0.6), True)
+        comp.features.filletFeatures.add(fi)
+        join_to_tray(tray, [rib])
     except Exception:
         G["fails"].append("rib_lra")
+
+    # carrier mounts: front-wall bosses at H3/H4, top-wall rib with drop bosses at H1/H2
+    pcb_top = ABOVE + PCB_T
+    try:
+        tools = []
+        for h in ("H3", "H4"):
+            x, y = HOLES[h]
+            tools.append(shell_cyl(x, y, pcb_top, BOSS_D, INNER - pcb_top))
+        x = HOLES["H1"][0]
+        rib_z0, rib_z1 = 23.0, 25.5            # above J4 (22.45), below the OLED glass (25.8)
+        y_lo, y_hi = HOLES["H2"][1] - BOSS_D / 2.0, CAV_Y + 0.5
+        tools.append(shell_block(x, (y_lo + y_hi) / 2.0, rib_z0, BOSS_D, y_hi - y_lo,
+                                 rib_z1 - rib_z0))
+        # webs up to the front wall where neither the glass nor the touch strip is in the way
+        tools.append(shell_block(x, 23.25, rib_z1, BOSS_D, 4.1, INNER - rib_z1))
+        tools.append(shell_block(x, (30.7 + y_hi) / 2.0, rib_z1, BOSS_D, y_hi - 30.7,
+                                 INNER - rib_z1))
+        for h in ("H1", "H2"):
+            hx, hy = HOLES[h]
+            tools.append(shell_cyl(hx, hy, pcb_top, BOSS_D, rib_z0 - pcb_top))
+        # press-fit pins through the board holes, ending flush with the board underside
+        for h, (hx, hy) in HOLES.items():
+            tools.append(shell_cyl(hx, hy, ABOVE, PIN_D, PCB_T))
+        join_to_tray(tray, tools)
+    except Exception:
+        G["fails"].append("carrier_mounts")
+
+    # Wi-Fi FlexPIFA retention: plastic hook clips at both short ends (the factory adhesive is
+    # on the ground plate, which faces the board), plus non-conductive tape on the element side
+    try:
+        ax = WIFI_C[0]
+        ay0, ay1 = WIFI_C[1] - WIFI[1] / 2.0, WIFI_C[1] + WIFI[1] / 2.0
+        zb = WIFI_Z0 - 0.5
+        tools = [shell_block(ax, ay1 + 0.75, zb, 5.0, 1.5, INNER - zb),
+                 shell_block(ax, ay1 - 0.5, zb, 5.0, 1.0, 0.5),
+                 shell_block(ax, ay0 - 0.75, zb, 5.0, 1.5, INNER - zb),
+                 shell_block(ax, ay0 + 0.5, zb, 5.0, 1.0, 0.5)]
+        join_to_tray(tray, tools)
+    except Exception:
+        G["fails"].append("wifi_clips")
 
     paint(tray, "shell")
     return tray
@@ -539,6 +622,9 @@ def build_power():
     block("cell_seal_edge", L, "cell_seal", CELL_X0 + 97.5, 0, Z_CELL + 5.5, 5.0, 60.0, 1.0)
     block("cell_protection_pcb", L, "pcb", CELL_X0 + 97.5, 0, Z_CELL + 6.5, 4.0, 40.0, 1.2)
     block("cell_insulator", L, "insul", CELL_X0 + 47.5, 0, Z_CELL + CELL_T, 95.0, 60.0, INSUL)
+    # thermal insulator on the cell bottom, between the graphite (top 2.9) and the cell (4.5)
+    block("cell_insulator_bottom", L, "insul", CELL_X0 + 47.5, 0, Z_CELL - INSUL_BOT,
+          95.0, 60.0, INSUL_BOT)
     # keep-out for the fit check: the swell gap over the whole cell outline must stay empty
     ko = block("keepout_swell_gap", L, "red", CELL_X0 + 50.0, 0, Z_CELL + CELL_T + INSUL,
                100.0, 60.0, SWELL)
@@ -585,6 +671,38 @@ def build_speakers():
     block("speaker_R", L, "speaker", CAV_X - d / 2.0, SPK_CY, SPK_Z0, d, w, h)
 
 
+# 100 mm MHF1 coax, 1.13 mm: leaves the FlexPIFA's X = 36 long side at right angles, slack
+# dressed as a serpentine over the carrier (>= 7 mm from the element, around H3/H4 bosses
+# and over J6/J8/J9), then to U1's U.FL socket. Bend radius about 3 to 4 mm.
+WIFI_COAX = [(35.9, -12, 25.2), (32, -12, 24.6), (29, -10, 23.8), (29, -4, 23.8), (28, -1, 23.8),
+             (25, 0, 23.8), (22, -1, 23.8), (21, -4, 23.8), (21, -6, 23.8), (20, -9, 23.8),
+             (17.5, -10, 23.8), (15, -9, 23.8), (14.5, -6, 23.8), (14.5, 12, 23.8),
+             (14, 20, 23.8), (8, 23, 23.8), (-4, 25.5, 23.8), (-10, 26.8, 23.8),
+             (-12.2, 27.04, 23.4), (-13, 27.04, 22.8)]
+
+
+def wifi_coax():
+    comp = G["comp"]
+    try:
+        sk = comp.sketches.add(comp.xYConstructionPlane)
+        pc = adsk.core.ObjectCollection.create()
+        for p in WIFI_COAX:
+            pc.add(P(*p))
+        spl = sk.sketchCurves.sketchFittedSplines.add(pc)
+        sk.isVisible = False
+        G["wifi_coax_mm"] = spl.length * 10.0
+        pi = comp.features.pipeFeatures.createInput(
+            comp.features.createPath(spl), adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
+        pi.sectionSize = vi(1.13)
+        f = comp.features.pipeFeatures.add(pi)
+        b = f.bodies.item(0)
+        b.name = "wifi_coax"
+        paint(b, "coax")
+        G["parts"].append(b)
+    except Exception:
+        G["fails"].append("wifi_coax")
+
+
 def build_front():
     L = 1
     block("oled_glass", L, "glass", DCX, 0, GLASS_Z, GLASS[0], GLASS[1], GLASS[2])
@@ -601,16 +719,24 @@ def build_front():
     block("light_veml7700_pcb", L, "als_pcb", -64, -28.5, INNER - 2.6, 10.0, 10.0, 1.6)
     block("light_veml7700", L, "white", -64, -28.5, INNER - 1.0, 3.0, 2.0, 1.0)
 
-    block("gnss_patch_ceramic", L, "ceramic", 17, 5, INNER - 4.0, 18.0, 18.0, 3.95)
-    block("gnss_patch_silver", L, "metal", 17, 5, INNER - 0.05, 14.0, 14.0, 0.05)
-    cyl("gnss_feed_pin", L, "gold", 17, 5, INNER - 5.0, 1.2, 1.0)
-    block("lte_flex_antenna", L, "black", 50, -30, INNER - 0.3, 40.0, 8.0, 0.3)
+    # GNSS patch on the top wall (+Y), facing the sky when docked, left of the cell end
+    # (X -69.8..-51.8: between the wall corner and the cell end; Z 4..22, under the mic PCB)
+    gx, gz = -60.8, 13.0
+    block("gnss_patch_ceramic", L, "ceramic", gx, CAV_Y - 0.05 - 3.95 / 2.0, gz - 9.0,
+          18.0, 3.95, 18.0)
+    block("gnss_patch_silver", L, "metal", gx, CAV_Y - 0.025, gz - 7.0, 14.0, 0.05, 14.0)
+    block("gnss_feed_pin", L, "gold", gx, CAV_Y - 4.0 - 0.5, gz - 0.6, 1.2, 1.0, 1.2)
+    # LTE flex on the front wall, bottom edge, >= 10 mm from the PD inductor and USB-C
+    block("lte_flex_antenna", L, "black", 20, -30, INNER - 0.3, 40.0, 8.0, 0.3)
 
     # Wi-Fi: Ezurio FlexPIFA 001-0014 (40.1 x 11.0 x 2.5), on the front wall, element facing
     # out, ground plate toward the board, long axis along Y. Long sides >= 5 mm from metal in
     # the wall plane (GNSS patch 10, speaker_R 10.8). 100 mm MHF1 cable to U1's U.FL at
     # (-13.0, 27.0): leaves the X = 36 long side, crosses the carrier, about 55 mm used.
-    block("wifi_flexpifa", L, "flexpifa", 41.5, 1.05, INNER - 2.5, 11.0, 40.1, 2.5)
+    block("wifi_flexpifa", L, "flexpifa", WIFI_C[0], WIFI_C[1], WIFI_Z0, WIFI[0], WIFI[1], WIFI[2])
+    block("wifi_tape", L, "white", WIFI_C[0], WIFI_C[1], WIFI_Z0 + WIFI[2], WIFI[0], WIFI[1],
+          WIFI_TAPE)
+    wifi_coax()
 
     # button strip on the top wall: vertical PCB, tactile PWR/VOL-/VOL+/PLAY, latching mute
     block("button_strip_pcb", L, "pcb", 53.25, 27.5, BTN_ZC - 3.5, 36.5, 1.0, 7.0)
@@ -756,7 +882,7 @@ NEIGHBOURS = ("cell_10000mAh", "cell_protection_pcb", "qi2_magnet_ring", "qi2_fe
               "qi2_tx_board", "speaker_L", "speaker_R", "pd_board", "pd_usb_c", "pd_inductor",
               "sim7080g_module", "nano_sim_holder", "haptic_lra_10mm", "oled_glass",
               "touch_strip_pcb", "button_strip_pcb", "btn_mute_body", "btn_pwr_body",
-              "btn_play_body") + ANTENNAS
+              "btn_play_body", "wifi_coax", "gnss_patch_silver") + ANTENNAS
 
 
 def clearance_report(design):
@@ -873,6 +999,8 @@ def run(context):
               LENGTH, WIDTH, THICKNESS, INNER, ABOVE, n_parts,
               "%d bodies" % n_carrier if n_carrier else "not imported",
               G["wires"], grouped))
+    if G.get("wifi_coax_mm"):
+        msg += "Wi-Fi coax path: %.1f mm (cable 100 mm)\n" % G["wifi_coax_mm"]
     if G["fails"]:
         msg += "Could not build: %s\n" % ", ".join(G["fails"])
     if not G["base_app"]:

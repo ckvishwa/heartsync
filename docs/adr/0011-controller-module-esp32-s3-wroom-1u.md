@@ -87,18 +87,21 @@ real enclosure lowers peak gain by 1 to 2 dB.
   2.33 dBi), 100 mm cable, MHF1 (U.FL compatible).
 - **Mounting:** on the inside of the front wall, element facing out, ground plate toward the
   board, long sides at least 5 mm clear of metal in the wall plane. The factory adhesive is on
-  the ground plate, which faces the board in this orientation, so the element side needs its own
-  fixing (double-sided tape or a clip) to the wall. Route the cable away from the long side,
-  never over the element.
+  the ground plate, which faces the board here, so the element side is held by 0.2 mm
+  non-conductive double-sided tape to the wall plus two plastic hook clips on the front shell
+  at the short ends (lip under the ground plate edge). Route the cable away from the long
+  side, never over the element.
 - **Position** (`cad/fusion/heartsync_assembly.py`, model axes in mm): X 36..47, Y -19..21.1,
-  Z 25.1..27.6, long axis along Y, over the Qi2 TX board. The top-edge strip next to U1 was
-  tried first and rejected: its long side was 1.0 mm from the OLED glass.
-- **Fit check clearances** (minimum distance, mm): GNSS patch 10.0 and speaker_R 10.9 (in the
-  wall plane); LTE flex antenna 7.0 (end to end); button strip 5.9; carrier connector J5
-  4.2, PD and Qi2 TX boards 5.6 (all behind the ground plate); cell 8.6; Qi2 ferrite 23.7.
-  The cell is below the 10 mm first asked for; the front wall is the furthest point from it
-  that the 11 mm antenna width allows.
-- **Cable:** from U1's U.FL socket at (-13.0, 27.0) the route is about 55 mm, so about 45 mm
-  of the 100 mm cable is slack. Dress the slack along the carrier, away from the antenna.
+  Z 24.9..27.4 (tape 27.4..27.6), long axis along Y, over the Qi2 TX board. The top-edge
+  strip next to U1 was tried first and rejected: its long side was 1.0 mm from the OLED glass.
+- **Fit check clearances** (minimum distance, mm): LTE flex antenna 7.0 (end to end), GNSS
+  patch 88; speaker_R 10.8; button strip 5.9; carrier connector J5 4.1, PD and Qi2 TX boards
+  5.4 (all behind the ground plate); cell 8.4; Qi2 ferrite 23.5. The cell is below the 10 mm
+  first asked for; the front wall is the furthest point from it that the 11 mm antenna
+  width allows.
+- **Cable:** modelled as `wifi_coax` (1.13 mm). It leaves the X = 36 long side at right
+  angles, the slack runs as a serpentine over the carrier at Z 23.8 (at least 7 mm from the
+  element, bend radius about 3 to 4 mm), then to U1's U.FL socket at (-13.0, 27.0). Path
+  95.4 mm of the 100 mm cable.
 - **Open:** bench RF check in the closed shell (return loss, range) before the enclosure
   is final.

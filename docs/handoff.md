@@ -68,25 +68,34 @@ Last updated: 2026-11-19 (carrier U1 to WROOM-1U, enclosure layout pass with rea
     slots in both end walls. Buttons on the top wall (right half): latching 7 x 7 mute, PWR,
     VOL-, VOL+, PLAY. LRA on a rib on the bottom wall.
   - Stack: 32.0 shell + 1.2 fabric = 33.2 mm of the 35 mm limit.
-  - Clearances to note: GNSS patch 1.2 mm above carrier J6; LTE antenna 4.7 mm above the PD
-    USB-C; Wi-Fi antenna 8.6 mm from the cell (10 mm first asked for).
-  - The Fusion doc is unsaved ("Untitled"); the user saves it. The front ring groove stays at
-    X 43 (decorative) and no longer marks the coil.
-  - Battery swell gap is 1.2 mm (rule "at least 1 mm"). ADR 0006 still says 0.5 to 1 mm.
+  - Carrier mounting (fix pass 2026-11-19): no screws. The board hangs from four bosses on the
+    front shell with press-fit pins (2.1 mm) through H1-H4, flush with the board underside, so
+    nothing sits in the swell gap and no metal faces the cell. H3 (9.5, 16) and H4 (12.5, -12):
+    bosses from the front wall. H1 (-33, 21) and H2 (-33, 4) are under the OLED glass: drop
+    bosses from a rib cantilevered off the top wall (X -35.5..-30.5, Z 23..25.5, webs to the
+    front wall at Y 21.2..25.3 and 30.7..34.05). Retention is friction only: drop-test it.
+  - Antennas: LTE flex moved to X 0..40 on the bottom edge (PD inductor 14.8, USB-C 28.3).
+    GNSS patch on the top wall at X -69.8..-51.8, Z 4..22 (J6 cleared), but its edge is
+    **1.8 mm from the cell end**: no room between the wall corner and the cell for more with
+    an 18 mm patch. Wi-Fi coax and tape/clip mount modelled (ADR 0011).
+  - Under the cell: 0.5 mm thermal insulator on the cell bottom (Z 4.0..4.5); 1.1 mm air left
+    between it and the graphite. LRA rib edges rounded (r 0.6).
+  - The Fusion doc is unsaved ("Untitled", the last tab); the user saves it. The front ring
+    groove stays at X 43 (decorative) and no longer marks the coil.
+  - Battery swell gap is 1.2 mm (rule "at least 1 mm"); ADR 0006 and the reviewer skill now
+    say so. ADR 0006 also says heat sources stay off the cell, which the coil-under-cell
+    layout breaks: needs a decision (supersede or move the coil).
   - Fit check includes a hidden keep-out body for the swell gap (Z 16.7..17.9 over the cell):
-    nothing intrudes. It does not cover screws, bosses or cell supports: none are modelled.
-  - Safety review (2026-11-19) open points, fixed: IP5328P, Qi2 TX controller and the battery
-    JST moved off the cell outline (X > 50). Still open:
-    - Cell fully over the Qi2 coil: add a thermal insulator under the cell, an NTC over the
-      coil with TX cut-off, PET-laminated graphite; check stray field vs graphite/pouch.
-    - Carrier M2 holes are all over the cell: screw heads (~1.3..1.6 mm) exceed the 1.2 mm
-      gap. Screw from the front side or move the holes.
+    nothing intrudes. Cell supports and lid fasteners are not modelled.
+  - Safety review open points (first pass fixed hot parts and battery JST off the cell; fix
+    pass fixed mounting screws, bottom insulator, rib edges, ADR 0006). Still open:
+    - Cell fully over the Qi2 coil: NTC over the coil with TX cut-off, PET-laminated
+      graphite; check stray field vs graphite/pouch.
     - Cell has no holder modelled; 95 x 60 x 12 is a placeholder (`battery_*` in params.csv = 0).
-    - LRA rib overhangs the cell by 6.5 mm: round its underside edges.
     - No mesh/gasket on grilles, buttons, USB-C; add a vent when sealing.
     - Pogo pads 1.25 mm outside the Qi2 magnet ring: check heating / FOD; TX off when docked.
     - No lid screws/clips modelled; script dims differ from `params.csv` (152 x 72.5 vs
-      160 x 75); ADR 0006 and the reviewer skill still say 0.5 to 1 mm; wiring paths stale.
+      160 x 75); wiring paths stale.
 
 ## Where we stopped (2026-11-16 evening, user said stop and save)
 

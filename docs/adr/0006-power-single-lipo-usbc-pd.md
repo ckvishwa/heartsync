@@ -34,7 +34,9 @@ Until Phase 8, all bench work runs from USB only, with LED brightness capped at
 
 - The panel's 5 V rail comes from a boost stage; peak current must be characterised
   in Phase 8 before the brightness cap is raised.
-- The enclosure needs a 0.5 to 1 mm swelling gap, a JST connector on the battery,
-  and must open without heat (`docs/hardware/safety.md`).
+- The enclosure needs a swelling gap of at least 1 mm (1.2 mm used), a JST connector
+  on the battery, and must open without heat (`docs/hardware/safety.md`).
+  *Amended 2026-11-19: was "0.5 to 1 mm"; raised to match `safety.md` and
+  `cad/params.csv` (`battery_swell_gap` = 1.2).*
 - Heat sources (charger IC, wireless coil) must be kept off the cell.
 - The exact chip and cell are not chosen yet: verify against datasheets.

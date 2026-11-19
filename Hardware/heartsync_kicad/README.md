@@ -50,7 +50,7 @@ for parts that did not change).
 | J6 | +, - | Haptic LRA |
 | J7 | T1, T2, T3, GND | Touch strip |
 | J8 | MIC_3V3, GND, SCK, WS, SD | INMP441 mic (power cut by mute switch) |
-| J9 | 3V3 out, MIC_3V3 back | Mute slide switch |
+| J9 | 3V3 out, MIC_3V3 back | Mic mute: self-latching push button (7 x 7 mm, top edge) |
 | J10 | 3V3, GND, SDA, SCL | VEML7700 light sensor |
 | J11 | 3V3, GND, SCK, MOSI, CS, DC, RST | OLED (SPI) |
 | J12 | 3V3, GND, LADDER, POWER | Button strip |

@@ -1,6 +1,6 @@
 # Handoff: where we are and what to do next
 
-Last updated: 2026-11-19 (carrier U1 to WROOM-1U, enclosure assembly script; Phase 3 hardware test still pending). Read this first in a new session, then `CLAUDE.md`,
+Last updated: 2026-11-19 (carrier U1 to WROOM-1U, enclosure layout pass with real carrier STEP; Phase 3 hardware test still pending). Read this first in a new session, then `CLAUDE.md`,
 `docs/phases.md`, and the package `CLAUDE.md` for the area you touch.
 
 ## State
@@ -54,19 +54,39 @@ Last updated: 2026-11-19 (carrier U1 to WROOM-1U, enclosure assembly script; Pha
     flex antenna on the shell wall, no antenna keepout. Socket faces the top edge at (23.0, 2.96) mm.
   - J4 (left speaker) on the left edge, J5 (right) on the right edge.
   - DRC: 0 courtyard, keepout, hole and drill errors. 11 starved thermals wait for routing.
-  - Open: antenna MPN (user picks from the ADR 0011 list; any flex antenna differs from the
-    certified monopole, so extra RF testing may be needed). Board STEP has every body.
+  - Antenna: **Ezurio FlexPIFA 001-0014** (ADR 0011), on the front wall over the Qi2 TX board.
+    Flex PIFA differs from the certified monopole: extra RF/EMC testing may be needed.
   - Next in order: route power, I2S, USB pair, rest; DRC clean; STEP fit check in Fusion.
-- **Enclosure assembly** (`cad/fusion/heartsync_assembly.py`): builds the assembled stack (52
-  bodies, fit check clean) in a Hybrid design. The Fusion doc "HeartSync v1" needs saving by
-  the user. Groups: shell, power, lte, ui, dock.
-  - Battery swell gap is now 1.2 mm (rule "at least 1 mm"). ADR 0006 still says 0.5 to 1 mm.
-  - Free space for speakers: right end 45.6 x 41.5 x 24.8 mm. Left end is tight: the cell
-    reaches the wall, and the carrier board (70 x 45) fills the space above it. Needs a layout
-    decision before the stereo speakers (next CAD step).
-  - Safety reviewer open points: cell overlaps the Qi2 coil by ~8 mm (1.7 mm gap); insulate
-    board undersides facing the cell; no gaskets on openings; script dims differ from
-    `params.csv` (152 x 72.5 vs 160 x 75).
+- **Enclosure assembly** (`cad/fusion/heartsync_assembly.py`): layout pass done. One run builds
+  the shell, all parts, imports the carrier STEP (wrapper component placed before import),
+  runs the fit check and the antenna clearance report, then groups into shell, power,
+  speakers, lte, wifi, ui, dock + carrier. 64 bodies + 295 carrier bodies, **fit check clean**.
+  - Cell centred in X (-50..50 with seal), Qi2 coil at X = 0 under it, 0.1 mm graphite between,
+    0.2 mm insulator on the cell top, then the 1.2 mm swell gap. Board layer at Z 17.9.
+  - Board layer: carrier X -36..34, Qi2 TX right of it, PD board bottom-right (USB-C out the
+    right end wall), SIM board bottom-left. Speakers: 16 x 30 x 20 boxes at both ends, grille
+    slots in both end walls. Buttons on the top wall (right half): latching 7 x 7 mute, PWR,
+    VOL-, VOL+, PLAY. LRA on a rib on the bottom wall.
+  - Stack: 32.0 shell + 1.2 fabric = 33.2 mm of the 35 mm limit.
+  - Clearances to note: GNSS patch 1.2 mm above carrier J6; LTE antenna 4.7 mm above the PD
+    USB-C; Wi-Fi antenna 8.6 mm from the cell (10 mm first asked for).
+  - The Fusion doc is unsaved ("Untitled"); the user saves it. The front ring groove stays at
+    X 43 (decorative) and no longer marks the coil.
+  - Battery swell gap is 1.2 mm (rule "at least 1 mm"). ADR 0006 still says 0.5 to 1 mm.
+  - Fit check includes a hidden keep-out body for the swell gap (Z 16.7..17.9 over the cell):
+    nothing intrudes. It does not cover screws, bosses or cell supports: none are modelled.
+  - Safety review (2026-11-19) open points, fixed: IP5328P, Qi2 TX controller and the battery
+    JST moved off the cell outline (X > 50). Still open:
+    - Cell fully over the Qi2 coil: add a thermal insulator under the cell, an NTC over the
+      coil with TX cut-off, PET-laminated graphite; check stray field vs graphite/pouch.
+    - Carrier M2 holes are all over the cell: screw heads (~1.3..1.6 mm) exceed the 1.2 mm
+      gap. Screw from the front side or move the holes.
+    - Cell has no holder modelled; 95 x 60 x 12 is a placeholder (`battery_*` in params.csv = 0).
+    - LRA rib overhangs the cell by 6.5 mm: round its underside edges.
+    - No mesh/gasket on grilles, buttons, USB-C; add a vent when sealing.
+    - Pogo pads 1.25 mm outside the Qi2 magnet ring: check heating / FOD; TX off when docked.
+    - No lid screws/clips modelled; script dims differ from `params.csv` (152 x 72.5 vs
+      160 x 75); ADR 0006 and the reviewer skill still say 0.5 to 1 mm; wiring paths stale.
 
 ## Where we stopped (2026-11-16 evening, user said stop and save)
 

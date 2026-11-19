@@ -6,8 +6,9 @@
 ## Decision
 
 U1 on the carrier board is the ESP32-S3-WROOM-1U-N16R8, not the WROOM-1-N16R8. It has the same
-chip, memory and pinout, but a U.FL (IPEX MHF1) socket instead of the PCB antenna. A 2.4 GHz flex
-antenna sits on the shell wall away from metal, connected by a short U.FL cable. The footprint is
+chip, memory and pinout, but a U.FL (IPEX MHF1) socket instead of the PCB antenna. The antenna is
+an **Ezurio FlexPIFA 001-0014** on the inside of the front wall, connected by its 100 mm MHF1
+cable (see "External antenna"). The footprint is
 `heartsync:ESP32-S3-WROOM-1U_NoVias`: the stock KiCad 10 `RF_Module:ESP32-S3-WROOM-1U` with the same
 pad-41 change as ADR 0010 (a 3x3 grid of 0.3 mm drill vias).
 
@@ -35,8 +36,9 @@ pad-41 change as ADR 0010 (a 3x3 grid of 0.3 mm drill vias).
 
 ## Consequences
 
-- **Antenna part: still to be chosen by the user** (see "External antenna" below). Cable length
-  is at most 100 mm, set after the Fusion fit check.
+- **Antenna part: Ezurio FlexPIFA 001-0014** (chosen by the user 2026-11-19, see "Chosen
+  antenna" below). It is a different type from Espressif's certified monopole, so extra EMC
+  testing may be needed (section 10.2 note below).
 - **Board layout:** U1's U.FL socket faces the board's top edge, with 3 mm of clearance around
   it. `replace_parts.py` checks this instead of snapping the antenna to the edge. There is no
   antenna keepout any more.
@@ -79,4 +81,24 @@ real enclosure lowers peak gain by 1 to 2 dB.
 | Taoglas FXP73.07.0100A (Blue Diamond) | 2.5 dBi | 100 mm, 1.13 mm coax, I-PEX MHF I | 47 x 7 x 0.1 mm. 0.17 dB above the certified gain. |
 | Molex 146153-0100 | about 2.8 to 3.0 dBi (sources differ) | 100 mm, MHF | Above the certified gain. 50 mm version 146153-0050 also exists. |
 
-Not chosen yet: the user picks.
+### Chosen antenna: Ezurio FlexPIFA 001-0014
+
+- **Part:** 40.1 x 11.0 x 2.5 mm, 2.4 GHz only, 2 dBi peak (at or below the certified
+  2.33 dBi), 100 mm cable, MHF1 (U.FL compatible).
+- **Mounting:** on the inside of the front wall, element facing out, ground plate toward the
+  board, long sides at least 5 mm clear of metal in the wall plane. The factory adhesive is on
+  the ground plate, which faces the board in this orientation, so the element side needs its own
+  fixing (double-sided tape or a clip) to the wall. Route the cable away from the long side,
+  never over the element.
+- **Position** (`cad/fusion/heartsync_assembly.py`, model axes in mm): X 36..47, Y -19..21.1,
+  Z 25.1..27.6, long axis along Y, over the Qi2 TX board. The top-edge strip next to U1 was
+  tried first and rejected: its long side was 1.0 mm from the OLED glass.
+- **Fit check clearances** (minimum distance, mm): GNSS patch 10.0 and speaker_R 10.9 (in the
+  wall plane); LTE flex antenna 7.0 (end to end); button strip 5.9; carrier connector J5
+  4.2, PD and Qi2 TX boards 5.6 (all behind the ground plate); cell 8.6; Qi2 ferrite 23.7.
+  The cell is below the 10 mm first asked for; the front wall is the furthest point from it
+  that the 11 mm antenna width allows.
+- **Cable:** from U1's U.FL socket at (-13.0, 27.0) the route is about 55 mm, so about 45 mm
+  of the 100 mm cable is slack. Dress the slack along the carrier, away from the antenna.
+- **Open:** bench RF check in the closed shell (return loss, range) before the enclosure
+  is final.

@@ -98,9 +98,9 @@ seal / PCM end is now at -X), and its hot parts are past the cell at X >= 48.
 | R1P | 10 mOhm sense, 0805 | (49.0, 23.5) | | hot |
 | Q1P | output switch, DFN 3.3 | (53.8, 24.0) | | hot |
 | C1P-C3P | in / out caps | (42.5, 14.5 / 17.5 / 20.5) | 3.2 x 1.6 | over the cell: caps and connectors only |
-| U2P | Qi TX load switch | (46.0, 15.0) | SOT-23 | input-fed, QI_EN and the NTC window |
-| U3P | dock pad load switch | (46.0, 19.0) | SOT-23 | on only with DOCK_SEATED |
-| J1P | JST PH B3B-PH-K, cell (BAT+, BAT-, NTC) | (37.25, 24.0) | 4.5 x 9.9 x 6 | leads come up from the top channel |
+| U2P | Qi TX load switch | (54.3, 28.0) | SOT-23 | input-fed, QI_EN and the NTC window; right prong, off the cell |
+| U3P | dock pad switch, **true reverse blocking** (back-to-back FETs or an ideal-diode controller; a plain load switch leaks through its body diode) | (54.3, 31.0) | SOT-23 class | on only with DOCK_SEATED; right prong, off the cell |
+| J1P | JST PH **S3B-PH-SM4-TB** (SMD, side entry), cell (BAT+, BAT-, NTC) | (37.25, 24.0) | 4.5 x 9.9 x 4.8 | SMD: no pins toward the cell; leads come up from the top channel |
 | J2P | JST SH SM08B to carrier J1 | (36.7, 13.5) | left edge | +5V x 2, GND, D+, D-, ALERT_N, SDA, SCL |
 | J3P | JST SH SM04B: dock in (2), Qi TX out (2) | (43.8, 10.2) | bottom edge | dock wires along the bottom channel |
 
@@ -108,6 +108,21 @@ seal / PCM end is now at -X), and its hot parts are past the cell at X >= 48.
 curve; if it expects 100 k, add the divider or order the other NTC); 5V out (to carrier J1);
 I2C_SDA/SCL (IP5328P register access), ALERT_N (open drain, <= 3.3 V); DOCK_IN, DOCK_SEATED;
 QI_PWR, QI_EN.
+
+**Safety review 2026-11-19 (fixes in the plan):**
+
+- Nothing through-hole over the cell (X <= 46.5): J1P is SMD; the USB-C's shell legs must land
+  at X > 46.5 or be trimmed flush and insulated (verify on the Amphenol drawing).
+- Over the cell only caps and connectors; U2P/U3P moved to the right prong. Inner copper planes
+  stop at X 46.5. Phase 8: thermocouple on the cell under the board, worst case 2 A charge +
+  Qi TX + 5 V out.
+- "Input present" for the Qi TX comes from the charger's charging status or a sense point
+  before a reverse-blocking stage, and the IP5328P USB-C port is set input-only, so the cell can
+  never feed the Qi TX through VBUS (verify the port mode in the datasheet).
+- The board needs its own mount (two bosses from the front wall or a clip on the bracket frame):
+  the device lies on its back, so nothing may let it sag onto the swell gap.
+- The 90 percent stop is firmware; if the ESP32 is off or hung while docked the cell charges to
+  4.20 V (100 percent). Keep the ESP32 awake while docked, or accept that fallback.
 
 **Rules carried over:** charge voltage strapped to 4.20 V; the ESP32 stops charging at 4.08 to
 4.10 V (about 90 percent) over I2C, MAX17048 as a second check (verify the charge-disable
@@ -132,6 +147,10 @@ the LRA, the carrier and the power board).
 | A | Huagon Charging 15 W magnetic TX module (coil + N52 ring + PCBA; non-certified version) | coil dia 55 (custom sizes), PCBA 40 x 30 x 3 | coil fits; PCBA too big for the 30 x 20 slot, fits flat under the coil only if they cut it to about 30 x 24 (they offer custom shapes) | https://www.huagoncharging.com/product/qi-2-magnetic-fast-wireless-charging-module-magnet-transmitter-receiver-15w-fast-qi-2-two-magnetic-wireless-charger-module.html |
 | B | Generic 15 W Qi TX PCBA with a 50 mm coil (WPC 1.2.3), plus an N52 ring OD 56 / ID 44 x 1.5 | PCBA 24 x 32 x 2.0 (seller listing) | coil + ring fit the groove; PCBA fits flat under the coil (X 22..46, Y -26..-2) or turned in the vertical slot if it is 20 tall: verify | https://www.newegg.com/p/2S7-07JP-1M3R3 |
 | C | Sealed coil + magnet-ring module (ConvenientPower MPP type) with our own driver from a TI / NXP 15 W reference design on the vertical slot | coil module about dia 54; driver ours | coil fits if <= 2.8 deep; driver shaped to the slot | https://texim-europe.com/getfile.ashx?id=122357 |
+
+Buying requirement for all three: foreign-object detection (a coin or keys on the coil) and an
+over-temperature shutdown, confirmed in the datasheet. If the PCBA lies flat under the coil it is
+over the cell (7 mm of air): prefer the vertical slot at X 51.8 when it fits.
 
 Recommend **B** for the first build (cheapest, flat PCBA fits under the coil), then A if a
 custom-shaped module is worth the MOQ. None is Qi2-certified; the phone charges at the Qi (BPP or

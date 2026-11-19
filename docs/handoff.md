@@ -98,6 +98,14 @@ Last updated: 2026-11-19 evening (enclosure full pass: 157 mm, dead-front 3.12 i
     charge stop about 90 percent), `docs/hardware/board-plans.md` (carrier rev B tab, front board,
     power board, Qi TX options), panel model `cad/models/oled_wex025664b_panel_312`.
   - Still stand-ins: Qi coil + TX board (plan d recommends a 15 W PCBA flat under the coil), LRA.
+  - Safety review of this pass (2026-11-19): fixed in model/docs: battery connector SMD
+    (S3B-PH-SM4-TB), Qi/dock switches moved off the cell, dock switch must block reverse current,
+    Qi "input present" from charger status (USB-C port input-only), Qi module must have FOD and
+    over-temperature shutdown, screw-pad washers (inside the gasket line), lead dressing, venting
+    note, Phase 8 gate on the cell step. Still open: USB-C shell legs over the cell (Amphenol
+    drawing), a positive mount for the power board, 90 % stop is firmware-only (fallback 4.20 V),
+    stack margin 0.1 mm (measure fabric; fallback ring 0.3 or back ring 1.4), Phase 8 cell
+    thermocouple test. `docs/hardware/fit/` (untracked revE files) still shows the cell PCM at +X.
   - Open: verify the panel thickness/FPC on arrival; the SSD1322 needs a driver behind
     `IDisplay` and a VCC enable pin; new pins (OLED_VCC_EN, QI_EN, DOCK_SEATED) wait for rev B;
     IP5328P charge-disable register and NTC curve; LTE 700 MHz bands (Molex) vs carrier.

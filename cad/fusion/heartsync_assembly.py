@@ -243,7 +243,7 @@ ABOVE = CELL_TOP + INSUL + SWELL            # board layer bottom (13.7 with the 
 PCB_TOP = ABOVE + PCB_T
 
 CELL_CX, CELL_CY = POS["cell"]
-CELL_X0 = CELL_CX - CELL_L / 2.0            # PCM folded inside the length, at the +X end
+CELL_X0 = CELL_CX - CELL_L / 2.0            # PCM (seal) end here at -X from phase 3 (folded inside the length)
 CELL_X1 = CELL_X0 + CELL_L
 
 COIL_CX, COIL_CY = POS["coil"]
@@ -1188,9 +1188,9 @@ PD_PARTS = [  # name, colour, centre X, Y, size X, Y, Z (all on the top face)
     ("pd_cap_in", "passive", 42.5, 14.5, 3.2, 1.6, 1.6),
     ("pd_cap_out1", "passive", 42.5, 17.5, 3.2, 1.6, 1.6),
     ("pd_cap_out2", "passive", 42.5, 20.5, 3.2, 1.6, 1.6),
-    ("pd_sw_qi", "chip", 46.0, 15.0, 3.0, 3.0, 1.1),            # Qi TX load switch (input-fed)
-    ("pd_sw_dock", "chip", 46.0, 19.0, 3.0, 3.0, 1.1),          # dock pad load switch (seated only)
-    ("pd_conn_cell", "conn", 37.25, 24.0, 4.5, 9.9, 6.0),       # JST PH B3B-PH-K: BAT+, BAT-, NTC
+    ("pd_sw_qi", "chip", 54.3, 28.0, 3.0, 3.0, 1.1),            # Qi TX load switch (input-fed), off the cell
+    ("pd_sw_dock", "chip", 54.3, 31.0, 3.0, 2.6, 1.1),          # dock pad switch, reverse-blocking, off the cell
+    ("pd_conn_cell", "conn", 37.25, 24.0, 4.5, 9.9, 4.8),       # JST PH S3B-PH-SM4-TB (SMD, side entry): no pins toward the cell
     ("pd_conn_carrier", "conn", 36.7, 13.5, 4.25, 10.0, 2.95),  # JST SH SM08B to carrier J1
     ("pd_conn_dock_qi", "conn", 43.8, 10.2, 8.0, 4.25, 2.95),   # JST SH SM04B: dock in, Qi TX out
 ]

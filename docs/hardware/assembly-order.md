@@ -2,8 +2,8 @@
 
 Status: plan for the first PETG build (2026-11-19). Model: `cad/fusion/heartsync_assembly.py`.
 Read `docs/hardware/safety.md` first. Brightness stays capped at 25 percent and no LiPo wiring
-happens before Phase 8: until then, steps 10 to 12 use a current-limited bench supply in place of
-the cell.
+happens before Phase 8: until then, section 7 runs on a current-limited bench supply in place of
+the cell, and **section 8 waits for Phase 8**.
 
 The rule behind the order: **everything hot happens before the cell is near the case** (heat-set
 inserts, fabric edge sealing, soldering), and **the cell goes in last**, on the lid, just before
@@ -69,7 +69,7 @@ adhesive only.
 4. Cell NTC input: hot and cold cut-offs (0 and 45 deg C) stop charging and the Qi TX.
 5. Qi TX: on only with an input present (USB-C or dock), never from the cell.
 
-## 8. The cell, last
+## 8. The cell, last (Phase 8 only)
 
 1. On the lid: stretch-release adhesive strips on the cell pad, cell (PCM end at the left, -X),
    insulator on its top face, foam frame round it against the lid ribs. The 1.2 swell gap above
@@ -80,9 +80,19 @@ adhesive only.
 
 ## 9. Close
 
-1. Silicone cord into the lid's gasket channel.
-2. Lid onto the tray (tongue inside the wall), four M2 low-head screws into the inserts.
-3. Press the TPU back ring into its channel over the screw heads.
+1. Dress the cell leads flat in the top channel, clear of the lid tongue and the gasket channel,
+   so closing the lid cannot pinch them.
+2. Silicone cord into the lid's gasket channel; a 0.3 silicone washer on each lid screw pad (the
+   screw holes are inside the gasket line, so the washer between pad and insert boss closes that
+   water path; the pad face drops 0.3 in the next model revision).
+3. Lid onto the tray (tongue inside the wall), four M2 low-head screws into the inserts.
+4. Press the TPU back ring into its channel over the screw heads.
+
+## Venting
+
+The ePTFE membranes over the speakers and the mic pass air, so slow pressure changes equalise.
+If the cell ever vents, the lid (four M2 screws, no adhesive) is the only fast relief: do not
+glue or pot it.
 
 ## Opening again
 

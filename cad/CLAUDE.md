@@ -64,6 +64,8 @@ No build step. Validate the CSV by importing it in Fusion; the script reports ba
   four low-head screws.
 - Lid 3.0 mm: the ring channel (1.0 from the back) and the gasket channel (0.8 from the inside)
   leave exactly 1.2 mm. Do not deepen either without thickening the lid.
+- Top edge: one TPU strip over two windows (2 mm rib), five low switches, two USB-C ports (ADR
+  0017, 0018); ends: round-hole grilles with trim frames sunk flush, length stays 157.
 - Stack 34.9 of 35 at the Qi ring (tray 29.4, ADR 0014): any added depth needs a trade.
 
 ## Build stages

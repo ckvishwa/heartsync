@@ -13,10 +13,10 @@ adhesive only.
 ## 1. Print and check the parts
 
 1. PLA test print first (`cad/print-profiles/pla-test.md`): tray, lid, bracket, both speaker
-   cradles. Check the 0.8 mm honeycomb webs, the lid tongue fit (0.15), the bracket pins in the
-   carrier holes, the 2.7 mm lens-ledge overhang round the window, and the button holes.
+   cradles. Check the 0.9 mm grille webs and the round holes, the lid tongue fit (0.15), the bracket pins in the
+   carrier holes, the 2.7 mm lens-ledge overhang round the window, and the strip pocket.
 2. PETG final (`petg-final.md`): tray front-down, lid outside-down, bracket and cradles flat.
-3. TPU (`tpu-bumpers.md`): back ring and keypad.
+3. TPU (`tpu-bumpers.md`): back ring and top strip.
 
 ## 2. Heat-set inserts (before any electronics, long before the cell)
 
@@ -42,15 +42,18 @@ adhesive only.
 
 ## 5. Top edge
 
-1. TPU keypad on the inside of the top wall, keys through their holes, PSA ring on the sheet edge.
-2. Mute board and button strip behind it. USB-C receptacle onto its gasket.
+1. TPU strip into the two top-wall windows from outside (flush with the fabric, icons up, the rib
+   in its slot); its inner flange sits on the wall, PSA ring on the flange edge. Press the brass
+   trim frames into the end-wall channels (flush).
+2. Button strip (five PTS810 switches and the mute LED) behind it. Both USB-C receptacles onto
+   their gaskets.
 
 ## 6. Boards
 
 1. Carrier bracket pins into the carrier holes H1 to H4.
 2. Front board over the bracket, panel FPC into its connector, front flex to the carrier, three
    M1.6 screws into the front-wall bosses. The carrier now hangs on the bracket pins.
-3. Power board in its slot (USB-C in the cut-out), Qi TX board, Qi coil behind the ring.
+3. Power board in its slot (both USB-C ports in their notches), Qi TX board, Qi coil behind the ring.
 4. Speakers into their cradles with the foam pad, face gasket on the membrane.
 5. LRA on its fin. Pogo board with the four pads and their seal washers, two M1.6 screws.
    Magnets into their blind pockets.

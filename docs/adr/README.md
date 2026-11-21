@@ -21,3 +21,5 @@ One file per decision. Create new ones with `/new-adr <title>` or by copying
 | 0014 | [Enclosure length 157 mm, front fabric, thinner tray](0014-enclosure-length-157.md) | Proposed |
 | 0015 | [Dead-front display with a bare 3.12 in SSD1322 panel](0015-dead-front-bare-ssd1322-display.md) | Proposed |
 | 0016 | [Custom boards: carrier rev B, front board, power board](0016-custom-boards-carrier-rev-b-front-power.md) | Proposed |
+| 0017 | [One flush TPU strip on the top edge, round-hole end grilles with sunk trim frames](0017-top-strip-and-round-hole-end-grilles.md) | Proposed |
+| 0018 | [Two USB-C ports on the top edge, no USB-A](0018-two-usb-c-ports-no-usb-a.md) | Proposed |

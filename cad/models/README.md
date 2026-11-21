@@ -19,7 +19,8 @@ Collected 2026-11-19. Open parts (not chosen yet) and their options are in
 | JST SH SM02/04/05/06/07B-SRSS-TB | `jst_sh` | KiCad library | yes (series catalogue) |
 | JST SHR-02/04/05/06/07V-S-B | `jst_sh` | **from drawing, verify** | yes (series catalogue) |
 | Amphenol 124019572112A waterproof USB-C | `usbc_amphenol_124019572112a` | Amphenol official | **no** (CDN blocks scripts; save from a browser) |
-| G-Switch PS-7054DVB-6PL 7 x 7 latching button | `btn_latch_ps-7054dvb-6pl` | **from drawing, verify** | yes |
+| G-Switch PS-7054DVB-6PL latching button (no longer used, ADR 0017) | `btn_latch_ps-7054dvb-6pl` | from drawing | yes |
+| C&K PTS810 low tactile (x5) | `btn_tact_pts810` | KiCad library | no (save the datasheet from a browser) |
 | C&K PTS645SM43SMTR92 tactile (x4) | `btn_tact_pts645sm43smtr92` | KiCad library | **no** (C&K returns 403; save from a browser) |
 | Mill-Max 0906-2 pogo pin (dock) | `pogo_millmax_0906-2` | **from drawing, verify** | yes (catalogue page) |
 | Pogo target pad (device, our part) | `pogo_pad` | from `params.csv` | n/a |

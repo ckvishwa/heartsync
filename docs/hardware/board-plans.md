@@ -83,28 +83,30 @@ Front holes moved to the sensor tab: mic (dia 1.0) at (-48.0, 20.8), light (dia 
 
 ## (c) Power board (new)
 
-**Outline:** **X 34.5..56.0, Y 8.0..32.5** (21.5 x 24.5), board layer Z 13.7..15.3, with a cut-out
-X 39.7..52.3, Y 26.0..32.5 for the mid-mount Amphenol 124019572112A (USB-C on this board, body
-centred X 46.0, PCB top 0.75 below its centreline). 4-layer for heat spreading. Right edge
-2.75 mm off the right speaker cradle. The board sits over the cell's +X end (the folded end; the
-seal / PCM end is now at -X), and its hot parts are past the cell at X >= 48.
+**Outline (ADR 0018):** **X 34.5..56.6, Y 8.0..26.0**, board layer Z 13.7..15.3 (the carrier ends at
+X 34.0). The two mid-mount Amphenol 124019572112A USB-C ports sit just above the top edge: port 2
+(output only) at X 40.5, port 1 (bidirectional) at X 53.3; PCB top 0.75 below each port's
+centreline. 4-layer for heat spreading. Right edge 2.1 mm off the right speaker cradle. No USB-A.
+The board sits over the cell's +X end (the folded end; the seal / PCM end is at -X), hot parts at
+X >= 49.
 
 **Parts** (IP5328P datasheet typical application):
 
 | Ref | Part | Centre (X, Y) | Size | Notes |
 |---|---|---|---|---|
-| U1P | IP5328P, QFN40 6 x 6 | (52.0, 19.2) | 6 x 6 x 0.9 | hot |
-| L1P | 2.2 uH | (52.0, 11.8) | 7 x 7 x 3 | hot |
-| R1P | 10 mOhm sense, 0805 | (49.0, 23.5) | | hot |
-| Q1P | output switch, DFN 3.3 | (53.8, 24.0) | | hot |
-| C1P-C3P | in / out caps | (42.5, 14.5 / 17.5 / 20.5) | 3.2 x 1.6 | over the cell: caps and connectors only |
-| U2P | Qi TX load switch | (54.3, 28.0) | SOT-23 | input-fed, QI_EN and the NTC window; right prong, off the cell |
-| U3P | dock pad switch, **true reverse blocking** (back-to-back FETs or an ideal-diode controller; a plain load switch leaks through its body diode) | (54.3, 31.0) | SOT-23 class | on only with DOCK_SEATED; right prong, off the cell |
-| J1P | JST PH **S3B-PH-SM4-TB** (SMD, side entry), cell (BAT+, BAT-, NTC) | (37.25, 24.0) | 4.5 x 9.9 x 4.8 | SMD: no pins toward the cell; leads come up from the top channel |
-| J2P | JST SH SM08B to carrier J1 | (36.7, 13.5) | left edge | +5V x 2, GND, D+, D-, ALERT_N, SDA, SCL |
-| J3P | JST SH SM04B: dock in (2), Qi TX out (2) | (43.8, 10.2) | bottom edge | dock wires along the bottom channel |
+| U1P | IP5328P, QFN40 6 x 6, port 1 charger / boost | (46.3, 18.0) | 6 x 6 x 0.9 | hot |
+| L1P | 2.2 uH | (53.0, 16.5) | 7 x 7 x 3 | hot |
+| R1P | 10 mOhm sense, 0805 | (44.8, 23.5) | | hot |
+| Q1P | output switch, DFN 3.3 | (48.5, 23.0) | | hot |
+| C1P-C3P | in / out caps | (41.0, 14.5 / 16.5 / 18.5) | 3.2 x 1.6 | over the cell: caps and connectors only |
+| U4P | port 2 source switch, current limit 1.5 A, with CC pull-ups (Rp) | (41.5, 23.3) | SOT-23 class | output only, no data to the carrier |
+| U2P | Qi TX load switch | (51.8, 23.3) | SOT-23 | input-fed (port 1 in the sink role, or dock), QI_EN and the NTC window |
+| U3P | dock pad switch, **true reverse blocking** (back-to-back FETs or an ideal-diode controller; a plain load switch leaks through its body diode) | (55.0, 23.4) | SOT-23 class | on only with DOCK_SEATED |
+| J1P | JST PH **S3B-PH-SM4-TB** (SMD, side entry), cell (BAT+, BAT-, NTC) | (36.8, 21.0) | 4.5 x 9.9 x 4.8 | SMD: no pins toward the cell; leads come up from the top channel |
+| J2P | JST SH SM08B to carrier J1 | (40.0, 10.1) | bottom edge, 10 x 4.25 | +5V x 2, GND, D+, D-, ALERT_N, SDA, SCL |
+| J3P | JST SH SM04B: dock in (2), Qi TX out (2) | (49.5, 10.1) | bottom edge | dock wires along the bottom channel |
 
-**Nets:** VBUS, CC1, CC2, D+, D- (USB-C); BAT+, BAT-, NTC (cell, 10 k: verify the IP5328P NTC
+**Nets:** VBUS, CC1, CC2, D+, D- (port 1); VBUS2, CC1_2, CC2_2 (port 2, output only, no data); BAT+, BAT-, NTC (cell, 10 k: verify the IP5328P NTC
 curve; if it expects 100 k, add the divider or order the other NTC); 5V out (to carrier J1);
 I2C_SDA/SCL (IP5328P register access), ALERT_N (open drain, <= 3.3 V); DOCK_IN, DOCK_SEATED;
 QI_PWR, QI_EN.
@@ -117,8 +119,10 @@ QI_PWR, QI_EN.
   stop at X 46.5. Phase 8: thermocouple on the cell under the board, worst case 2 A charge +
   Qi TX + 5 V out.
 - "Input present" for the Qi TX comes from the charger's charging status or a sense point
-  before a reverse-blocking stage, and the IP5328P USB-C port is set input-only, so the cell can
-  never feed the Qi TX through VBUS (verify the port mode in the datasheet).
+  before a reverse-blocking stage and is valid only while port 1 is in the **sink** role (port 1 is
+  bidirectional now, ADR 0018): the Qi TX is never fed from VBUS while port 1 sources, so the cell
+  can never feed it (verify the role flag in the IP5328P datasheet). Port 2 is source-only.
+- The combined output of port 1, port 2, Qi TX and the dock is capped; port 2 alone at 1.5 A.
 - The board needs its own mount (two bosses from the front wall or a clip on the bracket frame):
   the device lies on its back, so nothing may let it sag onto the swell gap.
 - The 90 percent stop is firmware; if the ESP32 is off or hung while docked the cell charges to

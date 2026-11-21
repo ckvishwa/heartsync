@@ -44,9 +44,15 @@ min_wall,1.2,mm,rule,Minimum printed wall (3 perimeters at 0.4)
 ring_od,56,mm,model,"Front Qi ring = Qi marking under the fabric (no gold inlay), centred on the coil"
 ring_width,1.0,mm,model,Front ring groove width
 ring_depth,0.6,mm,model,Front Qi ring groove depth; the printed ring (ring_height 1.0) stands 0.4 proud under the fabric
-honeycomb_count,237,count,spec,End grille holes: 25 columns of 9/10 flat-top hexes
-honeycomb_hex,1.8,mm,spec,Hex hole across flats
-honeycomb_pitch,2.6,mm,spec,Hex pitch (web 0.8)
+grille_count,230,count,spec,End grille holes per end: 23 columns x 10 rows of round holes
+grille_hole_d,1.6,mm,spec,End grille hole diameter (all through)
+grille_pitch,2.5,mm,spec,Square grid pitch (web 0.9)
+end_trim_w,61,mm,spec,Raised brass-tone trim frame round each end grille (Y)
+end_trim_h,26.3,mm,spec,Trim frame height (Z 1.2..27.5): 27 would leave a 0.45 lip at the open edge
+end_trim_t,0.6,mm,spec,Trim frame channel depth: the frame sits flush and the overall length stays 157
+top_strip_w,51.6,mm,spec,Top-edge TPU strip pocket width (X -70..-18.4: starts where the 6 mm corner radius ends)
+top_strip_h,9.2,mm,spec,Top-edge TPU strip pocket height (Z centre 19.7)
+top_icon_h,0.6,mm,spec,Raised icons on the strip over the five switches
 honeycomb_wall,1.2,mm,spec,End wall thinned to this in front of the speaker
 membrane_thickness,0.2,mm,assumption,ePTFE acoustic membrane over the whole honeycomb
 speaker_gasket,1.0,mm,assumption,"Foam gasket, speaker face to membrane"
@@ -67,12 +73,11 @@ back_ring_channel,1.0,mm,spec,Ring channel depth in the lid
 back_ring_proud,1.5,mm,spec,Ring height above the back face
 back_ring_pocket_d,4.0,mm,model,Pocket in the ring underside over each screw head (head 3.8). Opens the ring sides locally; 1.0 rubber stays over the head
 back_ring_pocket_h,1.5,mm,model,Pocket depth (head 1.3 + 0.2)
-id_block_length,26,mm,spec,"Engraved ID block on the back, bottom-right seen from behind"
-id_block_width,11,mm,spec,ID block height
+id_block_length,18,mm,spec,"Engraved name box on the back (no frame), bottom-right seen from behind"
+id_block_width,7.5,mm,spec,Name box height
+id_text_height,6.5,mm,spec,"Letter height of the engraved name"
 id_text_depth,0.3,mm,spec,Engraving depth
-id_text_1,HeartSync,text,spec,ID line 1
-id_text_2,1 / 2,text,spec,ID line 2 (device number of the pair)
-id_text_3,made with love 2026,text,spec,ID line 3
+id_text_1,Rexi,text,spec,Engraved name on the back
 speaker_cradle_wall,1.5,mm,model,"Printed speaker cradle: back frame and arms (PETG, own STL)"
 speaker_foam,1.0,mm,assumption,Foam pad between the cradle frame and the speaker back (pre-load on the face gasket)
 ring_height,1.0,mm,model,"Printed Qi marking ring in the 0.6 groove: 0.4 proud of the front face, under the fabric"
@@ -96,3 +101,8 @@ touch_wall,1.2,mm,spec,Front wall left under the touch strip (pocket from the in
 phone_width,77,mm,spec,"Upright phone width, centred on the Qi coil"
 va_phone_gap,2.0,mm,rule,Display VA ends at least this far before the phone zone
 coil_end_gap,3.0,mm,rule,"Coil magnet ring to the right end outer face, at least"
+top_strip_rib,2,mm,spec,Tray rib that splits the strip pocket in two windows (shorter bridges)
+top_key_groove,0.8,mm,spec,Groove ring round each key in the 2.8 strip
+top_switch_h,2.5,mm,assumption,C&K PTS810 low tactile height (verify on the datasheet)
+top_usb_ports,2,count,spec,Port 1 bidirectional (charger chip); port 2 output only; no USB-A
+lte_port_gap,7,mm,spec,LTE flex to the nearest USB-C port

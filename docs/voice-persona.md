@@ -106,7 +106,8 @@ the cloud model.
 - **Sensitivity:** adjustable in the app; start mid, raise it if she says it misses her at night.
 - **Backup:** tap the touch strip to talk, no wake word needed.
 - **Privacy:** nothing is sent until the wake word fires; a light on the front shows when Rexi is
-  listening; the mute button cuts the mic in hardware.
+  listening; the mute key is a firmware toggle with a red LED on the strip (ADR 0017), not a
+  hardware cut-off.
 
 ## System prompt draft for the model
 
@@ -124,7 +125,7 @@ Do not use any fictional character's name, catchphrase or voice.
 ## Links to the hardware
 
 - The "listening" light and the mic are the front-board light hole and mic hole in the CAD
-  (`docs/hardware/board-plans.md`, front board). The mute switch cuts the mic in hardware.
+  (`docs/hardware/board-plans.md`, front board). The mute key toggles the mic in firmware and lights a red LED.
 - The touch strip is the push-to-talk backup.
 - New pins for the mic path are not assigned yet; `firmware/include/config.h` and
   `docs/hardware/pinout.md` change together when the voice slice is planned.

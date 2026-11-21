@@ -1,7 +1,7 @@
 # 0012: Speakers: enclosed Same Sky CES-571423-28PMB, end-firing through a honeycomb grille
 
 - **Date:** 2026-11-19
-- **Status:** Proposed
+- **Status:** Proposed (hole shape superseded by ADR 0017: round holes, not hex)
 
 ## Decision
 

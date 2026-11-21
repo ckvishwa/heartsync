@@ -78,22 +78,31 @@ Last updated: 2026-11-19 evening (enclosure full pass: 157 mm, dead-front 3.12 i
     not modelled) about 13.4 from the ring.
   - Stack **34.9** (lid 3.0 + tray 29.4 + fabric 0.6 + ring 0.4 + back ring 1.5). Swell gap 1.2
     over the 11.3 max cell, board layer Z 13.7.
-  - Buttons (top edge, left to right: mute, PWR, VOL-, VOL+, PLAY, then LTE, then USB-C): mute
-    on its own board (12.4 deep), tactiles on a stepped strip (PWR/VOL turned 90 deg, PLAY flat
-    above U1), one TPU keypad (own STL) seals all five holes. LTE flex X -18.4..22.0: 10.3 from
-    USB-C, 11.7 from the coil ferrite, 5.6 from the PLAY switch.
+  - Top edge (ADR 0017, 0018): one 51.6 x 9.2 pocket (X -70..-18.4, Z 19.7) with a 2 mm rib
+    between VOL- and VOL+, one flush TPU strip (own STL) with five evenly spread 0.6 icons and
+    0.8 groove rings. Five low PTS810 switches (MUTE is a firmware toggle + red LED) sit over
+    speaker_L, each 1.0 above its icon with a nub under the TPU. Two USB-C ports (port 1
+    bidirectional at X 53.3, port 2 output only at X 40.5, no USB-A). **LTE to port 2 is 6.3 mm
+    (5.8 to the gasket) against the 7 mm rule: 10 mm needs about 161.2 mm** (ADR 0018).
+  - Ends (ADR 0017): 230 round holes per end (dia 1.6, 2.5 pitch, web 0.9), brass-tone trim
+    frame 61 x 26.3 sunk flush in a 0.6 channel (pocket floor Z 1.8): overall length stays 157.
+  - Back: engraved "Rexi" only, 6.5 mm letters, 0.3 deep, bottom-right seen from behind.
+  - Print checks (2026-11-20): tray 0 thin samples (grille webs 0.9 by spec), lid 0, strip flange 0.6 and
+    skins 1.0 / LED well 0.5 by design. Strip windows bridge 30.0 and 19.6 mm when the tray prints
+    front-down (66 + 43 mm2 overhang): PLA test print first. Open: MIC_MUTE_BTN / MUTE_LED pins,
+    PTS810 real height, LTE gap (ADR 0018).
   - Wi-Fi coax: thick end -> R 9 S-bend under the panel FPC and front board -> R 8 turns -> U.FL;
     min bend radius **6.2**, 79.8 of 100 mm used (stow 20 mm).
   - Carrier: no front-wall bosses at H3/H4 (the panel covers them); a printed bracket frame holds
     all four holes, the front board (3 x M1.6 into front-wall bosses) clamps it.
   - Cell turned: PCM/seal end at -X, foam frame on lid ribs (ends full height, sides low), stretch-
     release strips under it; leads along the top channel (order 150 mm leads, JST PH 3-pin).
-  - Seals: pogo pad flange + silicone washer + pogo board, keypad, mic ePTFE membrane, light PC
+  - Seals: pogo pad flange + silicone washer + pogo board, top strip, mic ePTFE membrane, light PC
     window, USB-C IPX8 + gasket.
-  - Print checks: tray 0 thin samples (honeycomb webs 0.8 by spec: PLA test print), lid 0 (ID text
-    letter gaps listed apart), bracket and cradles 0; keypad sheet 0.6 TPU by design.
+  - Print checks: tray 0 thin samples (grille webs 0.9 by spec: PLA test print), lid 0 (ID text
+    letter gaps listed apart), bracket and cradles 0; strip flange 0.6 TPU by design.
   - Generated: `cad/net/heartsync_net.dxf/.pdf` (FRONT + TOP, one piece), `cad/renders/*.jpg`
-    (`tools/renders_to_jpg.py`), `cad/exports/` (git-ignored; keypad STL added).
+    (`tools/renders_to_jpg.py`), `cad/exports/` (git-ignored; top strip STL added).
   - New docs: `docs/hardware/assembly-order.md` (inserts first, cell last, pads dead until docked,
     charge stop about 90 percent), `docs/hardware/board-plans.md` (carrier rev B tab, front board,
     power board, Qi TX options), panel model `cad/models/oled_wex025664b_panel_312`.

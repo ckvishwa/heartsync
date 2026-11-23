@@ -1675,7 +1675,7 @@
 					(at 12.7 -5.08 180)
 					(length 3.81)
 					(hide yes)
-					(name "NC"
+					(name "OCS_Aux"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1690,11 +1690,11 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin passive line
 					(at 12.7 -2.54 180)
 					(length 3.81)
 					(hide yes)
-					(name "NC"
+					(name "SDO_Aux"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3050,7 +3050,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "pins 10/11 = OCS_Aux/SDO_Aux left open"
+		(property "Note" "aux SPI unused: OCS_Aux open, SDO_Aux to VDDIO (DS12814 table 2)"
 			(at 350.52 50.8 0)
 			(effects
 				(font
@@ -3210,9 +3210,17 @@
 		(at 363.22 55.88)
 		(uuid "af0da320-213b-5a43-ad9a-7cab745d6c28")
 	)
-	(no_connect
-		(at 363.22 53.34)
-		(uuid "7fa1ccdc-e915-5503-9c53-51032800e63a")
+	(global_label "+3V3"
+		(shape passive)
+		(at 363.22 53.34 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "32bef7aa-6896-5a8b-97f5-d5e5dc531703")
 	)
 	(global_label "+3V3"
 		(shape passive)
@@ -3458,8 +3466,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "f120babd-aae6-55ee-b7f8-189b016b5c0d")
-		(property "Reference" "R10"
+		(uuid "d7f4f800-d63e-5835-9180-d8a33d3a3339")
+		(property "Reference" "R9"
 			(at 459.74 34.29 0)
 			(effects
 				(font
@@ -3503,15 +3511,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "b382365f-9686-5266-bffe-c59c1292e5e1")
+			(uuid "d0b125f5-bc54-5008-9614-ad7fca879abc")
 		)
 		(pin "2"
-			(uuid "289a7145-d7ad-5b0a-a55c-d515e4968748")
+			(uuid "55ea70a4-0e6b-5438-9c5f-b0fcd632adb3")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/2842bf1f-ce17-505e-8468-cfeb5c3e54cf"
-					(reference "R10")
+					(reference "R9")
 					(unit 1)
 				)
 			)
@@ -3527,7 +3535,7 @@
 			)
 			(justify left)
 		)
-		(uuid "d8827674-9268-578a-b11b-95009927f0a6")
+		(uuid "a48d2665-c0cb-5a8d-9ede-d46c8c5f9667")
 	)
 	(global_label "GND"
 		(shape passive)
@@ -3539,7 +3547,7 @@
 			)
 			(justify right)
 		)
-		(uuid "0b186bfd-45b5-574e-a6c7-9268c59cc3f6")
+		(uuid "6a85ec15-3b0d-54a1-9e22-d84befed8e76")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -3549,8 +3557,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "73429d4a-522c-5678-b726-dca92e71d64d")
-		(property "Reference" "R11"
+		(uuid "f120babd-aae6-55ee-b7f8-189b016b5c0d")
+		(property "Reference" "R10"
 			(at 45.72 85.09 0)
 			(effects
 				(font
@@ -3594,15 +3602,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "1f63f837-3555-561f-a398-5c59118a69eb")
+			(uuid "b382365f-9686-5266-bffe-c59c1292e5e1")
 		)
 		(pin "2"
-			(uuid "72b51ca9-99b8-56ad-ae05-bd38764c0fc3")
+			(uuid "289a7145-d7ad-5b0a-a55c-d515e4968748")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/2842bf1f-ce17-505e-8468-cfeb5c3e54cf"
-					(reference "R11")
+					(reference "R10")
 					(unit 1)
 				)
 			)
@@ -3618,7 +3626,7 @@
 			)
 			(justify left)
 		)
-		(uuid "64dd263f-1b98-5be2-99c1-ae938edb8d67")
+		(uuid "d8827674-9268-578a-b11b-95009927f0a6")
 	)
 	(global_label "GND"
 		(shape passive)
@@ -3630,7 +3638,7 @@
 			)
 			(justify right)
 		)
-		(uuid "e8cd96b0-65de-5b41-b521-b944df74b0b3")
+		(uuid "0b186bfd-45b5-574e-a6c7-9268c59cc3f6")
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x06")
@@ -3791,8 +3799,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "16b7c147-57c1-5b09-a79b-924f72b5774d")
-		(property "Reference" "R12"
+		(uuid "73429d4a-522c-5678-b726-dca92e71d64d")
+		(property "Reference" "R11"
 			(at 129.54 85.09 0)
 			(effects
 				(font
@@ -3836,15 +3844,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "4d313cea-6300-51db-8a8d-819262693fff")
+			(uuid "1f63f837-3555-561f-a398-5c59118a69eb")
 		)
 		(pin "2"
-			(uuid "4d1521dd-89db-5e8f-9aff-93fb3525b747")
+			(uuid "72b51ca9-99b8-56ad-ae05-bd38764c0fc3")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/2842bf1f-ce17-505e-8468-cfeb5c3e54cf"
-					(reference "R12")
+					(reference "R11")
 					(unit 1)
 				)
 			)
@@ -3860,7 +3868,7 @@
 			)
 			(justify left)
 		)
-		(uuid "ad7d5d89-f4c0-5698-a048-96c59496936e")
+		(uuid "64dd263f-1b98-5be2-99c1-ae938edb8d67")
 	)
 	(global_label "MUTE_LED_A"
 		(shape passive)
@@ -3872,7 +3880,7 @@
 			)
 			(justify right)
 		)
-		(uuid "aa0b2b32-498e-5969-b46e-3b2bbcce8cb5")
+		(uuid "e8cd96b0-65de-5b41-b521-b944df74b0b3")
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
@@ -4602,7 +4610,7 @@
 		)
 		(uuid "a904406d-1c14-537c-b510-8390997b1808")
 	)
-	(text "U12 LSM6DSOX: CS = VDDIO (I2C), SA0 = GND -> 0x6A. INT1 -> ESP32 IO3 (RTC wake, 100k pull-down), INT2 -> TCA9554 0x21 P7."
+	(text "DS12814 rev 3 table 2 (p. 9), aux SPI not used: pin 2 SDx / pin 3 SCx \"Connect to VDDIO or GND\" (GND), pin 10 OCS_Aux \"Leave unconnected\", pin 11 SDO_Aux \"Connect to VDD_IO or leave unconnected\" (VDDIO)."
 		(exclude_from_sim no)
 		(at 25.4 28.4 0)
 		(effects
@@ -4613,7 +4621,7 @@
 		)
 		(uuid "bb696e36-0a96-5910-b1cc-036883b652cc")
 	)
-	(text "I2C map: 0x20/21/22 TCA9554, 0x2C TAS5805M, 0x39 APDS-9960, 0x5A DRV2605L, 0x6A LSM6DSOX, power IC TBD (check)."
+	(text "U12 LSM6DSOX: CS = VDDIO (I2C), SA0 = GND -> 0x6A. INT1 -> ESP32 IO3 (RTC wake, 100k pull-down), INT2 -> TCA9554 0x21 P7."
 		(exclude_from_sim no)
 		(at 25.4 30.8 0)
 		(effects
@@ -4623,6 +4631,17 @@
 			(justify left bottom)
 		)
 		(uuid "aa8ad1d9-d1a9-5860-aa31-ddee72e9281b")
+	)
+	(text "I2C map: 0x20/21/22 TCA9554, 0x2C TAS5805M, 0x39 APDS-9960, 0x5A DRV2605L, 0x6A LSM6DSOX, power IC TBD (check)."
+		(exclude_from_sim no)
+		(at 25.4 33.2 0)
+		(effects
+			(font
+				(size 1.4 1.4)
+			)
+			(justify left bottom)
+		)
+		(uuid "95c7e8ee-94bd-5e5e-b6c1-bff2a5e7f129")
 	)
 	(embedded_fonts no)
 )

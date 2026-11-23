@@ -611,34 +611,12 @@
   },
   {
    "ref": "R8",
-   "value": "10k",
-   "footprint": "Resistor_SMD:R_0402_1005Metric",
-   "lib_id": "Device:R",
-   "sheet": "mcu",
-   "sheet_uuid": "c4dacaaf-dfba-54a6-9057-cc86a9d4cf53",
-   "sym_uuid": "d776650b-fb54-5e9c-ae4a-8c91f9c8729e",
-   "dnp": false,
-   "fields": {},
-   "datasheet": "",
-   "description": "Resistor",
-   "in_bom": true,
-   "pins": {
-    "1": "+3V3",
-    "2": "PWR_INT"
-   },
-   "pin_names": {
-    "1": "",
-    "2": ""
-   }
-  },
-  {
-   "ref": "R9",
    "value": "100k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "mcu",
    "sheet_uuid": "c4dacaaf-dfba-54a6-9057-cc86a9d4cf53",
-   "sym_uuid": "d7f4f800-d63e-5835-9180-d8a33d3a3339",
+   "sym_uuid": "d776650b-fb54-5e9c-ae4a-8c91f9c8729e",
    "dnp": false,
    "fields": {
     "Note": "LSM6DSOX INT1 must be low at power-up; IO3 strap left at its default"
@@ -1111,7 +1089,7 @@
    "dnp": false,
    "fields": {
     "MPN": "LSM6DSOXTR",
-    "Note": "pins 10/11 = OCS_Aux/SDO_Aux left open"
+    "Note": "aux SPI unused: OCS_Aux open, SDO_Aux to VDDIO (DS12814 table 2)"
    },
    "datasheet": "https://www.st.com/resource/en/datasheet/lsm6dsl.pdf",
    "description": "I2C/SPI, iNEMO inertial module: always-on 3D accelerometer and 3D gyroscope, 1.71V to 3.6V VCC",
@@ -1130,7 +1108,7 @@
     "13": "I2C_SCL",
     "14": "I2C_SDA",
     "10": null,
-    "11": null
+    "11": "+3V3"
    },
    "pin_names": {
     "1": "SDO/SA0",
@@ -1142,8 +1120,8 @@
     "7": "GND",
     "8": "VDD",
     "9": "INT2",
-    "10": "NC",
-    "11": "NC",
+    "10": "OCS_Aux",
+    "11": "SDO_Aux",
     "12": "CS",
     "13": "SCL",
     "14": "SDA"
@@ -1198,13 +1176,13 @@
    }
   },
   {
-   "ref": "R10",
+   "ref": "R9",
    "value": "10k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "io",
    "sheet_uuid": "2842bf1f-ce17-505e-8468-cfeb5c3e54cf",
-   "sym_uuid": "f120babd-aae6-55ee-b7f8-189b016b5c0d",
+   "sym_uuid": "d7f4f800-d63e-5835-9180-d8a33d3a3339",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1220,13 +1198,13 @@
    }
   },
   {
-   "ref": "R11",
+   "ref": "R10",
    "value": "10k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "io",
    "sheet_uuid": "2842bf1f-ce17-505e-8468-cfeb5c3e54cf",
-   "sym_uuid": "73429d4a-522c-5678-b726-dca92e71d64d",
+   "sym_uuid": "f120babd-aae6-55ee-b7f8-189b016b5c0d",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1272,13 +1250,13 @@
    }
   },
   {
-   "ref": "R12",
+   "ref": "R11",
    "value": "330R",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "io",
    "sheet_uuid": "2842bf1f-ce17-505e-8468-cfeb5c3e54cf",
-   "sym_uuid": "16b7c147-57c1-5b09-a79b-924f72b5774d",
+   "sym_uuid": "73429d4a-522c-5678-b726-dca92e71d64d",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1895,13 +1873,13 @@
    }
   },
   {
-   "ref": "R13",
+   "ref": "R12",
    "value": "4.7k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "cellular",
    "sheet_uuid": "53c4064f-f8a4-5191-beee-c422f7411d9d",
-   "sym_uuid": "d05da718-dd76-548b-9529-c7da3d3585b4",
+   "sym_uuid": "16b7c147-57c1-5b09-a79b-924f72b5774d",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1917,13 +1895,13 @@
    }
   },
   {
-   "ref": "R14",
+   "ref": "R13",
    "value": "10k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "cellular",
    "sheet_uuid": "53c4064f-f8a4-5191-beee-c422f7411d9d",
-   "sym_uuid": "2933b327-49b0-550e-86ae-ea80e7176e59",
+   "sym_uuid": "d05da718-dd76-548b-9529-c7da3d3585b4",
    "dnp": false,
    "fields": {
     "Note": "holds PWRKEY released while the expander pin is an input (100k pull-up)"
@@ -1973,6 +1951,28 @@
    }
   },
   {
+   "ref": "R14",
+   "value": "22R",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lib_id": "Device:R",
+   "sheet": "cellular",
+   "sheet_uuid": "53c4064f-f8a4-5191-beee-c422f7411d9d",
+   "sym_uuid": "2933b327-49b0-550e-86ae-ea80e7176e59",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Resistor",
+   "in_bom": true,
+   "pins": {
+    "1": "SIM_RST",
+    "2": "SIMC_RST"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
    "ref": "R15",
    "value": "22R",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1986,8 +1986,8 @@
    "description": "Resistor",
    "in_bom": true,
    "pins": {
-    "1": "SIM_RST",
-    "2": "SIMC_RST"
+    "1": "SIM_CLK",
+    "2": "SIMC_CLK"
    },
    "pin_names": {
     "1": "",
@@ -2008,28 +2008,6 @@
    "description": "Resistor",
    "in_bom": true,
    "pins": {
-    "1": "SIM_CLK",
-    "2": "SIMC_CLK"
-   },
-   "pin_names": {
-    "1": "",
-    "2": ""
-   }
-  },
-  {
-   "ref": "R17",
-   "value": "22R",
-   "footprint": "Resistor_SMD:R_0402_1005Metric",
-   "lib_id": "Device:R",
-   "sheet": "cellular",
-   "sheet_uuid": "53c4064f-f8a4-5191-beee-c422f7411d9d",
-   "sym_uuid": "8336ca96-72b9-56e9-a7db-689611687222",
-   "dnp": false,
-   "fields": {},
-   "datasheet": "",
-   "description": "Resistor",
-   "in_bom": true,
-   "pins": {
     "1": "SIM_DATA",
     "2": "SIMC_DATA"
    },
@@ -2039,13 +2017,13 @@
    }
   },
   {
-   "ref": "R18",
+   "ref": "R17",
    "value": "10k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "cellular",
    "sheet_uuid": "53c4064f-f8a4-5191-beee-c422f7411d9d",
-   "sym_uuid": "dddcfeec-180a-5a48-83e9-8da2431b5577",
+   "sym_uuid": "8336ca96-72b9-56e9-a7db-689611687222",
    "dnp": true,
    "fields": {
     "Note": "SIM_DATA pull-up option"
@@ -2291,13 +2269,13 @@
    }
   },
   {
-   "ref": "R19",
+   "ref": "R18",
    "value": "0R",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "cellular",
    "sheet_uuid": "53c4064f-f8a4-5191-beee-c422f7411d9d",
-   "sym_uuid": "ce776e75-fb9e-5997-bc83-c86497e3bda2",
+   "sym_uuid": "dddcfeec-180a-5a48-83e9-8da2431b5577",
    "dnp": false,
    "fields": {
     "Note": "pi-match series, LTE"
@@ -2387,13 +2365,13 @@
    }
   },
   {
-   "ref": "R20",
+   "ref": "R19",
    "value": "0R",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "cellular",
    "sheet_uuid": "53c4064f-f8a4-5191-beee-c422f7411d9d",
-   "sym_uuid": "58a74503-6ba0-5dbb-af86-d5f6965fdb38",
+   "sym_uuid": "ce776e75-fb9e-5997-bc83-c86497e3bda2",
    "dnp": false,
    "fields": {
     "Note": "pi-match series, GNSS"
@@ -2697,13 +2675,13 @@
    }
   },
   {
-   "ref": "R21",
+   "ref": "R20",
    "value": "1k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "bluetooth",
    "sheet_uuid": "295bd4f6-1294-5e97-bf24-ffa9840e2cbd",
-   "sym_uuid": "347a9ede-88a4-5fba-9230-5c2d215f007f",
+   "sym_uuid": "58a74503-6ba0-5dbb-af86-d5f6965fdb38",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -2719,8 +2697,30 @@
    }
   },
   {
-   "ref": "R22",
+   "ref": "R21",
    "value": "10k",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lib_id": "Device:R",
+   "sheet": "bluetooth",
+   "sheet_uuid": "295bd4f6-1294-5e97-bf24-ffa9840e2cbd",
+   "sym_uuid": "347a9ede-88a4-5fba-9230-5c2d215f007f",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Resistor",
+   "in_bom": true,
+   "pins": {
+    "1": "BT_SYS_CTRL_M",
+    "2": "GND"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
+   "ref": "R22",
+   "value": "1k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "bluetooth",
@@ -2732,8 +2732,8 @@
    "description": "Resistor",
    "in_bom": true,
    "pins": {
-    "1": "BT_SYS_CTRL_M",
-    "2": "GND"
+    "1": "BT_RST",
+    "2": "BT_PIO1"
    },
    "pin_names": {
     "1": "",
@@ -2754,8 +2754,8 @@
    "description": "Resistor",
    "in_bom": true,
    "pins": {
-    "1": "BT_RST",
-    "2": "BT_PIO1"
+    "1": "BT_PIO2_CTL",
+    "2": "BT_PIO2"
    },
    "pin_names": {
     "1": "",
@@ -2776,8 +2776,8 @@
    "description": "Resistor",
    "in_bom": true,
    "pins": {
-    "1": "BT_PIO2_CTL",
-    "2": "BT_PIO2"
+    "1": "BT_PIO3_CTL",
+    "2": "BT_PIO3"
    },
    "pin_names": {
     "1": "",
@@ -2798,8 +2798,8 @@
    "description": "Resistor",
    "in_bom": true,
    "pins": {
-    "1": "BT_PIO3_CTL",
-    "2": "BT_PIO3"
+    "1": "BT_PIO4_CTL",
+    "2": "BT_PIO4"
    },
    "pin_names": {
     "1": "",
@@ -2820,8 +2820,8 @@
    "description": "Resistor",
    "in_bom": true,
    "pins": {
-    "1": "BT_PIO4_CTL",
-    "2": "BT_PIO4"
+    "1": "BT_PIO5_CTL",
+    "2": "BT_PIO5"
    },
    "pin_names": {
     "1": "",
@@ -2836,28 +2836,6 @@
    "sheet": "bluetooth",
    "sheet_uuid": "295bd4f6-1294-5e97-bf24-ffa9840e2cbd",
    "sym_uuid": "39573158-d153-5d3f-b6a6-ab60e7db46d0",
-   "dnp": false,
-   "fields": {},
-   "datasheet": "",
-   "description": "Resistor",
-   "in_bom": true,
-   "pins": {
-    "1": "BT_PIO5_CTL",
-    "2": "BT_PIO5"
-   },
-   "pin_names": {
-    "1": "",
-    "2": ""
-   }
-  },
-  {
-   "ref": "R28",
-   "value": "1k",
-   "footprint": "Resistor_SMD:R_0402_1005Metric",
-   "lib_id": "Device:R",
-   "sheet": "bluetooth",
-   "sheet_uuid": "295bd4f6-1294-5e97-bf24-ffa9840e2cbd",
-   "sym_uuid": "d093b420-94c3-54da-902a-24dcf58a7355",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -2937,13 +2915,13 @@
    }
   },
   {
-   "ref": "R29",
+   "ref": "R28",
    "value": "0R",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "bluetooth",
    "sheet_uuid": "295bd4f6-1294-5e97-bf24-ffa9840e2cbd",
-   "sym_uuid": "86974318-8808-54c6-a845-4914071e9196",
+   "sym_uuid": "d093b420-94c3-54da-902a-24dcf58a7355",
    "dnp": false,
    "fields": {
     "Note": "pi-match series, BT"
@@ -3033,13 +3011,13 @@
    }
   },
   {
-   "ref": "R30",
+   "ref": "R29",
    "value": "100k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "display",
    "sheet_uuid": "5da39bb7-dfb2-57c5-a925-08acb48596d3",
-   "sym_uuid": "bcb5d710-a2e0-5e8b-b6a8-d4c6ac28a7d2",
+   "sym_uuid": "86974318-8808-54c6-a845-4914071e9196",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -3178,13 +3156,13 @@
    }
   },
   {
-   "ref": "R31",
+   "ref": "R30",
    "value": "487k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "display",
    "sheet_uuid": "5da39bb7-dfb2-57c5-a925-08acb48596d3",
-   "sym_uuid": "f224e9f9-4346-572f-9806-18aa86690681",
+   "sym_uuid": "bcb5d710-a2e0-5e8b-b6a8-d4c6ac28a7d2",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -3200,13 +3178,13 @@
    }
   },
   {
-   "ref": "R32",
+   "ref": "R31",
    "value": "56k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "display",
    "sheet_uuid": "5da39bb7-dfb2-57c5-a925-08acb48596d3",
-   "sym_uuid": "396f7792-30f1-55c6-b2f5-052c7184c7ab",
+   "sym_uuid": "f224e9f9-4346-572f-9806-18aa86690681",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -3494,13 +3472,13 @@
    }
   },
   {
-   "ref": "R33",
+   "ref": "R32",
    "value": "620k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "display",
    "sheet_uuid": "5da39bb7-dfb2-57c5-a925-08acb48596d3",
-   "sym_uuid": "eeba7247-76c4-51d4-a937-6ed9c2f99c28",
+   "sym_uuid": "396f7792-30f1-55c6-b2f5-052c7184c7ab",
    "dnp": false,
    "fields": {
     "Note": "R1 IREF"
@@ -3518,13 +3496,13 @@
    }
   },
   {
-   "ref": "R34",
+   "ref": "R33",
    "value": "51R",
    "footprint": "Resistor_SMD:R_0603_1608Metric",
    "lib_id": "Device:R",
    "sheet": "display",
    "sheet_uuid": "5da39bb7-dfb2-57c5-a925-08acb48596d3",
-   "sym_uuid": "62765cf8-b898-5742-abea-77c9f47af717",
+   "sym_uuid": "eeba7247-76c4-51d4-a937-6ed9c2f99c28",
    "dnp": false,
    "fields": {
     "Note": "R2 VSL 50 ohm"
@@ -3681,13 +3659,13 @@
    }
   },
   {
-   "ref": "R35",
+   "ref": "R34",
    "value": "2.2R",
    "footprint": "Resistor_SMD:R_0603_1608Metric",
    "lib_id": "Device:R",
    "sheet": "display",
    "sheet_uuid": "5da39bb7-dfb2-57c5-a925-08acb48596d3",
-   "sym_uuid": "d52929bd-4b68-5d78-8bfc-67fd5cf63f8e",
+   "sym_uuid": "62765cf8-b898-5742-abea-77c9f47af717",
    "dnp": false,
    "fields": {
     "Note": "R1 current sense"
@@ -3705,13 +3683,13 @@
    }
   },
   {
-   "ref": "R36",
+   "ref": "R35",
    "value": "1M",
    "footprint": "Resistor_SMD:R_0603_1608Metric",
    "lib_id": "Device:R",
    "sheet": "display",
    "sheet_uuid": "5da39bb7-dfb2-57c5-a925-08acb48596d3",
-   "sym_uuid": "af81cf51-e6ac-5339-b3a6-32d05b9169bd",
+   "sym_uuid": "d52929bd-4b68-5d78-8bfc-67fd5cf63f8e",
    "dnp": false,
    "fields": {
     "Note": "R2"
@@ -4291,10 +4269,6 @@
     "1"
    ],
    [
-    "R8",
-    "1"
-   ],
-   [
     "TP10",
     "1"
    ],
@@ -4341,6 +4315,10 @@
    [
     "U12",
     "12"
+   ],
+   [
+    "U12",
+    "11"
    ],
    [
     "C14",
@@ -4529,7 +4507,7 @@
     "11"
    ],
    [
-    "R28",
+    "R27",
     "2"
    ]
   ],
@@ -4569,7 +4547,7 @@
     "32"
    ],
    [
-    "R23",
+    "R22",
     "2"
    ]
   ],
@@ -4579,7 +4557,7 @@
     "31"
    ],
    [
-    "R24",
+    "R23",
     "2"
    ]
   ],
@@ -4589,7 +4567,7 @@
     "54"
    ],
    [
-    "R28",
+    "R27",
     "1"
    ]
   ],
@@ -4599,7 +4577,7 @@
     "6"
    ],
    [
-    "R24",
+    "R23",
     "1"
    ]
   ],
@@ -4609,7 +4587,7 @@
     "26"
    ],
    [
-    "R25",
+    "R24",
     "2"
    ]
   ],
@@ -4619,7 +4597,7 @@
     "7"
    ],
    [
-    "R25",
+    "R24",
     "1"
    ]
   ],
@@ -4629,7 +4607,7 @@
     "25"
    ],
    [
-    "R26",
+    "R25",
     "2"
    ]
   ],
@@ -4639,7 +4617,7 @@
     "9"
    ],
    [
-    "R26",
+    "R25",
     "1"
    ]
   ],
@@ -4649,7 +4627,7 @@
     "28"
    ],
    [
-    "R27",
+    "R26",
     "2"
    ]
   ],
@@ -4659,7 +4637,7 @@
     "10"
    ],
    [
-    "R27",
+    "R26",
     "1"
    ]
   ],
@@ -4673,7 +4651,7 @@
     "1"
    ],
    [
-    "R29",
+    "R28",
     "1"
    ]
   ],
@@ -4683,7 +4661,7 @@
     "5"
    ],
    [
-    "R23",
+    "R22",
     "1"
    ]
   ],
@@ -4693,7 +4671,7 @@
     "4"
    ],
    [
-    "R21",
+    "R20",
     "1"
    ]
   ],
@@ -4703,17 +4681,17 @@
     "13"
    ],
    [
-    "R21",
+    "R20",
     "2"
    ],
    [
-    "R22",
+    "R21",
     "1"
    ]
   ],
   "BT_UFL": [
    [
-    "R29",
+    "R28",
     "2"
    ],
    [
@@ -4751,7 +4729,7 @@
     "7"
    ],
    [
-    "R10",
+    "R9",
     "1"
    ],
    [
@@ -4809,7 +4787,7 @@
     "1"
    ],
    [
-    "R36",
+    "R35",
     "1"
    ]
   ],
@@ -4837,7 +4815,7 @@
     "2"
    ],
    [
-    "R35",
+    "R34",
     "1"
    ]
   ],
@@ -5133,7 +5111,7 @@
     "2"
    ],
    [
-    "R9",
+    "R8",
     "2"
    ],
    [
@@ -5221,11 +5199,11 @@
     "2"
    ],
    [
-    "R10",
+    "R9",
     "2"
    ],
    [
-    "R11",
+    "R10",
     "2"
    ],
    [
@@ -5393,7 +5371,7 @@
     "2"
    ],
    [
-    "R14",
+    "R13",
     "2"
    ],
    [
@@ -5485,7 +5463,7 @@
     "2"
    ],
    [
-    "R22",
+    "R21",
     "2"
    ],
    [
@@ -5513,7 +5491,7 @@
     "2"
    ],
    [
-    "R32",
+    "R31",
     "2"
    ],
    [
@@ -5601,7 +5579,7 @@
     "2"
    ],
    [
-    "R33",
+    "R32",
     "2"
    ],
    [
@@ -5617,11 +5595,11 @@
     "17"
    ],
    [
-    "R35",
+    "R34",
     "2"
    ],
    [
-    "R36",
+    "R35",
     "2"
    ],
    [
@@ -5687,13 +5665,13 @@
     "1"
    ],
    [
-    "R20",
+    "R19",
     "1"
    ]
   ],
   "GNSS_UFL": [
    [
-    "R20",
+    "R19",
     "2"
    ],
    [
@@ -5845,7 +5823,7 @@
     "15"
    ],
    [
-    "R9",
+    "R8",
     "1"
    ],
    [
@@ -5873,13 +5851,13 @@
     "1"
    ],
    [
-    "R19",
+    "R18",
     "1"
    ]
   ],
   "LTE_UFL": [
    [
-    "R19",
+    "R18",
     "2"
    ],
    [
@@ -5907,13 +5885,13 @@
     "12"
    ],
    [
-    "R12",
+    "R11",
     "1"
    ]
   ],
   "MUTE_LED_A": [
    [
-    "R12",
+    "R11",
     "2"
    ],
    [
@@ -5927,7 +5905,7 @@
     "1"
    ],
    [
-    "R31",
+    "R30",
     "1"
    ],
    [
@@ -5977,11 +5955,11 @@
     "3"
    ],
    [
-    "R31",
+    "R30",
     "2"
    ],
    [
-    "R32",
+    "R31",
     "1"
    ],
    [
@@ -5995,7 +5973,7 @@
     "22"
    ],
    [
-    "R33",
+    "R32",
     "1"
    ]
   ],
@@ -6029,7 +6007,7 @@
     "1"
    ],
    [
-    "R30",
+    "R29",
     "2"
    ],
    [
@@ -6043,7 +6021,7 @@
     "10"
    ],
    [
-    "R11",
+    "R10",
     "1"
    ],
    [
@@ -6103,13 +6081,13 @@
     "27"
    ],
    [
-    "R34",
+    "R33",
     "1"
    ]
   ],
   "OLED_VSL_D": [
    [
-    "R34",
+    "R33",
     "2"
    ],
    [
@@ -6135,10 +6113,6 @@
    [
     "U2",
     "32"
-   ],
-   [
-    "R8",
-    "2"
    ]
   ],
   "PWR_KEY": [
@@ -6167,7 +6141,7 @@
     "3"
    ],
    [
-    "R16",
+    "R15",
     "2"
    ],
    [
@@ -6185,11 +6159,11 @@
     "7"
    ],
    [
-    "R17",
+    "R16",
     "2"
    ],
    [
-    "R18",
+    "R17",
     "2"
    ],
    [
@@ -6203,7 +6177,7 @@
     "2"
    ],
    [
-    "R15",
+    "R14",
     "2"
    ],
    [
@@ -6227,7 +6201,7 @@
     "16"
    ],
    [
-    "R16",
+    "R15",
     "1"
    ]
   ],
@@ -6237,7 +6211,7 @@
     "15"
    ],
    [
-    "R17",
+    "R16",
     "1"
    ]
   ],
@@ -6281,11 +6255,11 @@
     "1"
    ],
    [
-    "R13",
+    "R12",
     "2"
    ],
    [
-    "R14",
+    "R13",
     "1"
    ]
   ],
@@ -6295,7 +6269,7 @@
     "4"
    ],
    [
-    "R13",
+    "R12",
     "1"
    ]
   ],
@@ -6305,7 +6279,7 @@
     "17"
    ],
    [
-    "R15",
+    "R14",
     "1"
    ]
   ],
@@ -6409,7 +6383,7 @@
     "1"
    ],
    [
-    "R18",
+    "R17",
     "1"
    ],
    [
@@ -6661,7 +6635,7 @@
     "2"
    ],
    [
-    "R30",
+    "R29",
     "1"
    ]
   ]

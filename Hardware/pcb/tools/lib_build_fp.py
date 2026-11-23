@@ -336,7 +336,6 @@ if __name__ == "__main__":
     esp32()
     tas5805m()
     usbc()
-    placeholder_pdic()
     touchpad()
     sh22()
     wirepads(8, 1.2)

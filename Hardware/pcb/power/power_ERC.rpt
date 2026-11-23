@@ -1,4 +1,4 @@
-ERC report (2026-11-23T12:57:42, Encoding UTF8)
+ERC report (2026-11-23T13:10:11, Encoding UTF8)
 Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /
@@ -8,6 +8,8 @@ Report includes: Errors, Warnings, Exclusions
 ***** Sheet /charger/
 
 ***** Sheet /boost/
+
+***** Sheet /qi/
 
 ***** Sheet /amp/
 

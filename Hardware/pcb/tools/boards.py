@@ -73,20 +73,22 @@ POWER = {
         "U3": (58.9, 9.0, 0),               # TAS5805M
         "J7": (68.0, 9.0, 90),              # speaker R
         "U2": (54.0, -3.0, 0),              # TPS61088
-        "L1": (53.0, -11.5, 0),             # 2.2 uH
+        "L2": (55.2, -11.5, 0),             # 2.2 uH amp boost
+        "L1": (48.5, 4.0, 0),               # 2.2 uH IP5356M
         "J6": (63.4, -9.5, 90),             # Qi TX module (24x32 at X 67.5, Y 0..-32), cable +X
         "J1": (33.3, 14.0, 270),            # link to carrier (cable -X), 22 pin
         "J4": (42.0, -8.0, 90),             # cell: Amass MR30PW-M, mating face flush with the left edge (X 30)
         "J5": (40.5, 29.8, 180),            # cell NTC (JST SH 2, cable up)
+        "TP1": (46.8, -13.0, 0), "TP2": (46.8, -8.0, 0),   # DNP 4x4 BAT pads (18 AWG alternative to the MR30)
         "U4": (39.0, 22.0, 0),              # 3V3 LDO
     },
     "near": {},
+    "allow_back": True,   # leftover passives may go on B.Cu (check height behind the board)
     # Amphenol's land pattern puts the B-row pads 0.2 mm from the mid-mount cut-out (by design)
     "dru": "\n".join(["(rule usbc_cutout_edge",
                       "  (condition \"A.memberOfFootprint('J2') || A.memberOfFootprint('J3') || B.memberOfFootprint('J2') || B.memberOfFootprint('J3')\")",
                       "  (constraint edge_clearance (min 0.1mm)))", ""]),
-    "no_parts": [{"pts": rect(43.0, 6.5, 55.8, 19.5), "side": "F"},
-                 {"pts": rect(47.4, 30.6, 58.1, 33.0)}, {"pts": rect(60.7, 30.6, 71.4, 33.0)}],
+    "no_parts": [{"pts": rect(47.4, 30.6, 58.1, 33.0)}, {"pts": rect(60.7, 30.6, 71.4, 33.0)}],
     "keepouts": [],
     "power_nets": ["GND", "+3V3", "VSYS", "BAT_SW", "PVDD", "PVDD_AMP"],
 }

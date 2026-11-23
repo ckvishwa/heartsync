@@ -4048,8 +4048,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "bcb5d710-a2e0-5e8b-b6a8-d4c6ac28a7d2")
-		(property "Reference" "R30"
+		(uuid "86974318-8808-54c6-a845-4914071e9196")
+		(property "Reference" "R29"
 			(at 91.44 34.29 0)
 			(effects
 				(font
@@ -4093,15 +4093,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "99ba3a38-0396-5653-bf25-08f48a8b2727")
+			(uuid "1572f575-c27b-5926-9611-16869627cf65")
 		)
 		(pin "2"
-			(uuid "d89322f0-c6c5-57c1-a619-944cd48207de")
+			(uuid "b53d7a76-39d8-551e-b521-7a3c780e8c48")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/5da39bb7-dfb2-57c5-a925-08acb48596d3"
-					(reference "R30")
+					(reference "R29")
 					(unit 1)
 				)
 			)
@@ -4117,7 +4117,7 @@
 			)
 			(justify left)
 		)
-		(uuid "8f1c22f6-b521-5269-bc9c-b37c97030bc3")
+		(uuid "12bc8905-0c7f-529a-acae-534af9505fcd")
 	)
 	(global_label "OLED_SW_G"
 		(shape passive)
@@ -4129,7 +4129,7 @@
 			)
 			(justify right)
 		)
-		(uuid "79fd6945-03f3-5943-b474-c21a07f38412")
+		(uuid "de65289c-4bee-585f-ba53-0b6e2e2b8625")
 	)
 	(symbol
 		(lib_id "Transistor_FET:2N7002")
@@ -4681,8 +4681,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "f224e9f9-4346-572f-9806-18aa86690681")
-		(property "Reference" "R31"
+		(uuid "bcb5d710-a2e0-5e8b-b6a8-d4c6ac28a7d2")
+		(property "Reference" "R30"
 			(at 355.6 34.29 0)
 			(effects
 				(font
@@ -4726,15 +4726,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "ab4685e4-e058-5dc8-8672-f23515bf4551")
+			(uuid "99ba3a38-0396-5653-bf25-08f48a8b2727")
 		)
 		(pin "2"
-			(uuid "7a4ec1dc-b2cc-5c08-a027-03df6c57256c")
+			(uuid "d89322f0-c6c5-57c1-a619-944cd48207de")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/5da39bb7-dfb2-57c5-a925-08acb48596d3"
-					(reference "R31")
+					(reference "R30")
 					(unit 1)
 				)
 			)
@@ -4750,7 +4750,7 @@
 			)
 			(justify left)
 		)
-		(uuid "56fa66e6-e05e-5ebb-9a2a-439bc2464b80")
+		(uuid "8f1c22f6-b521-5269-bc9c-b37c97030bc3")
 	)
 	(global_label "OLED_FB"
 		(shape passive)
@@ -4762,7 +4762,7 @@
 			)
 			(justify right)
 		)
-		(uuid "3d418b33-0e04-5a0d-bc72-ca1bff10bd8c")
+		(uuid "79fd6945-03f3-5943-b474-c21a07f38412")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -4772,8 +4772,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "396f7792-30f1-55c6-b2f5-052c7184c7ab")
-		(property "Reference" "R32"
+		(uuid "f224e9f9-4346-572f-9806-18aa86690681")
+		(property "Reference" "R31"
 			(at 391.16 34.29 0)
 			(effects
 				(font
@@ -4817,15 +4817,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "a34510a1-bb42-5ba6-a0d8-b18c1b55f3cb")
+			(uuid "ab4685e4-e058-5dc8-8672-f23515bf4551")
 		)
 		(pin "2"
-			(uuid "6925b3ac-1b88-5f4b-929a-24983e78d797")
+			(uuid "7a4ec1dc-b2cc-5c08-a027-03df6c57256c")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/5da39bb7-dfb2-57c5-a925-08acb48596d3"
-					(reference "R32")
+					(reference "R31")
 					(unit 1)
 				)
 			)
@@ -4841,7 +4841,7 @@
 			)
 			(justify left)
 		)
-		(uuid "bb3ca401-3977-5e11-b2c2-1526a031b6c5")
+		(uuid "56fa66e6-e05e-5ebb-9a2a-439bc2464b80")
 	)
 	(global_label "GND"
 		(shape passive)
@@ -4853,7 +4853,7 @@
 			)
 			(justify right)
 		)
-		(uuid "61f3dc9a-4db4-56da-b86e-da399072ea61")
+		(uuid "3d418b33-0e04-5a0d-bc72-ca1bff10bd8c")
 	)
 	(symbol
 		(lib_id "Device:C")
@@ -6159,8 +6159,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "eeba7247-76c4-51d4-a937-6ed9c2f99c28")
-		(property "Reference" "R33"
+		(uuid "396f7792-30f1-55c6-b2f5-052c7184c7ab")
+		(property "Reference" "R32"
 			(at 302.26 64.77 0)
 			(effects
 				(font
@@ -6213,15 +6213,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "3559ea87-e0c0-5231-9ff5-6c51e21aa003")
+			(uuid "a34510a1-bb42-5ba6-a0d8-b18c1b55f3cb")
 		)
 		(pin "2"
-			(uuid "8877ed47-c2a0-59ba-9285-0df76e7c17e3")
+			(uuid "6925b3ac-1b88-5f4b-929a-24983e78d797")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/5da39bb7-dfb2-57c5-a925-08acb48596d3"
-					(reference "R33")
+					(reference "R32")
 					(unit 1)
 				)
 			)
@@ -6237,7 +6237,7 @@
 			)
 			(justify left)
 		)
-		(uuid "6d2ae739-3713-54a2-b22f-5e136a977392")
+		(uuid "bb3ca401-3977-5e11-b2c2-1526a031b6c5")
 	)
 	(global_label "GND"
 		(shape passive)
@@ -6249,7 +6249,7 @@
 			)
 			(justify right)
 		)
-		(uuid "94a5b5f5-5d0e-5fc6-b209-44f3689bb4ed")
+		(uuid "61f3dc9a-4db4-56da-b86e-da399072ea61")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -6259,8 +6259,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "62765cf8-b898-5742-abea-77c9f47af717")
-		(property "Reference" "R34"
+		(uuid "eeba7247-76c4-51d4-a937-6ed9c2f99c28")
+		(property "Reference" "R33"
 			(at 342.9 64.77 0)
 			(effects
 				(font
@@ -6313,15 +6313,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "b8fcdad1-334e-5d82-8552-c84369f75a5b")
+			(uuid "3559ea87-e0c0-5231-9ff5-6c51e21aa003")
 		)
 		(pin "2"
-			(uuid "bb2eaa70-d943-567b-8efc-f81873f235ee")
+			(uuid "8877ed47-c2a0-59ba-9285-0df76e7c17e3")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/5da39bb7-dfb2-57c5-a925-08acb48596d3"
-					(reference "R34")
+					(reference "R33")
 					(unit 1)
 				)
 			)
@@ -6337,7 +6337,7 @@
 			)
 			(justify left)
 		)
-		(uuid "d4465cb2-f8f1-50d1-abb5-db92485deea7")
+		(uuid "6d2ae739-3713-54a2-b22f-5e136a977392")
 	)
 	(global_label "OLED_VSL_D"
 		(shape passive)
@@ -6349,7 +6349,7 @@
 			)
 			(justify right)
 		)
-		(uuid "a58b3092-699e-5946-beaf-c0d6ccbd16d1")
+		(uuid "94a5b5f5-5d0e-5fc6-b209-44f3689bb4ed")
 	)
 	(symbol
 		(lib_id "Device:D")
@@ -7055,8 +7055,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "d52929bd-4b68-5d78-8bfc-67fd5cf63f8e")
-		(property "Reference" "R35"
+		(uuid "62765cf8-b898-5742-abea-77c9f47af717")
+		(property "Reference" "R34"
 			(at 86.36 158.75 0)
 			(effects
 				(font
@@ -7109,15 +7109,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "d44ab79e-c19a-5a8e-b352-b8fd5f5783b5")
+			(uuid "b8fcdad1-334e-5d82-8552-c84369f75a5b")
 		)
 		(pin "2"
-			(uuid "3244f73e-eab2-5008-9f47-52a9b3893587")
+			(uuid "bb2eaa70-d943-567b-8efc-f81873f235ee")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/5da39bb7-dfb2-57c5-a925-08acb48596d3"
-					(reference "R35")
+					(reference "R34")
 					(unit 1)
 				)
 			)
@@ -7133,7 +7133,7 @@
 			)
 			(justify left)
 		)
-		(uuid "68119db8-d083-5e32-a8d4-f5aafd4298bd")
+		(uuid "d4465cb2-f8f1-50d1-abb5-db92485deea7")
 	)
 	(global_label "GND"
 		(shape passive)
@@ -7145,7 +7145,7 @@
 			)
 			(justify right)
 		)
-		(uuid "8c477266-c741-5f9a-8262-7e87e17c18fa")
+		(uuid "a58b3092-699e-5946-beaf-c0d6ccbd16d1")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -7155,8 +7155,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "af81cf51-e6ac-5339-b3a6-32d05b9169bd")
-		(property "Reference" "R36"
+		(uuid "d52929bd-4b68-5d78-8bfc-67fd5cf63f8e")
+		(property "Reference" "R35"
 			(at 124.46 158.75 0)
 			(effects
 				(font
@@ -7209,15 +7209,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "cb9417f2-0d17-5b61-920f-dcb1df31ed02")
+			(uuid "d44ab79e-c19a-5a8e-b352-b8fd5f5783b5")
 		)
 		(pin "2"
-			(uuid "ae714e03-c55a-582a-9a74-5faf7df02cff")
+			(uuid "3244f73e-eab2-5008-9f47-52a9b3893587")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/5da39bb7-dfb2-57c5-a925-08acb48596d3"
-					(reference "R36")
+					(reference "R35")
 					(unit 1)
 				)
 			)
@@ -7233,7 +7233,7 @@
 			)
 			(justify left)
 		)
-		(uuid "aa769390-4ed2-5134-aad4-7af34bc4bfbf")
+		(uuid "68119db8-d083-5e32-a8d4-f5aafd4298bd")
 	)
 	(global_label "GND"
 		(shape passive)
@@ -7245,7 +7245,7 @@
 			)
 			(justify right)
 		)
-		(uuid "fc5db57e-4a97-54a6-b937-d803d3ca8332")
+		(uuid "8c477266-c741-5f9a-8262-7e87e17c18fa")
 	)
 	(symbol
 		(lib_id "Device:L")
@@ -8790,7 +8790,7 @@
 		)
 		(uuid "1b17985e-5366-51e4-9273-f21c4f4877eb")
 	)
-	(text "J13 e-paper (FITTED): Waveshare 3.97in e-Paper raw panel, SSD1677, 24-pin 0.5 mm FPC. Pinout and booster (R1 2.2R, R2 1M,"
+	(text "J13 e-paper (FITTED): Waveshare 3.97in e-Paper (G) raw panel, SSD2677, 24-pin 0.5 mm FPC. Pinout (G) panel manual v1.0 sec. 5; booster (R1 2.2R, R2 1M,"
 		(exclude_from_sim no)
 		(at 25.4 33.2 0)
 		(effects
@@ -8801,7 +8801,7 @@
 		)
 		(uuid "867f1621-9008-5001-a972-004bb29427c9")
 	)
-	(text "Q1 AO3400A, L1 10uH, D1-D3 MBR0530, C1-C10 4.7/1 uF 25 V) from Waveshare's 3.97inch e-Paper user manual v1.0 sec. 5 and 9."
+	(text "Q1 AO3400A, L1 10uH, D1-D3 MBR0530, C1-C10 4.7/1 uF) = Waveshare 3.97inch e-Paper HAT+ (G) driver-board schematic; C1 4.7 uF on pin 5 VSH2 confirmed there."
 		(exclude_from_sim no)
 		(at 25.4 35.6 0)
 		(effects
@@ -8812,7 +8812,7 @@
 		)
 		(uuid "01b79089-d265-5e6e-b762-68bbaec4fc89")
 	)
-	(text "UNVERIFIED: that manual is the two-colour panel; the (G) red/yellow/black/white panel's own manual/schematic was not reachable."
+	(text "(G) panel: BUSY is ACTIVE LOW (low = busy, manual note 5-4), operating temperature 0..40 C. Pins 1/4/6/7 NC, each left separate."
 		(exclude_from_sim no)
 		(at 25.4 38 0)
 		(effects

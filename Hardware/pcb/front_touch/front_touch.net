@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "D:\\SyncD\\Hardware\\pcb\\front_touch\\front_touch.kicad_sch")
-		(date "2026-11-23T12:58:13")
+		(date "2026-11-23T13:10:19")
 		(tool "Eeschema 10.0.8")
 		(sheet
 			(number "1")

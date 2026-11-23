@@ -107,7 +107,7 @@
 			)
 		)
 	)
-	(text "Power-bank / PD IC (placeholder), cell, NTC, protection"
+	(text "IP5356M power-bank IC, battery, NTC, protection"
 		(exclude_from_sim no)
 		(at 90.9 50.64 0)
 		(effects
@@ -160,7 +160,7 @@
 			)
 		)
 	)
-	(text "TPS61088 PVDD boost, 9 V"
+	(text "TPS61088 PVDD boost for the amp, 9 V"
 		(exclude_from_sim no)
 		(at 154.4 50.64 0)
 		(effects
@@ -186,8 +186,8 @@
 		(fill
 			(color 0 0 0 0)
 		)
-		(uuid "4bbf0963-71b4-5b19-8a54-7c192f22d4c7")
-		(property "Sheetname" "amp"
+		(uuid "a4e87915-7389-511a-b96f-39dd1c356099")
+		(property "Sheetname" "qi"
 			(at 215.9 39.94 0)
 			(effects
 				(font
@@ -196,7 +196,7 @@
 				(justify left bottom)
 			)
 		)
-		(property "Sheetfile" "amp.kicad_sch"
+		(property "Sheetfile" "qi.kicad_sch"
 			(at 215.9 61.54 0)
 			(effects
 				(font
@@ -213,7 +213,7 @@
 			)
 		)
 	)
-	(text "TAS5805M stereo BTL amplifier"
+	(text "Qi TX module supply: own 9 V boost + LC filter"
 		(exclude_from_sim no)
 		(at 217.9 50.64 0)
 		(effects
@@ -222,7 +222,7 @@
 			)
 			(justify left)
 		)
-		(uuid "61680e14-a9e2-5141-a1c4-324d2f871bb2")
+		(uuid "d89cbbc1-0da4-5da5-aec3-99675574e4da")
 	)
 	(sheet
 		(at 279.4 40.64)
@@ -239,8 +239,8 @@
 		(fill
 			(color 0 0 0 0)
 		)
-		(uuid "4a00bd29-6b55-5051-820b-4c571d59bf74")
-		(property "Sheetname" "link"
+		(uuid "4bbf0963-71b4-5b19-8a54-7c192f22d4c7")
+		(property "Sheetname" "amp"
 			(at 279.4 39.94 0)
 			(effects
 				(font
@@ -249,7 +249,7 @@
 				(justify left bottom)
 			)
 		)
-		(property "Sheetfile" "link.kicad_sch"
+		(property "Sheetfile" "amp.kicad_sch"
 			(at 279.4 61.54 0)
 			(effects
 				(font
@@ -266,9 +266,62 @@
 			)
 		)
 	)
-	(text "Link to carrier, 3V3 LDO"
+	(text "TAS5805M stereo BTL amplifier"
 		(exclude_from_sim no)
 		(at 281.4 50.64 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+			)
+			(justify left)
+		)
+		(uuid "61680e14-a9e2-5141-a1c4-324d2f871bb2")
+	)
+	(sheet
+		(at 25.4 78.74)
+		(size 50.8 20.32)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "4a00bd29-6b55-5051-820b-4c571d59bf74")
+		(property "Sheetname" "link"
+			(at 25.4 78.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "link.kicad_sch"
+			(at 25.4 99.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "power"
+				(path "/0d0463c5-0c3b-52e3-bd42-31c800875d2b"
+					(page "7")
+				)
+			)
+		)
+	)
+	(text "Link to carrier, 3V3 LDO"
+		(exclude_from_sim no)
+		(at 27.4 88.74 0)
 		(effects
 			(font
 				(size 1.5 1.5)
@@ -299,7 +352,7 @@
 		)
 		(uuid "b1630360-579b-5f0f-92a6-c8a25d2cfde1")
 	)
-	(text "Power-bank / PD IC NOT CHOSEN: U1 is a DNP placeholder with labelled nets (see README for options)."
+	(text "U1 = Injoinic IP5356M (datasheet read, see README); Qi module has its own boost (qi sheet)."
 		(exclude_from_sim no)
 		(at 25.4 26.4 0)
 		(effects

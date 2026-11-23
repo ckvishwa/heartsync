@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "D:\\SyncD\\Hardware\\pcb\\carrier\\carrier.kicad_sch")
-		(date "2026-11-23T12:57:38")
+		(date "2026-11-23T13:10:08")
 		(tool "Eeschema 10.0.8")
 		(sheet
 			(number "1")
@@ -1583,60 +1583,6 @@
 		)
 		(comp
 			(ref "R8")
-			(value "10k")
-			(footprint "Resistor_SMD:R_0402_1005Metric")
-			(description "Resistor")
-			(fields
-				(field
-					(name "Footprint") "Resistor_SMD:R_0402_1005Metric")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "Resistor")
-			)
-			(libsource
-				(lib "Device")
-				(part "R")
-				(description "Resistor")
-			)
-			(property
-				(name "Sheetname")
-				(value "mcu")
-			)
-			(property
-				(name "Sheetfile")
-				(value "mcu.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "R res resistor")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "R_*")
-			)
-			(sheetpath
-				(names "/mcu/")
-				(tstamps "/c4dacaaf-dfba-54a6-9057-cc86a9d4cf53/")
-			)
-			(tstamps "d776650b-fb54-5e9c-ae4a-8c91f9c8729e")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "R9")
 			(value "100k")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
@@ -1680,7 +1626,7 @@
 				(names "/mcu/")
 				(tstamps "/c4dacaaf-dfba-54a6-9057-cc86a9d4cf53/")
 			)
-			(tstamps "d7f4f800-d63e-5835-9180-d8a33d3a3339")
+			(tstamps "d776650b-fb54-5e9c-ae4a-8c91f9c8729e")
 			(units
 				(unit
 					(name "A")
@@ -3091,6 +3037,60 @@
 			)
 		)
 		(comp
+			(ref "R9")
+			(value "10k")
+			(footprint "Resistor_SMD:R_0402_1005Metric")
+			(description "Resistor")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0402_1005Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Resistor")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "io")
+			)
+			(property
+				(name "Sheetfile")
+				(value "io.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/io/")
+				(tstamps "/2842bf1f-ce17-505e-8468-cfeb5c3e54cf/")
+			)
+			(tstamps "d7f4f800-d63e-5835-9180-d8a33d3a3339")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
 			(ref "R10")
 			(value "10k")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
@@ -3146,60 +3146,6 @@
 		)
 		(comp
 			(ref "R11")
-			(value "10k")
-			(footprint "Resistor_SMD:R_0402_1005Metric")
-			(description "Resistor")
-			(fields
-				(field
-					(name "Footprint") "Resistor_SMD:R_0402_1005Metric")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "Resistor")
-			)
-			(libsource
-				(lib "Device")
-				(part "R")
-				(description "Resistor")
-			)
-			(property
-				(name "Sheetname")
-				(value "io")
-			)
-			(property
-				(name "Sheetfile")
-				(value "io.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "R res resistor")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "R_*")
-			)
-			(sheetpath
-				(names "/io/")
-				(tstamps "/2842bf1f-ce17-505e-8468-cfeb5c3e54cf/")
-			)
-			(tstamps "73429d4a-522c-5678-b726-dca92e71d64d")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "R12")
 			(value "330R")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
@@ -3237,7 +3183,7 @@
 				(names "/io/")
 				(tstamps "/2842bf1f-ce17-505e-8468-cfeb5c3e54cf/")
 			)
-			(tstamps "16b7c147-57c1-5b09-a79b-924f72b5774d")
+			(tstamps "73429d4a-522c-5678-b726-dca92e71d64d")
 			(units
 				(unit
 					(name "A")
@@ -3676,7 +3622,7 @@
 				(field
 					(name "MPN") "LSM6DSOXTR")
 				(field
-					(name "Note") "pins 10/11 = OCS_Aux/SDO_Aux left open")
+					(name "Note") "aux SPI unused: OCS_Aux open, SDO_Aux to VDDIO (DS12814 table 2)")
 				(field
 					(name "Footprint") "Package_LGA:LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y")
 				(field
@@ -3695,7 +3641,7 @@
 			)
 			(property
 				(name "Note")
-				(value "pins 10/11 = OCS_Aux/SDO_Aux left open")
+				(value "aux SPI unused: OCS_Aux open, SDO_Aux to VDDIO (DS12814 table 2)")
 			)
 			(property
 				(name "Sheetname")
@@ -4879,7 +4825,7 @@
 			)
 		)
 		(comp
-			(ref "R13")
+			(ref "R12")
 			(value "4.7k")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
@@ -4896,6 +4842,66 @@
 				(lib "Device")
 				(part "R")
 				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "cellular")
+			)
+			(property
+				(name "Sheetfile")
+				(value "cellular.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/cellular/")
+				(tstamps "/53c4064f-f8a4-5191-beee-c422f7411d9d/")
+			)
+			(tstamps "16b7c147-57c1-5b09-a79b-924f72b5774d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R13")
+			(value "10k")
+			(footprint "Resistor_SMD:R_0402_1005Metric")
+			(description "Resistor")
+			(fields
+				(field
+					(name "Note") "holds PWRKEY released while the expander pin is an input (100k pull-up)")
+				(field
+					(name "Footprint") "Resistor_SMD:R_0402_1005Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Resistor")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Note")
+				(value "holds PWRKEY released while the expander pin is an input (100k pull-up)")
 			)
 			(property
 				(name "Sheetname")
@@ -4934,12 +4940,10 @@
 		)
 		(comp
 			(ref "R14")
-			(value "10k")
+			(value "22R")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
 			(fields
-				(field
-					(name "Note") "holds PWRKEY released while the expander pin is an input (100k pull-up)")
 				(field
 					(name "Footprint") "Resistor_SMD:R_0402_1005Metric")
 				(field
@@ -4952,10 +4956,6 @@
 				(lib "Device")
 				(part "R")
 				(description "Resistor")
-			)
-			(property
-				(name "Note")
-				(value "holds PWRKEY released while the expander pin is an input (100k pull-up)")
 			)
 			(property
 				(name "Sheetname")
@@ -5102,60 +5102,6 @@
 		)
 		(comp
 			(ref "R17")
-			(value "22R")
-			(footprint "Resistor_SMD:R_0402_1005Metric")
-			(description "Resistor")
-			(fields
-				(field
-					(name "Footprint") "Resistor_SMD:R_0402_1005Metric")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "Resistor")
-			)
-			(libsource
-				(lib "Device")
-				(part "R")
-				(description "Resistor")
-			)
-			(property
-				(name "Sheetname")
-				(value "cellular")
-			)
-			(property
-				(name "Sheetfile")
-				(value "cellular.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "R res resistor")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "R_*")
-			)
-			(sheetpath
-				(names "/cellular/")
-				(tstamps "/53c4064f-f8a4-5191-beee-c422f7411d9d/")
-			)
-			(tstamps "8336ca96-72b9-56e9-a7db-689611687222")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "R18")
 			(value "10k")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
@@ -5202,7 +5148,7 @@
 				(names "/cellular/")
 				(tstamps "/53c4064f-f8a4-5191-beee-c422f7411d9d/")
 			)
-			(tstamps "dddcfeec-180a-5a48-83e9-8da2431b5577")
+			(tstamps "8336ca96-72b9-56e9-a7db-689611687222")
 			(units
 				(unit
 					(name "A")
@@ -5218,7 +5164,7 @@
 			)
 		)
 		(comp
-			(ref "R19")
+			(ref "R18")
 			(value "0R")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
@@ -5262,7 +5208,7 @@
 				(names "/cellular/")
 				(tstamps "/53c4064f-f8a4-5191-beee-c422f7411d9d/")
 			)
-			(tstamps "ce776e75-fb9e-5997-bc83-c86497e3bda2")
+			(tstamps "dddcfeec-180a-5a48-83e9-8da2431b5577")
 			(units
 				(unit
 					(name "A")
@@ -5278,7 +5224,7 @@
 			)
 		)
 		(comp
-			(ref "R20")
+			(ref "R19")
 			(value "0R")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
@@ -5322,7 +5268,7 @@
 				(names "/cellular/")
 				(tstamps "/53c4064f-f8a4-5191-beee-c422f7411d9d/")
 			)
-			(tstamps "58a74503-6ba0-5dbb-af86-d5f6965fdb38")
+			(tstamps "ce776e75-fb9e-5997-bc83-c86497e3bda2")
 			(units
 				(unit
 					(name "A")
@@ -6587,8 +6533,62 @@
 			)
 		)
 		(comp
-			(ref "R21")
+			(ref "R20")
 			(value "1k")
+			(footprint "Resistor_SMD:R_0402_1005Metric")
+			(description "Resistor")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0402_1005Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Resistor")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "bluetooth")
+			)
+			(property
+				(name "Sheetfile")
+				(value "bluetooth.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/bluetooth/")
+				(tstamps "/295bd4f6-1294-5e97-bf24-ffa9840e2cbd/")
+			)
+			(tstamps "58a74503-6ba0-5dbb-af86-d5f6965fdb38")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R21")
+			(value "10k")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
 			(fields
@@ -6642,7 +6642,7 @@
 		)
 		(comp
 			(ref "R22")
-			(value "10k")
+			(value "1k")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
 			(fields
@@ -6966,60 +6966,6 @@
 		)
 		(comp
 			(ref "R28")
-			(value "1k")
-			(footprint "Resistor_SMD:R_0402_1005Metric")
-			(description "Resistor")
-			(fields
-				(field
-					(name "Footprint") "Resistor_SMD:R_0402_1005Metric")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "Resistor")
-			)
-			(libsource
-				(lib "Device")
-				(part "R")
-				(description "Resistor")
-			)
-			(property
-				(name "Sheetname")
-				(value "bluetooth")
-			)
-			(property
-				(name "Sheetfile")
-				(value "bluetooth.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "R res resistor")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "R_*")
-			)
-			(sheetpath
-				(names "/bluetooth/")
-				(tstamps "/295bd4f6-1294-5e97-bf24-ffa9840e2cbd/")
-			)
-			(tstamps "d093b420-94c3-54da-902a-24dcf58a7355")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "R29")
 			(value "0R")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
@@ -7063,7 +7009,7 @@
 				(names "/bluetooth/")
 				(tstamps "/295bd4f6-1294-5e97-bf24-ffa9840e2cbd/")
 			)
-			(tstamps "86974318-8808-54c6-a845-4914071e9196")
+			(tstamps "d093b420-94c3-54da-902a-24dcf58a7355")
 			(units
 				(unit
 					(name "A")
@@ -9450,8 +9396,62 @@
 			)
 		)
 		(comp
-			(ref "R30")
+			(ref "R29")
 			(value "100k")
+			(footprint "Resistor_SMD:R_0402_1005Metric")
+			(description "Resistor")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0402_1005Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Resistor")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "display")
+			)
+			(property
+				(name "Sheetfile")
+				(value "display.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/display/")
+				(tstamps "/5da39bb7-dfb2-57c5-a925-08acb48596d3/")
+			)
+			(tstamps "86974318-8808-54c6-a845-4914071e9196")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R30")
+			(value "487k")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
 			(fields
@@ -9505,7 +9505,7 @@
 		)
 		(comp
 			(ref "R31")
-			(value "487k")
+			(value "56k")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
 			(fields
@@ -9559,60 +9559,6 @@
 		)
 		(comp
 			(ref "R32")
-			(value "56k")
-			(footprint "Resistor_SMD:R_0402_1005Metric")
-			(description "Resistor")
-			(fields
-				(field
-					(name "Footprint") "Resistor_SMD:R_0402_1005Metric")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "Resistor")
-			)
-			(libsource
-				(lib "Device")
-				(part "R")
-				(description "Resistor")
-			)
-			(property
-				(name "Sheetname")
-				(value "display")
-			)
-			(property
-				(name "Sheetfile")
-				(value "display.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "R res resistor")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "R_*")
-			)
-			(sheetpath
-				(names "/display/")
-				(tstamps "/5da39bb7-dfb2-57c5-a925-08acb48596d3/")
-			)
-			(tstamps "396f7792-30f1-55c6-b2f5-052c7184c7ab")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "R33")
 			(value "620k")
 			(footprint "Resistor_SMD:R_0402_1005Metric")
 			(description "Resistor")
@@ -9656,7 +9602,7 @@
 				(names "/display/")
 				(tstamps "/5da39bb7-dfb2-57c5-a925-08acb48596d3/")
 			)
-			(tstamps "eeba7247-76c4-51d4-a937-6ed9c2f99c28")
+			(tstamps "396f7792-30f1-55c6-b2f5-052c7184c7ab")
 			(units
 				(unit
 					(name "A")
@@ -9672,7 +9618,7 @@
 			)
 		)
 		(comp
-			(ref "R34")
+			(ref "R33")
 			(value "51R")
 			(footprint "Resistor_SMD:R_0603_1608Metric")
 			(description "Resistor")
@@ -9716,7 +9662,7 @@
 				(names "/display/")
 				(tstamps "/5da39bb7-dfb2-57c5-a925-08acb48596d3/")
 			)
-			(tstamps "62765cf8-b898-5742-abea-77c9f47af717")
+			(tstamps "eeba7247-76c4-51d4-a937-6ed9c2f99c28")
 			(units
 				(unit
 					(name "A")
@@ -9732,7 +9678,7 @@
 			)
 		)
 		(comp
-			(ref "R35")
+			(ref "R34")
 			(value "2.2R")
 			(footprint "Resistor_SMD:R_0603_1608Metric")
 			(description "Resistor")
@@ -9776,7 +9722,7 @@
 				(names "/display/")
 				(tstamps "/5da39bb7-dfb2-57c5-a925-08acb48596d3/")
 			)
-			(tstamps "d52929bd-4b68-5d78-8bfc-67fd5cf63f8e")
+			(tstamps "62765cf8-b898-5742-abea-77c9f47af717")
 			(units
 				(unit
 					(name "A")
@@ -9792,7 +9738,7 @@
 			)
 		)
 		(comp
-			(ref "R36")
+			(ref "R35")
 			(value "1M")
 			(footprint "Resistor_SMD:R_0603_1608Metric")
 			(description "Resistor")
@@ -9836,7 +9782,7 @@
 				(names "/display/")
 				(tstamps "/5da39bb7-dfb2-57c5-a925-08acb48596d3/")
 			)
-			(tstamps "af81cf51-e6ac-5339-b3a6-32d05b9169bd")
+			(tstamps "d52929bd-4b68-5d78-8bfc-67fd5cf63f8e")
 			(units
 				(unit
 					(name "A")
@@ -12540,13 +12486,13 @@
 				)
 				(pin
 					(num "10")
-					(name "NC")
+					(name "OCS_Aux")
 					(type "no_connect")
 				)
 				(pin
 					(num "11")
-					(name "NC")
-					(type "no_connect")
+					(name "SDO_Aux")
+					(type "passive")
 				)
 				(pin
 					(num "12")
@@ -13187,11 +13133,6 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R8")
-				(pin "1")
-				(pintype "passive")
-			)
-			(node
 				(ref "TP10")
 				(pin "1")
 				(pinfunction "1_1")
@@ -13220,6 +13161,12 @@
 				(pin "24")
 				(pinfunction "VDD_PADS3_7_24")
 				(pintype "power_in")
+			)
+			(node
+				(ref "U12")
+				(pin "11")
+				(pinfunction "SDO_Aux_11")
+				(pintype "passive")
 			)
 			(node
 				(ref "U12")
@@ -13460,7 +13407,7 @@
 			(name "BT_AMP_EN")
 			(class "Default")
 			(node
-				(ref "R28")
+				(ref "R27")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -13527,7 +13474,7 @@
 			(name "BT_PIO1")
 			(class "Default")
 			(node
-				(ref "R23")
+				(ref "R22")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -13543,7 +13490,7 @@
 			(name "BT_PIO2")
 			(class "Default")
 			(node
-				(ref "R24")
+				(ref "R23")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -13559,7 +13506,7 @@
 			(name "BT_PIO2_CTL")
 			(class "Default")
 			(node
-				(ref "R24")
+				(ref "R23")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13575,7 +13522,7 @@
 			(name "BT_PIO3")
 			(class "Default")
 			(node
-				(ref "R25")
+				(ref "R24")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -13591,7 +13538,7 @@
 			(name "BT_PIO3_CTL")
 			(class "Default")
 			(node
-				(ref "R25")
+				(ref "R24")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13607,7 +13554,7 @@
 			(name "BT_PIO4")
 			(class "Default")
 			(node
-				(ref "R26")
+				(ref "R25")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -13623,7 +13570,7 @@
 			(name "BT_PIO4_CTL")
 			(class "Default")
 			(node
-				(ref "R26")
+				(ref "R25")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13639,7 +13586,7 @@
 			(name "BT_PIO5")
 			(class "Default")
 			(node
-				(ref "R27")
+				(ref "R26")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -13655,7 +13602,7 @@
 			(name "BT_PIO5_CTL")
 			(class "Default")
 			(node
-				(ref "R27")
+				(ref "R26")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13671,7 +13618,7 @@
 			(name "BT_PIO20")
 			(class "Default")
 			(node
-				(ref "R28")
+				(ref "R27")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13692,7 +13639,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R29")
+				(ref "R28")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13708,7 +13655,7 @@
 			(name "BT_RST")
 			(class "Default")
 			(node
-				(ref "R23")
+				(ref "R22")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13724,7 +13671,7 @@
 			(name "BT_SYS_CTRL")
 			(class "Default")
 			(node
-				(ref "R21")
+				(ref "R20")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13740,12 +13687,12 @@
 			(name "BT_SYS_CTRL_M")
 			(class "Default")
 			(node
-				(ref "R21")
+				(ref "R20")
 				(pin "2")
 				(pintype "passive")
 			)
 			(node
-				(ref "R22")
+				(ref "R21")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13772,7 +13719,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R29")
+				(ref "R28")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -13816,7 +13763,7 @@
 			(name "DRV_EN")
 			(class "Default")
 			(node
-				(ref "R10")
+				(ref "R9")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13917,7 +13864,7 @@
 				(pintype "input")
 			)
 			(node
-				(ref "R36")
+				(ref "R35")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13961,7 +13908,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R35")
+				(ref "R34")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -14795,17 +14742,17 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R11")
+				(ref "R13")
 				(pin "2")
 				(pintype "passive")
 			)
 			(node
-				(ref "R14")
+				(ref "R21")
 				(pin "2")
 				(pintype "passive")
 			)
 			(node
-				(ref "R22")
+				(ref "R31")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -14815,7 +14762,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R33")
+				(ref "R34")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -14825,7 +14772,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R36")
+				(ref "R8")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -15187,7 +15134,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R20")
+				(ref "R19")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -15214,7 +15161,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R20")
+				(ref "R19")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -15437,7 +15384,7 @@
 			(name "IMU_INT1")
 			(class "Default")
 			(node
-				(ref "R9")
+				(ref "R8")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -15481,7 +15428,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R19")
+				(ref "R18")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -15508,7 +15455,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R19")
+				(ref "R18")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -15535,7 +15482,7 @@
 			(name "MUTE_LED")
 			(class "Default")
 			(node
-				(ref "R12")
+				(ref "R11")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -15557,7 +15504,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R12")
+				(ref "R11")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -15600,7 +15547,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R31")
+				(ref "R30")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -15649,12 +15596,12 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R31")
+				(ref "R30")
 				(pin "2")
 				(pintype "passive")
 			)
 			(node
-				(ref "R32")
+				(ref "R31")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -15676,7 +15623,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R33")
+				(ref "R32")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -15738,7 +15685,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R30")
+				(ref "R29")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -15754,7 +15701,7 @@
 				(pintype "input")
 			)
 			(node
-				(ref "R11")
+				(ref "R10")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -15847,7 +15794,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R34")
+				(ref "R33")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -15863,7 +15810,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R34")
+				(ref "R33")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -15893,11 +15840,6 @@
 				(ref "J1")
 				(pin "9")
 				(pinfunction "Pin_9_9")
-				(pintype "passive")
-			)
-			(node
-				(ref "R8")
-				(pin "2")
 				(pintype "passive")
 			)
 			(node
@@ -15957,7 +15899,7 @@
 				(pintype "input")
 			)
 			(node
-				(ref "R16")
+				(ref "R15")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -15979,12 +15921,12 @@
 				(pintype "bidirectional")
 			)
 			(node
-				(ref "R17")
+				(ref "R16")
 				(pin "2")
 				(pintype "passive")
 			)
 			(node
-				(ref "R18")
+				(ref "R17")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -16006,7 +15948,7 @@
 				(pintype "input")
 			)
 			(node
-				(ref "R15")
+				(ref "R14")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -16039,7 +15981,7 @@
 			(name "SIM_CLK")
 			(class "Default")
 			(node
-				(ref "R16")
+				(ref "R15")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -16055,7 +15997,7 @@
 			(name "SIM_DATA")
 			(class "Default")
 			(node
-				(ref "R17")
+				(ref "R16")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -16134,12 +16076,12 @@
 				(pintype "input")
 			)
 			(node
-				(ref "R13")
+				(ref "R12")
 				(pin "2")
 				(pintype "passive")
 			)
 			(node
-				(ref "R14")
+				(ref "R13")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -16149,7 +16091,7 @@
 			(name "SIM_PWRKEY_CTL")
 			(class "Default")
 			(node
-				(ref "R13")
+				(ref "R12")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -16165,7 +16107,7 @@
 			(name "SIM_RST")
 			(class "Default")
 			(node
-				(ref "R15")
+				(ref "R14")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -16345,7 +16287,7 @@
 				(pintype "power_in")
 			)
 			(node
-				(ref "R18")
+				(ref "R17")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -16673,7 +16615,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R30")
+				(ref "R29")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -17691,23 +17633,12 @@
 		)
 		(net
 			(code "212")
-			(name "unconnected-(U12-NC-Pad10)")
+			(name "unconnected-(U12-OCS_Aux-Pad10)")
 			(class "Default")
 			(node
 				(ref "U12")
 				(pin "10")
-				(pinfunction "NC_10")
-				(pintype "no_connect")
-			)
-		)
-		(net
-			(code "213")
-			(name "unconnected-(U12-NC-Pad11)")
-			(class "Default")
-			(node
-				(ref "U12")
-				(pin "11")
-				(pinfunction "NC_11")
+				(pinfunction "OCS_Aux_10")
 				(pintype "no_connect")
 			)
 		)

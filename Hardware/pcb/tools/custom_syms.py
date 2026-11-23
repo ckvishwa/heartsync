@@ -83,19 +83,22 @@ def usbc():
                       description="Amphenol USB 3.2 Type-C receptacle, mid-mount, waterproof")
 
 
-def pdic():
-    t = {1: "VBUS1", 2: "VBUS1", 3: "CC1_1", 4: "CC2_1", 5: "VBUS2", 6: "VBUS2", 7: "CC1_2", 8: "CC2_2",
-         9: "DP2", 10: "DM2", 11: "BAT", 12: "BAT", 13: "BAT", 14: "SYS", 15: "SYS", 16: "NTC", 17: "SDA",
-         18: "SCL", 19: "INT", 20: "KEY", 21: "QI_5V", 22: "QI_EN", 41: "GND"}
-    for n in range(23, 41):
-        t[n] = "RSVD%d" % n
-    left = [(n, t[n], P) for n in range(1, 11)] + [(n, t[n], P) for n in (20, 21, 22)]
-    right = [(n, t[n], P) for n in range(11, 20)] + [(41, "GND", P)]
-    bottom = [(n, t[n], P) for n in range(23, 41)]
-    return symlib.box("ansonia:PD_IC_PLACEHOLDER", left, right, bottom=bottom, ref="U",
-                      value="PD/charger IC TBD (DNP)", footprint="ansonia:PLACEHOLDER_PDIC_QFN40_6x6",
-                      description="Placeholder for the power-bank / USB PD IC (2x Type-C: port 1 DRP, port 2 source)."
-                                  " Net labels only; pin numbers are NOT a real part's pinout")
+def ip5356m():
+    """Injoinic IP5356M QFN-40 6x6 pin table: datasheet V1.00 sec. 6.1 (pages 7-8). LED2=SDA, LED1=SCK, LED3=INT in I2C mode."""
+    t = {1: ("SDA", B), 2: ("INT", O), 3: ("LX", P), 4: ("LX", P), 5: ("LX", P), 6: ("LX", P), 7: ("LX", P),
+         8: ("BST", P), 9: ("LED4", P), 10: ("FCAP", P), 11: ("LED6", P), 12: ("VSYS", P), 13: ("VSYS", P),
+         14: ("VBUS", P), 15: ("VBUS", P), 16: ("VIN", P), 17: ("VIN", P), 18: ("BAT", P), 19: ("AGND", PI),
+         20: ("VCC", PO), 21: ("KEY", I), 22: ("NTC", P), 23: ("DPB", P), 24: ("DMB", P), 25: ("DPC", B),
+         26: ("DMC", B), 27: ("CC2", B), 28: ("CC1", B), 29: ("CL", P), 30: ("DPA1", B), 31: ("DMA1", B),
+         32: ("DPA2", B), 33: ("DMA2", B), 34: ("VOUT2", P), 35: ("VOUT2", P), 36: ("VOUT1", P),
+         37: ("VOUT1", P), 38: ("VSYS", P), 39: ("VSYS", P), 40: ("SCL", B), 41: ("GND", PI)}
+    left = [(n,) + t[n] for n in (1, 2, 40, 9, 10, 11, 21, 22, 20, 8)]
+    right = [(n,) + t[n] for n in (14, 15, 25, 26, 27, 28, 32, 33, 34, 35, 12, 13, 38, 39, 3, 4, 5, 6, 7)]
+    bottom = [(n,) + t[n] for n in (16, 17, 23, 24, 29, 30, 31, 36, 37, 18, 19, 41)]
+    return symlib.box("ansonia:IP5356M", left, right, bottom=bottom, ref="U", value="IP5356M_LBZ",
+                      footprint="Package_DFN_QFN:QFN-40-1EP_6x6mm_P0.5mm_EP4.6x4.6mm",
+                      description="Injoinic IP5356M power-bank SoC, QFN-40 6x6 0.5 mm. Pins per datasheet V1.00 sec. 6.1. "
+                                  "I2C only in the _L (LED) models: IP5356M_LBZ / IP5356M_LCL")
 
 
 def lsm6dsox():
@@ -112,10 +115,17 @@ def lsm6dsox():
     for p in [x for x in node if isinstance(x, list) and x and x[0] == "property"]:
         if p[1] == "Value":
             p[2] = "LSM6DSOX"
+    # pins 10/11: datasheet DS12814 rev 3 table 2 (p. 9): OCS_Aux "Leave unconnected", SDO_Aux "Connect to VDD_IO or leave unconnected"
+    for sub in [x for x in node if isinstance(x, list) and x and x[0] == "symbol"]:
+        for p in [x for x in sub if isinstance(x, list) and x and x[0] == "pin"]:
+            num = str(first(p, "number")[1])
+            if num in ("10", "11"):
+                first(p, "name")[1] = "OCS_Aux" if num == "10" else "SDO_Aux"
+                p[1] = Sym("no_connect") if num == "10" else Sym("passive")
     return symlib._finish("ansonia:LSM6DSOX", node)
 
 
-ALL = [sim7080g, ewm104, tps61088, usbc, pdic, lsm6dsox]
+ALL = [sim7080g, ewm104, tps61088, usbc, ip5356m, lsm6dsox]
 
 
 def build(lib_path):

@@ -328,8 +328,9 @@ def autoplace(board, spec, fps, placed, js):
         fp = fps[ref][0]
         l, t, r, b = _bbox_local(fp)
         p = fp.GetPosition()
+        thru = any(pd.GetAttribute() in (P.PAD_ATTRIB_PTH, P.PAD_ATTRIB_NPTH) for pd in fp.Pads())
         rects.append((P.ToMM(p.x) + l, P.ToMM(p.y) + t, P.ToMM(p.x) + r, P.ToMM(p.y) + b,
-                      "B" if fp.IsFlipped() else "F"))
+                      "FB" if thru else ("B" if fp.IsFlipped() else "F")))
 
     def free(x0, y0, x1, y1, side):
         for poly in outl:
@@ -384,25 +385,29 @@ def autoplace(board, spec, fps, placed, js):
             fp.Flip(fp.GetPosition(), P.FLIP_DIRECTION_LEFT_RIGHT)
         ap = afp.GetPosition()
         ax, ay = P.ToMM(ap.x), P.ToMM(ap.y)
-        done = False
-        for rad in [i * 0.25 for i in range(4, 160)]:
-            steps = max(8, int(2 * math.pi * rad / 0.5))
-            for k in range(steps):
-                ang = 2 * math.pi * k / steps
-                x, y = ax + rad * math.cos(ang), ay + rad * math.sin(ang)
-                x, y = round(x * 4) / 4, round(y * 4) / 4
-                for rot in (0, 90):
-                    fp.SetOrientationDegrees(rot)
-                    fp.SetPosition(P.VECTOR2I(MM(x), MM(y)))
-                    l, t, r, b = _bbox_local(fp)
-                    if free(x + l, y + t, x + r, y + b, side):
-                        rects.append((x + l, y + t, x + r, y + b, side))
-                        done = True
-                        break
-                if done:
-                    break
-            if done:
-                break
+        def search(side):
+            for rad in [i * 0.25 for i in range(4, 160)]:
+                steps = max(8, int(2 * math.pi * rad / 0.5))
+                for k in range(steps):
+                    ang = 2 * math.pi * k / steps
+                    x, y = ax + rad * math.cos(ang), ay + rad * math.sin(ang)
+                    x, y = round(x * 4) / 4, round(y * 4) / 4
+                    for rot in (0, 90):
+                        fp.SetOrientationDegrees(rot)
+                        fp.SetPosition(P.VECTOR2I(MM(x), MM(y)))
+                        l, t, r, b = _bbox_local(fp)
+                        if free(x + l, y + t, x + r, y + b, side):
+                            rects.append((x + l, y + t, x + r, y + b, side))
+                            return True
+            return False
+
+        done = search(side)
+        if not done and spec.get("allow_back") and ref.rstrip("0123456789") in ("C", "R", "FB", "D"):
+            fp.Flip(fp.GetPosition(), P.FLIP_DIRECTION_LEFT_RIGHT)
+            side = "B" if side == "F" else "F"
+            done = search(side)
+            if not done:
+                fp.Flip(fp.GetPosition(), P.FLIP_DIRECTION_LEFT_RIGHT)
         if not done:
             print("  !! could not place", ref, "near", best)
             fp.SetPosition(P.VECTOR2I(MM(OX - 60), MM(OY)))

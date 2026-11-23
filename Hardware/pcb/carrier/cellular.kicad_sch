@@ -6569,8 +6569,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "d05da718-dd76-548b-9529-c7da3d3585b4")
-		(property "Reference" "R13"
+		(uuid "16b7c147-57c1-5b09-a79b-924f72b5774d")
+		(property "Reference" "R12"
 			(at 101.6 128.27 0)
 			(effects
 				(font
@@ -6614,15 +6614,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "f8125d4c-31c9-5f49-85f4-8fe885fd0d50")
+			(uuid "4d313cea-6300-51db-8a8d-819262693fff")
 		)
 		(pin "2"
-			(uuid "f4e5bc4f-fd2e-5a0e-b9fe-b26f3b0fe6ff")
+			(uuid "4d1521dd-89db-5e8f-9aff-93fb3525b747")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/53c4064f-f8a4-5191-beee-c422f7411d9d"
-					(reference "R13")
+					(reference "R12")
 					(unit 1)
 				)
 			)
@@ -6638,7 +6638,7 @@
 			)
 			(justify left)
 		)
-		(uuid "c3f19fc4-3ff9-5685-9b17-026d26cf82cf")
+		(uuid "ad7d5d89-f4c0-5698-a048-96c59496936e")
 	)
 	(global_label "SIM_PWRKEY_B"
 		(shape passive)
@@ -6650,7 +6650,7 @@
 			)
 			(justify right)
 		)
-		(uuid "c492a25a-497c-592f-8231-4099c81b2352")
+		(uuid "aa0b2b32-498e-5969-b46e-3b2bbcce8cb5")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -6660,8 +6660,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "2933b327-49b0-550e-86ae-ea80e7176e59")
-		(property "Reference" "R14"
+		(uuid "d05da718-dd76-548b-9529-c7da3d3585b4")
+		(property "Reference" "R13"
 			(at 152.4 128.27 0)
 			(effects
 				(font
@@ -6714,15 +6714,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "b01bc4fe-23ee-54d1-8355-022cd5ea3e83")
+			(uuid "f8125d4c-31c9-5f49-85f4-8fe885fd0d50")
 		)
 		(pin "2"
-			(uuid "4548b2d3-c1fe-56e7-8b2a-babbd0ed30ed")
+			(uuid "f4e5bc4f-fd2e-5a0e-b9fe-b26f3b0fe6ff")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/53c4064f-f8a4-5191-beee-c422f7411d9d"
-					(reference "R14")
+					(reference "R13")
 					(unit 1)
 				)
 			)
@@ -6738,7 +6738,7 @@
 			)
 			(justify left)
 		)
-		(uuid "0faf74ca-9eab-5206-91a2-d919395cc5a0")
+		(uuid "c3f19fc4-3ff9-5685-9b17-026d26cf82cf")
 	)
 	(global_label "GND"
 		(shape passive)
@@ -6750,7 +6750,7 @@
 			)
 			(justify right)
 		)
-		(uuid "e06c1b5d-0f53-5698-adc4-fb66ab29fa7b")
+		(uuid "c492a25a-497c-592f-8231-4099c81b2352")
 	)
 	(symbol
 		(lib_id "Connector:SIM_Card")
@@ -6912,8 +6912,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "a742211f-689c-5818-9736-382bd1569eed")
-		(property "Reference" "R15"
+		(uuid "2933b327-49b0-550e-86ae-ea80e7176e59")
+		(property "Reference" "R14"
 			(at 233.68 128.27 0)
 			(effects
 				(font
@@ -6957,15 +6957,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "30258129-0e8b-5136-9784-79bf37d0b47e")
+			(uuid "b01bc4fe-23ee-54d1-8355-022cd5ea3e83")
 		)
 		(pin "2"
-			(uuid "a36d4dfc-10c1-5f78-9669-083f00fa2a93")
+			(uuid "4548b2d3-c1fe-56e7-8b2a-babbd0ed30ed")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/53c4064f-f8a4-5191-beee-c422f7411d9d"
-					(reference "R15")
+					(reference "R14")
 					(unit 1)
 				)
 			)
@@ -6981,7 +6981,7 @@
 			)
 			(justify left)
 		)
-		(uuid "fe8ca133-a4d5-59ca-b4c3-48ef4f4a762c")
+		(uuid "0faf74ca-9eab-5206-91a2-d919395cc5a0")
 	)
 	(global_label "SIMC_RST"
 		(shape passive)
@@ -6993,7 +6993,7 @@
 			)
 			(justify right)
 		)
-		(uuid "556c8e22-9b16-51aa-947b-3ca2600c6b89")
+		(uuid "e06c1b5d-0f53-5698-adc4-fb66ab29fa7b")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -7003,8 +7003,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "b667c1df-c1c7-59a7-bf0f-c3fdc886a779")
-		(property "Reference" "R16"
+		(uuid "a742211f-689c-5818-9736-382bd1569eed")
+		(property "Reference" "R15"
 			(at 271.78 128.27 0)
 			(effects
 				(font
@@ -7048,15 +7048,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "090f0aeb-43d1-5a63-b36f-2de47dfb1b0f")
+			(uuid "30258129-0e8b-5136-9784-79bf37d0b47e")
 		)
 		(pin "2"
-			(uuid "0384a4db-b340-586c-98ad-26d3c874b03f")
+			(uuid "a36d4dfc-10c1-5f78-9669-083f00fa2a93")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/53c4064f-f8a4-5191-beee-c422f7411d9d"
-					(reference "R16")
+					(reference "R15")
 					(unit 1)
 				)
 			)
@@ -7072,7 +7072,7 @@
 			)
 			(justify left)
 		)
-		(uuid "7f28c43d-4a91-550d-a91d-624cfeb4b9ec")
+		(uuid "fe8ca133-a4d5-59ca-b4c3-48ef4f4a762c")
 	)
 	(global_label "SIMC_CLK"
 		(shape passive)
@@ -7084,7 +7084,7 @@
 			)
 			(justify right)
 		)
-		(uuid "b574f402-78c6-58e7-addd-6937f5e43e1a")
+		(uuid "556c8e22-9b16-51aa-947b-3ca2600c6b89")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -7094,8 +7094,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "8336ca96-72b9-56e9-a7db-689611687222")
-		(property "Reference" "R17"
+		(uuid "b667c1df-c1c7-59a7-bf0f-c3fdc886a779")
+		(property "Reference" "R16"
 			(at 309.88 128.27 0)
 			(effects
 				(font
@@ -7139,15 +7139,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "1018fb15-4c55-5987-8095-655f085b1bb3")
+			(uuid "090f0aeb-43d1-5a63-b36f-2de47dfb1b0f")
 		)
 		(pin "2"
-			(uuid "dd0313c3-3289-5459-8642-aaad2df9a101")
+			(uuid "0384a4db-b340-586c-98ad-26d3c874b03f")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/53c4064f-f8a4-5191-beee-c422f7411d9d"
-					(reference "R17")
+					(reference "R16")
 					(unit 1)
 				)
 			)
@@ -7163,7 +7163,7 @@
 			)
 			(justify left)
 		)
-		(uuid "104cecd4-17d3-52d1-9bde-de01e368a66f")
+		(uuid "7f28c43d-4a91-550d-a91d-624cfeb4b9ec")
 	)
 	(global_label "SIMC_DATA"
 		(shape passive)
@@ -7175,7 +7175,7 @@
 			)
 			(justify right)
 		)
-		(uuid "d6947cae-3730-5a14-b046-15cda9e05450")
+		(uuid "b574f402-78c6-58e7-addd-6937f5e43e1a")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -7185,8 +7185,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "dddcfeec-180a-5a48-83e9-8da2431b5577")
-		(property "Reference" "R18"
+		(uuid "8336ca96-72b9-56e9-a7db-689611687222")
+		(property "Reference" "R17"
 			(at 350.52 128.27 0)
 			(effects
 				(font
@@ -7239,15 +7239,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "09e3f628-cea9-5a9d-a914-5bfabf24bfbf")
+			(uuid "1018fb15-4c55-5987-8095-655f085b1bb3")
 		)
 		(pin "2"
-			(uuid "ac1e3084-e994-5fd9-b257-874dbfc740dd")
+			(uuid "dd0313c3-3289-5459-8642-aaad2df9a101")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/53c4064f-f8a4-5191-beee-c422f7411d9d"
-					(reference "R18")
+					(reference "R17")
 					(unit 1)
 				)
 			)
@@ -7263,7 +7263,7 @@
 			)
 			(justify left)
 		)
-		(uuid "e100b90e-8166-5895-98eb-4558eb0e5b72")
+		(uuid "104cecd4-17d3-52d1-9bde-de01e368a66f")
 	)
 	(global_label "SIMC_DATA"
 		(shape passive)
@@ -7275,7 +7275,7 @@
 			)
 			(justify right)
 		)
-		(uuid "b17d60e6-3b69-5267-a5a8-fbaee8164dc4")
+		(uuid "d6947cae-3730-5a14-b046-15cda9e05450")
 	)
 	(symbol
 		(lib_id "Device:C")
@@ -8199,8 +8199,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "ce776e75-fb9e-5997-bc83-c86497e3bda2")
-		(property "Reference" "R19"
+		(uuid "dddcfeec-180a-5a48-83e9-8da2431b5577")
+		(property "Reference" "R18"
 			(at 327.66 168.91 0)
 			(effects
 				(font
@@ -8253,15 +8253,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "51835cb9-47f2-5f9d-9951-3c27ec99a124")
+			(uuid "09e3f628-cea9-5a9d-a914-5bfabf24bfbf")
 		)
 		(pin "2"
-			(uuid "437531fc-e977-5a36-8339-a7781ecd7376")
+			(uuid "ac1e3084-e994-5fd9-b257-874dbfc740dd")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/53c4064f-f8a4-5191-beee-c422f7411d9d"
-					(reference "R19")
+					(reference "R18")
 					(unit 1)
 				)
 			)
@@ -8277,7 +8277,7 @@
 			)
 			(justify left)
 		)
-		(uuid "e80ab245-617c-5b9d-a825-35f1e4e819e8")
+		(uuid "e100b90e-8166-5895-98eb-4558eb0e5b72")
 	)
 	(global_label "LTE_UFL"
 		(shape passive)
@@ -8289,7 +8289,7 @@
 			)
 			(justify right)
 		)
-		(uuid "73765991-3652-5e7c-9d33-01a817f8d65f")
+		(uuid "b17d60e6-3b69-5267-a5a8-fbaee8164dc4")
 	)
 	(symbol
 		(lib_id "Device:C")
@@ -8599,8 +8599,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "58a74503-6ba0-5dbb-af86-d5f6965fdb38")
-		(property "Reference" "R20"
+		(uuid "ce776e75-fb9e-5997-bc83-c86497e3bda2")
+		(property "Reference" "R19"
 			(at 477.52 168.91 0)
 			(effects
 				(font
@@ -8653,15 +8653,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "ec9bdd75-c5cb-54f0-92d7-cc2e5aed59eb")
+			(uuid "51835cb9-47f2-5f9d-9951-3c27ec99a124")
 		)
 		(pin "2"
-			(uuid "9588e760-8a86-590f-80a6-a770c3f4ec92")
+			(uuid "437531fc-e977-5a36-8339-a7781ecd7376")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/53c4064f-f8a4-5191-beee-c422f7411d9d"
-					(reference "R20")
+					(reference "R19")
 					(unit 1)
 				)
 			)
@@ -8677,7 +8677,7 @@
 			)
 			(justify left)
 		)
-		(uuid "a77294a6-df0f-5bda-8af1-f68c7277f046")
+		(uuid "e80ab245-617c-5b9d-a825-35f1e4e819e8")
 	)
 	(global_label "GNSS_UFL"
 		(shape passive)
@@ -8689,7 +8689,7 @@
 			)
 			(justify right)
 		)
-		(uuid "7f56aa2e-01e0-54da-8ab5-53f3f1bac65b")
+		(uuid "73765991-3652-5e7c-9d33-01a817f8d65f")
 	)
 	(symbol
 		(lib_id "Device:C")

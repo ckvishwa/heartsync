@@ -378,7 +378,19 @@
       },
       {
         "netclass": "HighCurrent",
+        "pattern": "QB_SW"
+      },
+      {
+        "netclass": "HighCurrent",
         "pattern": "PVDD*"
+      },
+      {
+        "netclass": "HighCurrent",
+        "pattern": "QI_*"
+      },
+      {
+        "netclass": "HighCurrent",
+        "pattern": "IP_*"
       },
       {
         "netclass": "Power",
@@ -445,6 +457,10 @@
     [
       "e2285f6d-9c4a-560a-9345-7743f96e4234",
       "boost"
+    ],
+    [
+      "a4e87915-7389-511a-b96f-39dd1c356099",
+      "qi"
     ],
     [
       "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",

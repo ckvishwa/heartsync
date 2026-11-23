@@ -1647,8 +1647,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "3cdf326f-6ec9-58c0-be2b-6704f406011e")
-		(property "Reference" "C42"
+		(uuid "14c88700-52f3-5ff1-960c-0a710ce18160")
+		(property "Reference" "C73"
 			(at 127 34.29 0)
 			(effects
 				(font
@@ -1692,15 +1692,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "df0cb6e8-d728-529b-9257-7a46ad677842")
+			(uuid "908931d8-b063-529e-bde0-256931615b62")
 		)
 		(pin "2"
-			(uuid "bd7c3614-4d57-569b-8dd7-6c87bdc6f5c0")
+			(uuid "18dac93e-466c-5e21-aa44-fdaa5632fa42")
 		)
 		(instances
 			(project "power"
 				(path "/0d0463c5-0c3b-52e3-bd42-31c800875d2b/4a00bd29-6b55-5051-820b-4c571d59bf74"
-					(reference "C42")
+					(reference "C73")
 					(unit 1)
 				)
 			)
@@ -1716,7 +1716,7 @@
 			)
 			(justify left)
 		)
-		(uuid "949c729f-8e86-53ca-bfb4-b5bf4104ddce")
+		(uuid "f837ec90-6eed-514b-8868-9b5a26216334")
 	)
 	(global_label "GND"
 		(shape passive)
@@ -1728,7 +1728,7 @@
 			)
 			(justify right)
 		)
-		(uuid "4827ea13-3616-578b-aa87-9f874469d5ea")
+		(uuid "ad601690-d912-5e89-8792-58803dfa735e")
 	)
 	(symbol
 		(lib_id "Device:C")
@@ -1738,8 +1738,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "956527cf-244a-5f2f-bdce-f709b28756b9")
-		(property "Reference" "C43"
+		(uuid "7d5d9b51-141c-52ae-973c-907abee9dc7f")
+		(property "Reference" "C74"
 			(at 157.48 34.29 0)
 			(effects
 				(font
@@ -1783,15 +1783,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "b0674866-c63b-5fca-b579-4262cc0d059a")
+			(uuid "b94c1d43-a772-5458-b4ce-9ea1142ebd63")
 		)
 		(pin "2"
-			(uuid "553bbdbf-1fa0-5f38-beb5-9431e98f82a7")
+			(uuid "542185ed-4c01-58c6-9594-a38e11354497")
 		)
 		(instances
 			(project "power"
 				(path "/0d0463c5-0c3b-52e3-bd42-31c800875d2b/4a00bd29-6b55-5051-820b-4c571d59bf74"
-					(reference "C43")
+					(reference "C74")
 					(unit 1)
 				)
 			)
@@ -1807,7 +1807,7 @@
 			)
 			(justify left)
 		)
-		(uuid "7ed4f040-d6f9-58d3-953f-40f0e8191da9")
+		(uuid "d92c739a-4f6c-53f1-85e8-691a8bdaad31")
 	)
 	(global_label "GND"
 		(shape passive)
@@ -1819,7 +1819,7 @@
 			)
 			(justify right)
 		)
-		(uuid "cdc8fd37-fe4e-597d-9d4e-c3e1ebf1dfec")
+		(uuid "0e46424b-6b3a-5474-bfb8-8fbf808b97c6")
 	)
 	(text "Link to carrier, 3V3 LDO - Ansonia power board rev A (rev G shell)"
 		(exclude_from_sim no)

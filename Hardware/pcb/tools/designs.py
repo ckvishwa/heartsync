@@ -42,7 +42,7 @@ def carrier():
 
     # ---------------------------------------------------------------- power
     s = d.sheet("power", "Power in, 3V3 buck-boost")
-    s.note("J1 pin 1-3 VSYS (3.4-4.6 V from the power board), 4-6 GND; JST SH contacts are 1 A each. Pin 21 QI_EN (expander 0x22 P6), 22 PWR_KEY.")
+    s.note("J1 pin 1-3 VSYS (= battery voltage 3.0-4.2 V behind the reverse-battery FET, not a regulated rail), 4-6 GND; JST SH contacts are 1 A each. Pin 21 QI_EN (expander 0x22 P6), 22 PWR_KEY.")
     s.note("U2 TPS63001 fixed 3.3 V buck-boost: L 2.2 uH, Cin 10 uF, VINA RC 100R/0.1 uF per TPS63001 datasheet fig. 1;")
     s.note("output 2 x 22 uF (Wi-Fi TX bursts).")
     conn(s, "J1", 22, J1_NETS, value="Link to power board (SM22B-SRSS-TB)")
@@ -84,7 +84,7 @@ def carrier():
     s.R("4.7k", V3, "I2C_SCL")
     s.R("10k", V3, "EXP_INT")
     s.R("10k", V3, "GEST_INT")
-    s.R("10k", V3, "PWR_INT")
+    # PWR_INT: no pull-up here. IP5356M INT is Hi-Z in standby / high when working, with 510k to GND at the IC (datasheet fig. 20)
     s.R("100k", "IMU_INT1", GND, Note="LSM6DSOX INT1 must be low at power-up; IO3 strap left at its default")
     s.part("TP", "Connector:TestPoint", "PWR_KEY", "TestPoint:TestPoint_Pad_D1.0mm", {"1": "PWR_KEY"}).in_bom = False
     for n in ["ESP_EN", "ESP_IO0", "ESP_RXD0", "ESP_TXD0", "USB_DP", "USB_DN", "ESP_IO1", "ESP_IO2", V3, GND]:
@@ -110,10 +110,11 @@ def carrier():
         s.C("0.1uF", V3, GND)
     s.part("U12", "ansonia:LSM6DSOX", "LSM6DSOX", "Package_LGA:LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y", {
         "SDO/SA0": GND, "SDX": GND, "SCX": GND, "INT1": "IMU_INT1", "VDDIO": V3, "GND": GND, "VDD": V3,
-        "INT2": "IMU_INT2", "CS": V3, "SCL": "I2C_SCL", "SDA": "I2C_SDA", "NC": None}, nc_ok=True,
-        MPN="LSM6DSOXTR", Note="pins 10/11 = OCS_Aux/SDO_Aux left open")
+        "INT2": "IMU_INT2", "CS": V3, "SCL": "I2C_SCL", "SDA": "I2C_SDA", "OCS_Aux": None, "SDO_Aux": V3}, nc_ok=True,
+        MPN="LSM6DSOXTR", Note="aux SPI unused: OCS_Aux open, SDO_Aux to VDDIO (DS12814 table 2)")
     s.C("0.1uF", V3, GND, Note="IMU VDD")
     s.C("0.1uF", V3, GND, Note="IMU VDDIO")
+    s.note("DS12814 rev 3 table 2 (p. 9), aux SPI not used: pin 2 SDx / pin 3 SCx \"Connect to VDDIO or GND\" (GND), pin 10 OCS_Aux \"Leave unconnected\", pin 11 SDO_Aux \"Connect to VDD_IO or leave unconnected\" (VDDIO).")
     s.note("U12 LSM6DSOX: CS = VDDIO (I2C), SA0 = GND -> 0x6A. INT1 -> ESP32 IO3 (RTC wake, 100k pull-down), INT2 -> TCA9554 0x21 P7.")
     s.note("I2C map: 0x20/21/22 TCA9554, 0x2C TAS5805M, 0x39 APDS-9960, 0x5A DRV2605L, 0x6A LSM6DSOX, power IC TBD (check).")
     s.R("10k", "DRV_EN", GND)
@@ -217,9 +218,9 @@ def carrier():
     s.note("4-wire SPI: BS0 = BS1 = 0, E/RD# and R/W# to VSS, D2 open, D3-D7 to VSS (pin table 7-1). VCC floats when off (8.9).")
     s.note("TPS61040: Vout = 1.233 V x (1 + 487k/56k) = 11.96 V; 10 uH, Schottky, 4.7 uF in, 1 uF out (TPS61040 datasheet).")
     s.note("Q1/Q2 high-side switch removes the boost input so VCC floats when the panel is off (SSD1322 8.9 note 2).")
-    s.note("J13 e-paper (FITTED): Waveshare 3.97in e-Paper raw panel, SSD1677, 24-pin 0.5 mm FPC. Pinout and booster (R1 2.2R, R2 1M,")
-    s.note("Q1 AO3400A, L1 10uH, D1-D3 MBR0530, C1-C10 4.7/1 uF 25 V) from Waveshare's 3.97inch e-Paper user manual v1.0 sec. 5 and 9.")
-    s.note("UNVERIFIED: that manual is the two-colour panel; the (G) red/yellow/black/white panel's own manual/schematic was not reachable.")
+    s.note("J13 e-paper (FITTED): Waveshare 3.97in e-Paper (G) raw panel, SSD2677, 24-pin 0.5 mm FPC. Pinout (G) panel manual v1.0 sec. 5; booster (R1 2.2R, R2 1M,")
+    s.note("Q1 AO3400A, L1 10uH, D1-D3 MBR0530, C1-C10 4.7/1 uF) = Waveshare 3.97inch e-Paper HAT+ (G) driver-board schematic; C1 4.7 uF on pin 5 VSH2 confirmed there.")
+    s.note("(G) panel: BUSY is ACTIVE LOW (low = busy, manual note 5-4), operating temperature 0..40 C. Pins 1/4/6/7 NC, each left separate.")
     s.note("BS (pin 8) low = 4-wire SPI. VCI/VDDIO 2.2-3.3 V. Booster runs from +3V3 (L1 -> Q1 drain; D3 -> VGH, C5 + D1/D2 -> VGL).")
     s.part("Q", "Transistor_FET:AO3401A", "AO3401A", "", {"G": "OLED_SW_G", "S": VSYS, "D": "OLED_VIN"})
     s.R("100k", VSYS, "OLED_SW_G")
@@ -300,11 +301,38 @@ def carrier():
     return d
 
 
+def boost61088(s, p, en, vout, rdn, ref):
+    """TPS61088 9 V boost block (nets prefixed p_), from BAT_SW."""
+    s.part(ref, "ansonia:TPS61088RHL", "TPS61088RHLR", "", {
+        "VIN": "BAT_SW", "EN": en, "FSW": p + "_FSW", "MODE": GND, "ILIM": p + "_ILIM", "SS": p + "_SS",
+        "COMP": p + "_COMP", "NC": GND, "SW": p + "_SW", "BOOT": p + "_BOOT", "VOUT": vout, "FB": p + "_FB",
+        "VCC": p + "_VCC", "AGND": GND, "PGND": GND}, MPN="TPS61088RHLR", LCSC="C88281")
+    s.R("10k", en, GND)
+    s.C("22uF", "BAT_SW", GND, "0805")
+    s.C("22uF", "BAT_SW", GND, "0805")
+    s.C("10uF", "BAT_SW", GND, "0603")
+    s.C("0.1uF", "BAT_SW", GND)
+    s.L("2.2uH", "BAT_SW", p + "_SW", "Inductor_SMD:L_Bourns_SRP7028A_7.3x6.6mm", MPN="SRP7028A-2R2M")
+    s.R("232k", p + "_FSW", p + "_SW")
+    s.C("0.1uF", p + "_BOOT", p + "_SW")
+    s.C("4.7uF", p + "_VCC", GND, "0603")
+    s.C("47nF", p + "_SS", GND)
+    s.R("49.9k", p + "_ILIM", GND)
+    s.R("23.7k", p + "_COMP", p + "_COMP_RC")
+    s.C("8.2nF", p + "_COMP_RC", GND)
+    s.C("10pF", p + "_COMP", GND, dnp=True, Note="C8, open per eq. 20")
+    s.R("499k", vout, p + "_FB")
+    s.R(rdn, p + "_FB", GND)
+    for _ in range(3):
+        s.C("22uF", vout, GND, "1206", Note="25 V X5R")
+    s.C("1uF", vout, GND, "0603", Note="25 V")
+
+
 # =====================================================================================  POWER
 def power():
     d = Design("power", "Ansonia power board rev A (rev G shell)", comments=[
         "2 oz copper, 1.6 mm, 4-layer. Two Amphenol 124019572112A USB-C: port 1 in/out (DRP), port 2 output only.",
-        "Power-bank / PD IC NOT CHOSEN: U1 is a DNP placeholder with labelled nets (see README for options).",
+        "U1 = Injoinic IP5356M (datasheet read, see README); Qi module has its own boost (qi sheet).",
         "TAS5805M BTL stereo amp + TPS61088 12 V PVDD boost. J1 mirrors the carrier's J1."])
 
     s = d.sheet("usb", "USB-C ports and protection")
@@ -327,66 +355,76 @@ def power():
         s.part("D", "Device:D_Zener", "SMF22A", "Diode_SMD:D_SOD-123F", {"K": v, "A": GND}, Note="VBUS TVS")
         s.C("10uF", v, GND, "0805", Note="25 V")
 
-    s = d.sheet("charger", "Power-bank / PD IC (placeholder), cell, NTC, protection")
-    s.note("U1 DNP placeholder: VBUS1/2, CC x2, DP2/DM2, BAT, SYS, NTC, SDA/SCL, INT, KEY. Qi TX is a separate module on J6 (IP5568 evaluated and rejected, README).")
-    s.note("Cell 1160100 10,000 mAh: J4 = Amass MR30PW-M (15 A, 3-pole: BAT+ on pin 1, BAT- on pin 3, middle pin open; the brief said 2-pin,")
-    s.note("the 2-pin Amass part is the XT30). J5 (JST SH 2) = pack NTC. Q = reverse-battery PFET (DMP3013SFV),")
-    s.note("F1 = 8 A fuse, D = SMF5.0A TVS. The 0R (DNP) bridges BAT_SW -> VSYS for bring-up without the PD IC.")
-    s.part("U1", "ansonia:PD_IC_PLACEHOLDER", "PD/charger IC TBD", "", {
-        "VBUS1": "VBUS1", "CC1_1": "CC1_1", "CC2_1": "CC2_1", "VBUS2": "VBUS2", "CC1_2": "CC1_2", "CC2_2": "CC2_2",
-        "DP2": "DP2", "DM2": "DM2", "BAT": "BAT_SW", "SYS": VSYS, "NTC": "NTC", "SDA": "I2C_SDA",
-        "SCL": "I2C_SCL", "INT": "PWR_INT", "KEY": "PWR_KEY", "GND": GND},
-           nc_ok=True, dnp=True)
+    s = d.sheet("charger", "IP5356M power-bank IC, battery, NTC, protection")
+    s.note("U1 Injoinic IP5356M (QFN-40, datasheet V1.00): 1S charger/boost, PD3.0 on the Type-C pins (CC1/CC2, DPC/DMC, VBUS), I2C only in the _L")
+    s.note("(LED) models: IP5356M_LBZ_CB (LCSC C46550232). I2C = LED2 (SDA) / LED1 (SCL) with 3.3k to its VCC, INT = LED3 with 510k to GND (fig. 20).")
+    s.note("Port 2 = VOUT2 (a USB-A style 5 V output, 2.2 uF) wired to Type-C J3 with Rp 22k from VBUS2 on CC1/CC2 (1.5 A). The datasheet lists")
+    s.note("'1 Type-C in/out + 1 Type-C out (customize)' without a part number: ask Injoinic. Unused: VOUT1/DPA1/DMA1, VIN/DPB/DMB (Micro-B), CL (lightning), LED4/LED6.")
+    s.note("IMPORTANT: VSYS on this IC is the internal DC-DC bus (5-12 V), NOT a system rail. The system (VSYS net) is the battery behind Q (0R link).")
+    s.note("L1 2.2 uH between LX and BAT (fig. 25), BST 0.1 uF to LX, VCC 2.2 uF, NTC 100 nF at the pin, FCAP 22.1k = 10 Ah (R x 0.448 mAh).")
+    s.note("Battery: J4 Amass MR30PW-M (BAT+ pin 1, BAT- pin 3), TP1/TP2 4x4 pads = DNP alternative for 18 AWG leads, J5 (JST SH 2) = pack NTC (10k).")
+    s.note("Design current: 5 A continuous / 8 A peak from the cell (pack PCM limit unknown). F1 8 A, Q = reverse-battery PFET (DMP3013SFV), D = SMF5.0A TVS.")
+    s.part("U1", "ansonia:IP5356M", "IP5356M_LBZ_CB", "", {
+        "SDA": "I2C_SDA", "INT": "PWR_INT", "SCL": "I2C_SCL", "LX": "IP_LX", "BST": "IP_BST", "LED4": None,
+        "FCAP": "IP_FCAP", "LED6": None, "VSYS": "IP_VSYS", "VBUS": "VBUS1", "VIN": None, "BAT": "BAT_SW",
+        "AGND": GND, "VCC": "IP_VCC", "KEY": "PWR_KEY", "NTC": "NTC", "DPB": None, "DMB": None, "DPC": "USB_DP",
+        "DMC": "USB_DN", "CC2": "CC2_1", "CC1": "CC1_1", "CL": None, "DPA1": None, "DMA1": None, "DPA2": "DP2",
+        "DMA2": "DM2", "VOUT2": "VBUS2", "VOUT1": None, "GND": GND}, nc_ok=True,
+           MPN="IP5356M_LBZ_CB", LCSC="C46550232")
+    s.R("3.3k", "IP_VCC", "I2C_SDA", Note="IP5356M I2C mode detect + pull-up (fig. 20)")
+    s.R("3.3k", "IP_VCC", "I2C_SCL")
+    s.R("510k", "PWR_INT", GND, Note="INT pull-down (fig. 20): Hi-Z standby, high when working")
+    s.C("2.2uF", "IP_VCC", GND, "0603", Note="C3")
+    s.L("2.2uH", "IP_LX", "BAT_SW", "Inductor_SMD:L_Bourns_SRP7028A_7.3x6.6mm", MPN="SRP7028A-2R2M", Note="L1")
+    s.C("0.1uF", "IP_BST", "IP_LX", Note="C2")
+    for _ in range(6):
+        s.C("22uF", "IP_VSYS", GND, "0805", Note="VSYS bus, 25 V")
+    s.C("0.1uF", "IP_VSYS", GND)
+    s.C("22uF", "BAT_SW", GND, "0805")
+    s.C("0.1uF", "BAT_SW", GND, Note="C1")
+    s.C("0.1uF", "NTC", GND, Note="C13, close to the pin")
+    s.R("22.1k", "IP_FCAP", GND, Note="battery capacity = R x 0.448 mAh = 9.9 Ah")
+    s.C("2.2uF", "VBUS1", GND, "0603", Note="C5 at the VBUS pins")
+    s.C("2.2uF", "VBUS1", GND, "0603")
+    s.C("0.1uF", "VBUS1", GND)
+    s.C("2.2uF", "VBUS2", GND, "0603", Note="VOUT2")
+    s.C("2.2uF", "VBUS2", GND, "0603")
+    s.C("0.1uF", "VBUS2", GND)
+    s.R("22k", "VBUS2", "CC1_2", Note="Rp 1.5 A")
+    s.R("22k", "VBUS2", "CC2_2", Note="Rp 1.5 A")
     conn(s, "J4", 3, ["BAT_RAW", None, GND], fp="ansonia:Amass_MR30PW-M_1x03_P3.50mm_Horizontal",
          value="Cell: Amass MR30PW-M (3-pole; pins 1 = BAT+, 3 = BAT-, 2 open)", MPN="MR30PW-M")
     conn(s, "J5", 2, ["NTC", GND], value="Cell NTC (JST SH 2)")
+    s.part("TP1", "Connector:TestPoint", "BAT+ pad 18 AWG (DNP alt.)", "TestPoint:TestPoint_Pad_4.0x4.0mm",
+           {"1": "BAT_RAW"}, dnp=True)
+    s.part("TP2", "Connector:TestPoint", "BAT- pad 18 AWG (DNP alt.)", "TestPoint:TestPoint_Pad_4.0x4.0mm",
+           {"1": GND}, dnp=True)
     s.part("F1", "Device:Fuse", "8A fast", "Fuse:Fuse_1206_3216Metric", {"1": "BAT_RAW", "2": "BAT_F"},
            MPN="0466008.NR")
     s.part("Q", "Transistor_FET:DMP3013SFV", "DMP3013SFV", "", {"S": "BAT_SW", "G": "BAT_Q_G", "D": "BAT_F"},
            Note="reverse-battery PFET (drain to cell)")
     s.R("10k", "BAT_Q_G", GND)
     s.part("D", "Device:D_Zener", "SMF5.0A", "Diode_SMD:D_SOD-123F", {"K": "BAT_SW", "A": GND})
-    s.C("22uF", "BAT_SW", GND, "0805")
-    s.R("0R", "BAT_SW", VSYS, "1206", dnp=True, Note="bring-up bypass, PD IC absent")
+    s.R("0R", "BAT_SW", VSYS, "1206", Note="system rail = battery (IP5356M VSYS is not a system rail)")
     s.C("22uF", VSYS, GND, "0805")
-    s.R("10k", "PWR_KEY", V3, dnp=True)
     conn(s, "J6", 4, ["QI_VIN", "QI_VIN", GND, GND], value="Qi TX module 24x32 (9 V, 2 contacts per leg)")
-    s.note("Qi TX module (24 x 32 mm, own driver + coil) on J6: 9 V from PVDD through Q (AO3401A) switched by QI_EN (carrier expander")
-    s.note("0x22 P6 via J1, 10k pull-down here so it is off while the expander pin floats). PVDD must be running: firmware enables the boost first.")
-    s.part("Q", "Transistor_FET:AO3401A", "AO3401A", "", {"G": "QI_SW_G", "S": "PVDD", "D": "QI_VIN"})
-    s.R("100k", "PVDD", "QI_SW_G")
-    s.part("Q", "Transistor_FET:2N7002", "2N7002", "", {"G": "QI_EN", "S": GND, "D": "QI_SW_G"})
-    s.R("10k", "QI_EN", GND)
-    s.C("10uF", "QI_VIN", GND, "0805", Note="25 V")
 
-    s = d.sheet("boost", "TPS61088 PVDD boost, 9 V")
-    s.note("Values from TPS61088(-Q1) datasheet sec. 9.2: Vout = 1.204 x (1 + 499k/76.8k) = 9.03 V (was 11.9 V; 9 V keeps 4 W/ch into 8 ohm with headroom); RFREQ = 4(1/fsw - tdelay*Vout/Vin)/CFREQ")
-    s.note("-> 232k for ~600 kHz at Vin 3.2 V; L 2.2 uH (Isat > 11 A); ILIM 49.9k (9.4 A typ in PWM, MODE = GND);")
+    s = d.sheet("boost", "TPS61088 PVDD boost for the amp, 9 V")
+    s.note("Amp boost. Values from TPS61088(-Q1) datasheet sec. 9.2: Vout = 1.204 x (1 + 499k/76.8k) = 9.03 V; RFREQ = 4(1/fsw - tdelay*Vout/Vin)/CFREQ")
+    s.note("-> 232k for ~600 kHz at Vin 3.2 V; L 2.2 uH (Isat > 11 A); ILIM 49.9k (FPWM peak limit 7.2 min / 8.7 typ / 10.5 max A, MODE = GND);")
     s.note("comp R5 = 2pi Vout Rsense fc Co / ((1-D) Vref Gea) = 23.7k at fc 5 kHz, Co 45 uF eff, D 0.75; C5 = Ro Co/(2 R5) = 8.2 nF; C8 open.")
-    s.note("SS 47 nF, BOOT 0.1 uF, VCC 4.7 uF. EN from the carrier expander (10k pull-down: off at power-up).")
-    s.part("U", "ansonia:TPS61088RHL", "TPS61088RHLR", "", {
-        "VIN": "BAT_SW", "EN": "AMP_BOOST_EN", "FSW": "BST_FSW", "MODE": GND, "ILIM": "BST_ILIM", "SS": "BST_SS",
-        "COMP": "BST_COMP", "NC": GND, "SW": "BST_SW", "BOOT": "BST_BOOT", "VOUT": "PVDD", "FB": "BST_FB",
-        "VCC": "BST_VCC", "AGND": GND, "PGND": GND}, MPN="TPS61088RHLR", LCSC="C88281")
-    s.R("10k", "AMP_BOOST_EN", GND)
-    s.C("22uF", "BAT_SW", GND, "0805")
-    s.C("22uF", "BAT_SW", GND, "0805")
-    s.C("10uF", "BAT_SW", GND, "0603")
-    s.C("0.1uF", "BAT_SW", GND)
-    s.L("2.2uH", "BAT_SW", "BST_SW", "Inductor_SMD:L_Bourns_SRP7028A_7.3x6.6mm", MPN="SRP7028A-2R2M")
-    s.R("232k", "BST_FSW", "BST_SW")
-    s.C("0.1uF", "BST_BOOT", "BST_SW")
-    s.C("4.7uF", "BST_VCC", GND, "0603")
-    s.C("47nF", "BST_SS", GND)
-    s.R("49.9k", "BST_ILIM", GND)
-    s.R("23.7k", "BST_COMP", "BST_COMP_RC")
-    s.C("8.2nF", "BST_COMP_RC", GND)
-    s.C("10pF", "BST_COMP", GND, dnp=True, Note="C8, open per eq. 20")
-    s.R("499k", "PVDD", "BST_FB")
-    s.R("76.8k", "BST_FB", GND)
-    for _ in range(3):
-        s.C("22uF", "PVDD", GND, "1206", Note="25 V X5R")
-    s.C("1uF", "PVDD", GND, "0603", Note="25 V")
+    s.note("SS 47 nF, BOOT 0.1 uF, VCC 4.7 uF. EN from the carrier expander (10k pull-down: off at power-up). Amp only: 2 x 4 W / 0.85 = 9.4 W -> 3.2 A at 3.3 V.")
+    boost61088(s, "BST", "AMP_BOOST_EN", "PVDD", "76.8k", "U")
+
+    s = d.sheet("qi", "Qi TX module supply: own 9 V boost + LC filter")
+    s.note("Why a second boost: amp 9.4 W + Qi module ~18 W (15 W TX) = 28 W at 9 V = 3.1 A out = 9.4 A in at 3.3 V (90 %), but the TPS61088 peak")
+    s.note("limit in FPWM at 49.9k is 7.2 A minimum (SLVSE52A, electrical table). Qi alone is 6.3 A average + 1.6 A ripple, also too close. Separate rail")
+    s.note("also keeps the Qi converter's switching noise off PVDD. U7 enable = QI_EN (carrier expander 0x22 P6 via J1, 10k pull-down).")
+    s.note("LC filter: 1 uH (Isat >= 4 A) + 2 x 10 uF between the boost output caps and J6. 9 V at J6: the module must accept 9 V.")
+    boost61088(s, "QB", "QI_EN", "QI_9V_RAW", "76.8k", "U7")
+    s.L("1uH", "QI_9V_RAW", "QI_VIN", "Inductor_SMD:L_1210_3225Metric", MPN="DFE322520F-1R0M", Note="Qi rail filter")
+    s.C("10uF", "QI_VIN", GND, "0805", Note="25 V")
+    s.C("10uF", "QI_VIN", GND, "0805", Note="25 V")
 
     s = d.sheet("amp", "TAS5805M stereo BTL amplifier")
     s.note("PVDD = 9 V. Power limit 4 W per channel (Dayton CE70-30P-8 = 4 W max, 8 ohm -> 5.66 Vrms = 8 Vpk): set the TAS5805M")
@@ -439,7 +477,7 @@ def power():
         _nc("HighCurrent", clearance=0.2, track=1.5, via_d=0.8, via_drill=0.4),
         _nc("Speaker", track=0.6),
         _nc("USB", diff_w=0.2, diff_gap=0.15)],
-        [("BAT_*", "HighCurrent"), ("BST_SW", "HighCurrent"), ("PVDD*", "HighCurrent"), ("VBUS*", "Power"),
+        [("BAT_*", "HighCurrent"), ("BST_SW", "HighCurrent"), ("QB_SW", "HighCurrent"), ("PVDD*", "HighCurrent"), ("QI_*", "HighCurrent"), ("IP_*", "HighCurrent"), ("VBUS*", "Power"),
          ("VSYS", "Power"), ("GND", "Power"), ("OUT*", "Speaker"), ("SPK*", "Speaker"), ("USB_D*", "USB")])
     return d
 

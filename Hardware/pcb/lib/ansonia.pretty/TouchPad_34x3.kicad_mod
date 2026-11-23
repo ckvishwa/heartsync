@@ -1,0 +1,139 @@
+(footprint "TouchPad_34x3"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Capacitive touch sense pad 34 x 3 mm, F.Cu under solder mask.")
+	(property "Reference" "E**"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "328174f4-43ac-4ec0-8e97-829f97e4e4d7")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Value" "TouchPad_34x3"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "5744f67f-7341-4987-b9f4-efca038b2b1f")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "4b912ad7-5611-41e2-a1be-a6019411104b")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "45566962-dd6f-48b6-b1bd-0f3a77e18f23")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(attr smd exclude_from_pos_files exclude_from_bom)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start -17.25 -1.75)
+		(end 17.25 -1.75)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "F.CrtYd")
+		(uuid "5441dd8e-47f0-41c7-9c60-71e294211743")
+	)
+	(fp_line
+		(start -17.25 1.75)
+		(end -17.25 -1.75)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "F.CrtYd")
+		(uuid "7d8aaa1d-e0f8-424b-ad7e-ae2256feb339")
+	)
+	(fp_line
+		(start 17.25 -1.75)
+		(end 17.25 1.75)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "F.CrtYd")
+		(uuid "af97382b-6cfa-43e0-aa8e-c21cd9680213")
+	)
+	(fp_line
+		(start 17.25 1.75)
+		(end -17.25 1.75)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "F.CrtYd")
+		(uuid "852b2a5c-4df9-4b0e-86df-39f2a01a7ed6")
+	)
+	(fp_line
+		(start -17 -1.5)
+		(end 17 -1.5)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "20c9dc1a-904f-4ed6-8fca-e0025d17c995")
+	)
+	(fp_line
+		(start -17 1.5)
+		(end -17 -1.5)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "94db0499-9c40-484a-adda-25433612e616")
+	)
+	(fp_line
+		(start 17 -1.5)
+		(end 17 1.5)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "b57f44df-b968-484e-b86f-c99f9607588d")
+	)
+	(fp_line
+		(start 17 1.5)
+		(end -17 1.5)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "F.Fab")
+		(uuid "493eeb3a-467b-416e-b1bb-16af7d5bbfd0")
+	)
+	(pad "1" smd rect
+		(at 0 0)
+		(size 34 3)
+		(layers "F.Cu")
+		(thermal_bridge_angle 45)
+		(uuid "e45657b8-7db0-4768-a1d0-bd8b15775bb0")
+	)
+	(embedded_fonts no)
+)

@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "ansonia")(type "KiCad")(uri "${KIPRJMOD}/../lib/ansonia.pretty")(options "")(descr "Ansonia project footprints"))
+)

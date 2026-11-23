@@ -1,0 +1,90 @@
+{
+ "design": "front_touch",
+ "parts": [
+  {
+   "ref": "E1",
+   "value": "Touch pad 34x3",
+   "footprint": "ansonia:TouchPad_34x3",
+   "lib_id": "Connector:TestPoint",
+   "sheet": "touch",
+   "sheet_uuid": "4451598e-3291-5a74-a2d0-02f441800ecc",
+   "sym_uuid": "054a87a6-81e5-565c-a9de-c9a684050b01",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "test point",
+   "in_bom": false,
+   "pins": {
+    "1": "TOUCH"
+   },
+   "pin_names": {
+    "1": "1"
+   }
+  },
+  {
+   "ref": "J1",
+   "value": "To carrier J7",
+   "footprint": "Connector_JST:JST_SH_BM02B-SRSS-TB_1x02-1MP_P1.00mm_Vertical",
+   "lib_id": "Connector_Generic:Conn_01x02",
+   "sheet": "touch",
+   "sheet_uuid": "4451598e-3291-5a74-a2d0-02f441800ecc",
+   "sym_uuid": "6e976a96-8774-56ab-a011-ac5254bf892f",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",
+   "in_bom": true,
+   "pins": {
+    "1": "TOUCH",
+    "2": "GND"
+   },
+   "pin_names": {
+    "1": "Pin_1",
+    "2": "Pin_2"
+   }
+  },
+  {
+   "ref": "TP1",
+   "value": "GND",
+   "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+   "lib_id": "Connector:TestPoint",
+   "sheet": "touch",
+   "sheet_uuid": "4451598e-3291-5a74-a2d0-02f441800ecc",
+   "sym_uuid": "76182fb0-d248-5913-b5e0-cc5234a87783",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "test point",
+   "in_bom": false,
+   "pins": {
+    "1": "GND"
+   },
+   "pin_names": {
+    "1": "1"
+   }
+  }
+ ],
+ "nets": {
+  "GND": [
+   [
+    "J1",
+    "2"
+   ],
+   [
+    "TP1",
+    "1"
+   ]
+  ],
+  "TOUCH": [
+   [
+    "E1",
+    "1"
+   ],
+   [
+    "J1",
+    "1"
+   ]
+  ]
+ },
+ "root_uuid": "90c87e96-cf0a-5717-9e1b-93fdbfe33afb"
+}

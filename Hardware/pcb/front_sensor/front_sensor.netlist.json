@@ -1,0 +1,398 @@
+{
+ "design": "front_sensor",
+ "parts": [
+  {
+   "ref": "J1",
+   "value": "To carrier J8",
+   "footprint": "Connector_JST:JST_SH_BM08B-SRSS-TB_1x08-1MP_P1.00mm_Vertical",
+   "lib_id": "Connector_Generic:Conn_01x08",
+   "sheet": "sensors",
+   "sheet_uuid": "a0ff3679-06af-5cc0-819a-bb4a35a3f3fe",
+   "sym_uuid": "1afe595b-0349-5c89-b69d-d71692fe9a51",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Generic connector, single row, 01x08, script generated (kicad-library-utils/schlib/autogen/connector/)",
+   "in_bom": true,
+   "pins": {
+    "1": "+3V3",
+    "2": "GND",
+    "3": "I2C_SDA",
+    "4": "I2C_SCL",
+    "5": "GEST_INT",
+    "6": "I2S1_BCLK",
+    "7": "I2S1_WS",
+    "8": "MIC_SD"
+   },
+   "pin_names": {
+    "1": "Pin_1",
+    "2": "Pin_2",
+    "3": "Pin_3",
+    "4": "Pin_4",
+    "5": "Pin_5",
+    "6": "Pin_6",
+    "7": "Pin_7",
+    "8": "Pin_8"
+   }
+  },
+  {
+   "ref": "U1",
+   "value": "ICS-43434",
+   "footprint": "Sensor_Audio:InvenSense_ICS-43434-6_3.5x2.65mm",
+   "lib_id": "Sensor_Audio:ICS-43434",
+   "sheet": "sensors",
+   "sheet_uuid": "a0ff3679-06af-5cc0-819a-bb4a35a3f3fe",
+   "sym_uuid": "4c1b03a9-0c9d-51df-8202-f41c6d865551",
+   "dnp": false,
+   "fields": {
+    "MPN": "ICS-43434"
+   },
+   "datasheet": "https://www.invensense.com/wp-content/uploads/2016/02/DS-000069-ICS-43434-v1.2.pdf",
+   "description": "TDK InvenSense MEMS Microphone, 24-bit I2S, 65 dBA SNR, LGA-6",
+   "in_bom": true,
+   "pins": {
+    "1": "I2S1_WS",
+    "2": "GND",
+    "3": "GND",
+    "4": "I2S1_BCLK",
+    "5": "+3V3",
+    "6": "MIC_SD"
+   },
+   "pin_names": {
+    "1": "WS",
+    "2": "LR",
+    "3": "GND",
+    "4": "SCK",
+    "5": "VDD",
+    "6": "SD"
+   }
+  },
+  {
+   "ref": "C1",
+   "value": "0.1uF",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lib_id": "Device:C",
+   "sheet": "sensors",
+   "sheet_uuid": "a0ff3679-06af-5cc0-819a-bb4a35a3f3fe",
+   "sym_uuid": "20c9d11f-5a5a-5fa2-b90a-c42a2de4f351",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Unpolarized capacitor",
+   "in_bom": true,
+   "pins": {
+    "1": "+3V3",
+    "2": "GND"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
+   "ref": "R1",
+   "value": "100k",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lib_id": "Device:R",
+   "sheet": "sensors",
+   "sheet_uuid": "a0ff3679-06af-5cc0-819a-bb4a35a3f3fe",
+   "sym_uuid": "e8d11ece-1a76-5451-b747-0503d5225636",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Resistor",
+   "in_bom": true,
+   "pins": {
+    "1": "MIC_SD",
+    "2": "GND"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
+   "ref": "U2",
+   "value": "APDS-9960",
+   "footprint": "Sensor:Avago_APDS-9960",
+   "lib_id": "Sensor:APDS-9960",
+   "sheet": "sensors",
+   "sheet_uuid": "a0ff3679-06af-5cc0-819a-bb4a35a3f3fe",
+   "sym_uuid": "be55ff7f-6ad5-503c-9e68-9a234fbb3820",
+   "dnp": false,
+   "fields": {
+    "MPN": "APDS-9960"
+   },
+   "datasheet": "https://docs.broadcom.com/doc/AV02-4191EN",
+   "description": "Digital Proximity, Ambient Light, RGB and Gesture Sensor",
+   "in_bom": true,
+   "pins": {
+    "1": "I2C_SDA",
+    "2": "GEST_INT",
+    "3": "APDS_LEDK",
+    "4": "APDS_LEDK",
+    "5": "+3V3",
+    "6": "GND",
+    "7": "I2C_SCL",
+    "8": "APDS_VDD"
+   },
+   "pin_names": {
+    "1": "SDA",
+    "2": "INT",
+    "3": "LDR",
+    "4": "LED_K",
+    "5": "LED_A",
+    "6": "GND",
+    "7": "SCL",
+    "8": "VDD"
+   }
+  },
+  {
+   "ref": "R2",
+   "value": "22R",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lib_id": "Device:R",
+   "sheet": "sensors",
+   "sheet_uuid": "a0ff3679-06af-5cc0-819a-bb4a35a3f3fe",
+   "sym_uuid": "a449ffb3-7fe8-5e14-8d5a-8febc4fa172d",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Resistor",
+   "in_bom": true,
+   "pins": {
+    "1": "+3V3",
+    "2": "APDS_VDD"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
+   "ref": "C2",
+   "value": "1uF",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lib_id": "Device:C",
+   "sheet": "sensors",
+   "sheet_uuid": "a0ff3679-06af-5cc0-819a-bb4a35a3f3fe",
+   "sym_uuid": "e1d454be-3025-5b26-8874-356bd756583d",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Unpolarized capacitor",
+   "in_bom": true,
+   "pins": {
+    "1": "APDS_VDD",
+    "2": "GND"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
+   "ref": "C3",
+   "value": "1uF",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lib_id": "Device:C",
+   "sheet": "sensors",
+   "sheet_uuid": "a0ff3679-06af-5cc0-819a-bb4a35a3f3fe",
+   "sym_uuid": "e0d08e0a-f475-5a57-9be4-64e4f09c73c7",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Unpolarized capacitor",
+   "in_bom": true,
+   "pins": {
+    "1": "+3V3",
+    "2": "GND"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
+   "ref": "C4",
+   "value": "10uF",
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "lib_id": "Device:C",
+   "sheet": "sensors",
+   "sheet_uuid": "a0ff3679-06af-5cc0-819a-bb4a35a3f3fe",
+   "sym_uuid": "b5d970c9-e92c-5d51-9812-1bc061655e6c",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Unpolarized capacitor",
+   "in_bom": true,
+   "pins": {
+    "1": "+3V3",
+    "2": "GND"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  }
+ ],
+ "nets": {
+  "+3V3": [
+   [
+    "J1",
+    "1"
+   ],
+   [
+    "U1",
+    "5"
+   ],
+   [
+    "C1",
+    "1"
+   ],
+   [
+    "U2",
+    "5"
+   ],
+   [
+    "R2",
+    "1"
+   ],
+   [
+    "C3",
+    "1"
+   ],
+   [
+    "C4",
+    "1"
+   ]
+  ],
+  "APDS_LEDK": [
+   [
+    "U2",
+    "3"
+   ],
+   [
+    "U2",
+    "4"
+   ]
+  ],
+  "APDS_VDD": [
+   [
+    "U2",
+    "8"
+   ],
+   [
+    "R2",
+    "2"
+   ],
+   [
+    "C2",
+    "1"
+   ]
+  ],
+  "GEST_INT": [
+   [
+    "J1",
+    "5"
+   ],
+   [
+    "U2",
+    "2"
+   ]
+  ],
+  "GND": [
+   [
+    "J1",
+    "2"
+   ],
+   [
+    "U1",
+    "2"
+   ],
+   [
+    "U1",
+    "3"
+   ],
+   [
+    "C1",
+    "2"
+   ],
+   [
+    "R1",
+    "2"
+   ],
+   [
+    "U2",
+    "6"
+   ],
+   [
+    "C2",
+    "2"
+   ],
+   [
+    "C3",
+    "2"
+   ],
+   [
+    "C4",
+    "2"
+   ]
+  ],
+  "I2C_SCL": [
+   [
+    "J1",
+    "4"
+   ],
+   [
+    "U2",
+    "7"
+   ]
+  ],
+  "I2C_SDA": [
+   [
+    "J1",
+    "3"
+   ],
+   [
+    "U2",
+    "1"
+   ]
+  ],
+  "I2S1_BCLK": [
+   [
+    "J1",
+    "6"
+   ],
+   [
+    "U1",
+    "4"
+   ]
+  ],
+  "I2S1_WS": [
+   [
+    "J1",
+    "7"
+   ],
+   [
+    "U1",
+    "1"
+   ]
+  ],
+  "MIC_SD": [
+   [
+    "J1",
+    "8"
+   ],
+   [
+    "U1",
+    "6"
+   ],
+   [
+    "R1",
+    "1"
+   ]
+  ]
+ },
+ "root_uuid": "7e458627-7e70-5ee4-9362-0785eac765a4"
+}

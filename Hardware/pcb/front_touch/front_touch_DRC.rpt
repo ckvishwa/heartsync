@@ -1,0 +1,32 @@
+** Drc report for front_touch.kicad_pcb **
+** Created on 2026-11-23T03:00:29 **
+** Report includes: Errors, Warnings, Exclusions **
+
+** Found 3 DRC violations **
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(44.0000 mm, 72.7500 mm): Zone [GND] on F.Cu, priority 1
+[isolated_copper]: Isolated copper fill
+    Local override; warning
+    @(44.0000 mm, 72.7500 mm): Zone [GND] on F.Cu, priority 1
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(77.0000 mm, 79.0000 mm): Segment on Edge.Cuts
+    @(80.5000 mm, 79.1000 mm): Reference field of J1
+
+** Found 1 unconnected pads **
+[unconnected_items]: Missing connection between items
+    Local override; error
+    @(63.0000 mm, 70.2500 mm): Pad 1 [TOUCH] of E1 on F.Cu
+    @(80.0000 mm, 74.4750 mm): Pad 1 [TOUCH] of J1 on B.Cu
+
+** Found 0 Footprint errors **
+
+** Ignored checks **
+    - Footprint has no courtyard defined
+    - Track endpoint not centered on via
+    - Tuning profile track geometries
+    - Footprint doesn't match symbol's footprint filters
+    - Footprint component type doesn't match footprint pads
+
+** End of Report **

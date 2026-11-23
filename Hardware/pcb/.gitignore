@@ -1,0 +1,8 @@
+_vendor/
+tools/__pycache__/
+*.kicad_prl
+*-backups/
+fp-info-cache
+~*.lck
+*.lck
+*/fab/*.svg

@@ -1,0 +1,4 @@
+(version 1)
+(rule usbc_cutout_edge
+  (condition "A.memberOfFootprint('J2') || A.memberOfFootprint('J3') || B.memberOfFootprint('J2') || B.memberOfFootprint('J3')")
+  (constraint edge_clearance (min 0.1mm)))

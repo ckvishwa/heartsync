@@ -419,20 +419,22 @@
   },
   {
    "ref": "J4",
-   "value": "Cell NTC (JST PH 2.0, pin order to verify)",
-   "footprint": "Connector_JST:JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal",
+   "value": "Cell: Amass MR30PW-M (3-pole; pins 1 = BAT+, 3 = BAT-, 2 open)",
+   "footprint": "ansonia:Amass_MR30PW-M_1x03_P3.50mm_Horizontal",
    "lib_id": "Connector_Generic:Conn_01x03",
    "sheet": "charger",
    "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
    "sym_uuid": "a6a8d71d-4165-5074-b97b-7974ebe5a12a",
    "dnp": false,
-   "fields": {},
+   "fields": {
+    "MPN": "MR30PW-M"
+   },
    "datasheet": "",
    "description": "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)",
    "in_bom": true,
    "pins": {
-    "1": null,
-    "2": "NTC",
+    "1": "BAT_RAW",
+    "2": null,
     "3": "GND"
    },
    "pin_names": {
@@ -442,43 +444,25 @@
    }
   },
   {
-   "ref": "TP1",
-   "value": "BAT+ pad 18 AWG",
-   "footprint": "TestPoint:TestPoint_Pad_4.0x4.0mm",
-   "lib_id": "Connector:TestPoint",
+   "ref": "J5",
+   "value": "Cell NTC (JST SH 2)",
+   "footprint": "Connector_JST:JST_SH_SM02B-SRSS-TB_1x02-1MP_P1.00mm_Horizontal",
+   "lib_id": "Connector_Generic:Conn_01x02",
    "sheet": "charger",
    "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
-   "sym_uuid": "7a022c09-78a8-575f-aa19-d347d12b8e42",
+   "sym_uuid": "116a89df-71aa-5047-94af-d1fa3c932732",
    "dnp": false,
    "fields": {},
    "datasheet": "",
-   "description": "test point",
+   "description": "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",
    "in_bom": true,
    "pins": {
-    "1": "BAT_RAW"
+    "1": "NTC",
+    "2": "GND"
    },
    "pin_names": {
-    "1": "1"
-   }
-  },
-  {
-   "ref": "TP2",
-   "value": "BAT- pad 18 AWG",
-   "footprint": "TestPoint:TestPoint_Pad_4.0x4.0mm",
-   "lib_id": "Connector:TestPoint",
-   "sheet": "charger",
-   "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
-   "sym_uuid": "ea859e31-0696-5116-aba6-107989ebce76",
-   "dnp": false,
-   "fields": {},
-   "datasheet": "",
-   "description": "test point",
-   "in_bom": true,
-   "pins": {
-    "1": "GND"
-   },
-   "pin_names": {
-    "1": "1"
+    "1": "Pin_1",
+    "2": "Pin_2"
    }
   },
   {
@@ -2432,7 +2416,7 @@
   ],
   "BAT_RAW": [
    [
-    "TP1",
+    "J4",
     "1"
    ],
    [
@@ -2834,8 +2818,8 @@
     "3"
    ],
    [
-    "TP2",
-    "1"
+    "J5",
+    "2"
    ],
    [
     "R1",
@@ -3146,8 +3130,8 @@
     "16"
    ],
    [
-    "J4",
-    "2"
+    "J5",
+    "1"
    ]
   ],
   "OUTA_N": [

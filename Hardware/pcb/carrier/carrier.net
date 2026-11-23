@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "D:\\SyncD\\Hardware\\pcb\\carrier\\carrier.kicad_sch")
-		(date "2026-11-23T12:28:12")
+		(date "2026-11-23T12:57:38")
 		(tool "Eeschema 10.0.8")
 		(sheet
 			(number "1")

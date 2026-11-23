@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "D:\\SyncD\\Hardware\\pcb\\front_touch\\front_touch.kicad_sch")
-		(date "2026-11-23T12:27:41")
+		(date "2026-11-23T12:58:13")
 		(tool "Eeschema 10.0.8")
 		(sheet
 			(number "1")
@@ -158,12 +158,12 @@
 		)
 		(comp
 			(ref "J1")
-			(value "To carrier J7")
-			(footprint "Connector_JST:JST_SH_BM02B-SRSS-TB_1x02-1MP_P1.00mm_Vertical")
+			(value "Solder wires to carrier J7")
+			(footprint "ansonia:WirePads_1x02_P1.60mm")
 			(description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
 			(fields
 				(field
-					(name "Footprint") "Connector_JST:JST_SH_BM02B-SRSS-TB_1x02-1MP_P1.00mm_Vertical")
+					(name "Footprint") "ansonia:WirePads_1x02_P1.60mm")
 				(field
 					(name "Datasheet")
 				)

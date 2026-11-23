@@ -1251,7 +1251,7 @@
 				)
 			)
 		)
-		(property "Value" "To carrier J8"
+		(property "Value" "Solder wires to carrier J8"
 			(at 48.26 55.88 0)
 			(effects
 				(font
@@ -1259,7 +1259,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_JST:JST_SH_BM08B-SRSS-TB_1x08-1MP_P1.00mm_Vertical"
+		(property "Footprint" "ansonia:WirePads_1x08_P1.20mm"
 			(at 48.26 43.18 0)
 			(effects
 				(font

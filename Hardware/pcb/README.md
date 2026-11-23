@@ -34,8 +34,8 @@ After routing starts, rebuild with `--keep-placement` (or stop regenerating the 
 |---|---|---|---|---|
 | Carrier | X -62..+28, Y -17.5..+30 | 90 x 47.5 | 4L 1.0 mm (F sig / In1 GND / In2 PWR / B sig+GND) | grew left over the old SIM-board spot; all parts on the front side |
 | Power | X 30..73 (Y > -1), X 30..66.5 (Y < -1), Y -16..+33 | 43 x 49 | 4L 1.6 mm, 2 oz outer | plain outline (lid notch removed: the lid is clipped, no screws); USB-C cut-outs in the top edge |
-| Front sensor | X -72.5..-59.2, Y 23.5..35.3 | 13.3 x 11.8 | 2L 0.8 mm | smallest that fits the JST SH 8 (vertical) + mic + APDS |
-| Touch strip | X -56..-16, Y 27.25..32.25 + tab X -23..-16, Y 21..27.25 | 40 x 5 (+7 x 6.25 tab) | 2L 0.8 mm | 5 mm is too narrow for any JST SH: the tab carries a vertical SH-2 |
+| Front sensor | X -72.0..-60.4, Y 24.0..34.3 | 11.6 x 10.3 | 2L 0.8 mm | 8 solder pads (1.2 mm pitch, back side) replace the JST: smaller than before (13.3 x 11.8) |
+| Touch strip | X -56..-16, Y 27.25..32.25 | 40 x 5 | 2L 0.8 mm | no tab: 2 solder pads on the back at the right end |
 
 ### What moved vs the fit map / brief
 
@@ -55,6 +55,17 @@ After routing starts, rebuild with `--keep-placement` (or stop regenerating the 
   out than Amphenol's drawing so the rear shell legs keep 0.3 mm copper-to-edge (Amphenol's layout has 0.05 mm).
   The port mating face therefore sits 0.25 mm further inside: check against the wall opening.
 
+### Connector rule (review 2)
+
+Wires are soldered straight to the small remote boards/parts (front sensor, touch strip, buttons, haptic LRA, mute LED): no connector on
+that end. The carrier keeps one JST SH per remote (J8 front sensor 8-pin, J7 touch 2-pin, J12 buttons 6-pin, J6 haptic 2-pin, J9 mute LED
+2-pin) so it can come out. Kept as connectors: U.FL x 4 antennas, FPC for the OLED (J11) and e-paper (J13), carrier-to-power J1, speakers
+(carrier J4, power J7). Wire pads: `ansonia:WirePads_1x08_P1.20mm` (1.0 x 2.0 mm) and `_1x02_P1.60mm`.
+Battery: **Amass MR30PW-M** on the power board J4 (left edge, mating face flush with X 30) plus a 2-pin SH (J5) for the NTC. The MR30 is a
+3-pole part (the spec sheet I found: 15 A, 3.5 mm pitch, 3 x d1.9 holes + 2 x d1.0 locating holes); BAT+ on pin 1, BAT- on pin 3, pin 2
+open. The 2-pin Amass part is the XT30: say if you meant that. Footprint holes are from the Amass drawing, body outline and the
+locating-hole row position (10 mm from the pins) are my reading of it: **verify before fab**. The BAT solder pads were removed.
+
 ## Key circuit decisions (detail in the schematic sheet notes)
 
 - **3 x TCA9554** (0x20 outputs, 0x21 buttons/status inputs, 0x22 Bluetooth control). The brief's expander list
@@ -67,9 +78,8 @@ After routing starts, rebuild with `--keep-placement` (or stop regenerating the 
   Spare: IO1, IO2 (test pads). USB D+/D- reach the ESP32 through J1 from USB-C port 1 for flashing.
 - **12 V panel supply:** TPS61040 behind a P-FET switch so VCC floats when off (SSD1322 sec. 8.9).
 - **Amp boost:** TPS61088 at **9.0 V** (499k / 76.8k), PWM mode, 600 kHz, values from the datasheet equations (sheet note). Amp limit 4 W/ch (see power budget).
-- **Battery path:** BAT+/BAT- 4 x 4 mm solder pads (TP1/TP2, 18 AWG silicone leads) -> 8 A fuse -> reverse-battery P-FET
-  (DMP3013SFV) -> BAT_SW (5 V TVS). J4 (PH2.0) carries only the pack NTC + return (pin 1 = pack BAT+ is left open: insulate that
-  wire; **pack connector pin order is unverified**). VSYS comes from the PD IC (placeholder); a DNP 0R bridges BAT_SW -> VSYS for bring-up.
+- **Battery path:** MR30 J4 (BAT+ pin 1, BAT- pin 3) -> 8 A fuse -> reverse-battery P-FET (DMP3013SFV) -> BAT_SW (5 V TVS). Pack NTC on
+  JST SH J5. VSYS comes from the PD IC (placeholder); a DNP 0R bridges BAT_SW -> VSYS for bring-up.
 - **IMU (U12 LSM6DSOX, LGA-14):** I2C 0x6A (SA0 = GND, CS = VDDIO), INT1 -> ESP32 IO3 (RTC GPIO3, 100k pull-down so it is low at boot;
   IO3 is the JTAG-source strap, left at its default), INT2 -> TCA9554 0x21 P7. Placed at (-10, 8) mid-board, far from the speaker magnets.
   I2C map, no clash: 0x20/21/22 TCA9554, 0x2C TAS5805M, 0x39 APDS-9960, 0x5A DRV2605L, 0x6A LSM6DSOX; the power IC's address is TBD.

@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "D:\\SyncD\\Hardware\\pcb\\power\\power.kicad_sch")
-		(date "2026-11-23T12:27:35")
+		(date "2026-11-23T12:57:43")
 		(tool "Eeschema 10.0.8")
 		(sheet
 			(number "1")
@@ -1228,12 +1228,14 @@
 		)
 		(comp
 			(ref "J4")
-			(value "Cell NTC (JST PH 2.0, pin order to verify)")
-			(footprint "Connector_JST:JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal")
+			(value "Cell: Amass MR30PW-M (3-pole; pins 1 = BAT+, 3 = BAT-, 2 open)")
+			(footprint "ansonia:Amass_MR30PW-M_1x03_P3.50mm_Horizontal")
 			(description "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)")
 			(fields
 				(field
-					(name "Footprint") "Connector_JST:JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal")
+					(name "MPN") "MR30PW-M")
+				(field
+					(name "Footprint") "ansonia:Amass_MR30PW-M_1x03_P3.50mm_Horizontal")
 				(field
 					(name "Datasheet")
 				)
@@ -1244,6 +1246,10 @@
 				(lib "Connector_Generic")
 				(part "Conn_01x03")
 				(description "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "MPN")
+				(value "MR30PW-M")
 			)
 			(property
 				(name "Sheetname")
@@ -1278,6 +1284,60 @@
 						)
 						(pin
 							(num "3")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J5")
+			(value "Cell NTC (JST SH 2)")
+			(footprint "Connector_JST:JST_SH_SM02B-SRSS-TB_1x02-1MP_P1.00mm_Horizontal")
+			(description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			(fields
+				(field
+					(name "Footprint") "Connector_JST:JST_SH_SM02B-SRSS-TB_1x02-1MP_P1.00mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_01x02")
+				(description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "charger")
+			)
+			(property
+				(name "Sheetfile")
+				(value "charger.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_1x??_*")
+			)
+			(sheetpath
+				(names "/charger/")
+				(tstamps "/0894dae8-e3e7-56b0-89c5-7117a59abc3b/")
+			)
+			(tstamps "116a89df-71aa-5047-94af-d1fa3c932732")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
 						)
 					)
 				)
@@ -1803,108 +1863,6 @@
 						)
 						(pin
 							(num "2")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "TP1")
-			(value "BAT+ pad 18 AWG")
-			(footprint "TestPoint:TestPoint_Pad_4.0x4.0mm")
-			(description "test point")
-			(fields
-				(field
-					(name "Footprint") "TestPoint:TestPoint_Pad_4.0x4.0mm")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "test point")
-			)
-			(libsource
-				(lib "Connector")
-				(part "TestPoint")
-				(description "test point")
-			)
-			(property
-				(name "Sheetname")
-				(value "charger")
-			)
-			(property
-				(name "Sheetfile")
-				(value "charger.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "test point tp")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "Pin* Test*")
-			)
-			(sheetpath
-				(names "/charger/")
-				(tstamps "/0894dae8-e3e7-56b0-89c5-7117a59abc3b/")
-			)
-			(tstamps "7a022c09-78a8-575f-aa19-d347d12b8e42")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "TP2")
-			(value "BAT- pad 18 AWG")
-			(footprint "TestPoint:TestPoint_Pad_4.0x4.0mm")
-			(description "test point")
-			(fields
-				(field
-					(name "Footprint") "TestPoint:TestPoint_Pad_4.0x4.0mm")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "test point")
-			)
-			(libsource
-				(lib "Connector")
-				(part "TestPoint")
-				(description "test point")
-			)
-			(property
-				(name "Sheetname")
-				(value "charger")
-			)
-			(property
-				(name "Sheetfile")
-				(value "charger.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "test point tp")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "Pin* Test*")
-			)
-			(sheetpath
-				(names "/charger/")
-				(tstamps "/0894dae8-e3e7-56b0-89c5-7117a59abc3b/")
-			)
-			(tstamps "ea859e31-0696-5116-aba6-107989ebce76")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
 						)
 					)
 				)
@@ -5973,36 +5931,6 @@
 			)
 		)
 		(libpart
-			(lib "Connector")
-			(part "TestPoint")
-			(description "test point")
-			(footprints
-				(fp "Pin*")
-				(fp "Test*")
-			)
-			(fields
-				(field
-					(name "Reference") "TP")
-				(field
-					(name "Value") "TestPoint")
-				(field
-					(name "Footprint")
-				)
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "test point")
-			)
-			(pins
-				(pin
-					(num "1")
-					(name "1")
-					(type "passive")
-				)
-			)
-		)
-		(libpart
 			(lib "Connector_Generic")
 			(part "Conn_01x02")
 			(description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
@@ -7212,10 +7140,6 @@
 			(uri "${KICAD10_SYMBOL_DIR}/Amplifier_Audio.kicad_sym")
 		)
 		(library
-			(logical "Connector")
-			(uri "${KICAD10_SYMBOL_DIR}/Connector.kicad_sym")
-		)
-		(library
 			(logical "Connector_Generic")
 			(uri "${KICAD10_SYMBOL_DIR}/Connector_Generic.kicad_sym")
 		)
@@ -7347,9 +7271,9 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "TP1")
+				(ref "J4")
 				(pin "1")
-				(pinfunction "1_1")
+				(pinfunction "Pin_1_1")
 				(pintype "passive")
 			)
 		)
@@ -8115,6 +8039,12 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "J5")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+			(node
 				(ref "J6")
 				(pin "3")
 				(pinfunction "Pin_3_3")
@@ -8180,12 +8110,6 @@
 			(node
 				(ref "R8")
 				(pin "2")
-				(pintype "passive")
-			)
-			(node
-				(ref "TP2")
-				(pin "1")
-				(pinfunction "1_1")
 				(pintype "passive")
 			)
 			(node
@@ -8393,9 +8317,9 @@
 			(name "NTC")
 			(class "Default")
 			(node
-				(ref "J4")
-				(pin "2")
-				(pinfunction "Pin_2_2")
+				(ref "J5")
+				(pin "1")
+				(pinfunction "Pin_1_1")
 				(pintype "passive")
 			)
 			(node
@@ -9425,12 +9349,12 @@
 		)
 		(net
 			(code "81")
-			(name "unconnected-(J4-Pin_1-Pad1)")
+			(name "unconnected-(J4-Pin_2-Pad2)")
 			(class "Default")
 			(node
 				(ref "J4")
-				(pin "1")
-				(pinfunction "Pin_1_1")
+				(pin "2")
+				(pinfunction "Pin_2_2")
 				(pintype "passive+no_connect")
 			)
 		)

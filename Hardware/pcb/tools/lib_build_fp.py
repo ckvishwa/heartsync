@@ -257,6 +257,64 @@ def sh22():
          "Verify against the JST drawing.")
 
 
+def wirepads(n, pitch, pw=1.0, ph=2.0):
+    """n SMD pads in a row for hand-soldered wires (no paste)."""
+    fp = P.FOOTPRINT(None)
+    x0 = -(n - 1) * pitch / 2.0
+    for i in range(n):
+        p = smd_pad(fp, str(i + 1), x0 + i * pitch, 0, pw, ph)
+        ls = P.LSET()
+        ls.AddLayer(P.F_Cu)
+        ls.AddLayer(P.F_Mask)
+        p.SetLayerSet(ls)
+    w = (n - 1) * pitch / 2.0 + pw / 2 + 0.3
+    add_rect(fp, P.F_CrtYd, -w, -ph / 2 - 0.3, w, ph / 2 + 0.3)
+    fp.Reference().SetText("W**")
+    fp.Reference().SetLayer(P.F_Fab)
+    fp.SetAttributes(P.FP_SMD | P.FP_EXCLUDE_FROM_BOM | P.FP_EXCLUDE_FROM_POS_FILES)
+    name = "WirePads_1x%02d_P%.2fmm" % (n, pitch)
+    save(fp, name, "%d solder pads %.2f mm pitch (%.1f x %.1f) for hand-soldered wires, no paste." % (n, pitch, pw, ph))
+
+
+def mr30():
+    """Amass MR30PW-M (3-pole, 15 A, right angle): holes read from Amass spec sheet 'mounting hole' drawing.
+    Origin = middle pin; pins on the row y=0, body toward -y (mating face at y -12)."""
+    fp = P.FOOTPRINT(None)
+    for i, x in enumerate((-3.5, 0.0, 3.5)):
+        p = P.PAD(fp)
+        p.SetNumber(str(i + 1))
+        p.SetAttribute(P.PAD_ATTRIB_PTH)
+        p.SetShape(P.PAD_SHAPE_CIRCLE)
+        p.SetSize(V(3.1, 3.1))
+        p.SetDrillShape(P.PAD_DRILL_SHAPE_CIRCLE)
+        p.SetDrillSize(V(1.9, 1.9))
+        p.SetPosition(V(x, 0))
+        p.SetLayerSet(P.PAD.PTHMask())
+        fp.Add(p)
+    for x in (-6.5, 6.5):
+        p = P.PAD(fp)
+        p.SetNumber("")
+        p.SetAttribute(P.PAD_ATTRIB_NPTH)
+        p.SetShape(P.PAD_SHAPE_CIRCLE)
+        p.SetSize(V(1.0, 1.0))
+        p.SetDrillShape(P.PAD_DRILL_SHAPE_CIRCLE)
+        p.SetDrillSize(V(1.0, 1.0))
+        p.SetPosition(V(x, -10.0))
+        ls = P.LSET()
+        for l in (P.F_Cu, P.B_Cu, P.F_Mask, P.B_Mask):
+            ls.AddLayer(l)
+        p.SetLayerSet(ls)
+        fp.Add(p)
+    add_rect(fp, P.F_CrtYd, -8.0, -12.5, 8.0, 2.2)
+    add_rect(fp, P.F_Fab, -7.65, -12.0, 7.65, 1.5, 0.1)
+    fp.Reference().SetText("J**")
+    fp.Reference().SetLayer(P.F_Fab)
+    fp.SetAttributes(P.FP_THROUGH_HOLE)
+    save(fp, "Amass_MR30PW-M_1x03_P3.50mm_Horizontal",
+         "Amass MR30PW-M 3-pole 15 A right-angle PCB plug. Holes from the Amass spec sheet (3 x d1.9 at 3.5 mm, 2 x d1.0 at 13.0 mm). "
+         "Body outline/locating-hole row (y -10) read from the drawing: VERIFY before fab. No 3D model.")
+
+
 def touchpad():
     fp = P.FOOTPRINT(None)
     p = smd_pad(fp, "1", 0, 0, 34.0, 3.0)
@@ -281,3 +339,6 @@ if __name__ == "__main__":
     placeholder_pdic()
     touchpad()
     sh22()
+    wirepads(8, 1.2)
+    wirepads(2, 1.6)
+    mr30()

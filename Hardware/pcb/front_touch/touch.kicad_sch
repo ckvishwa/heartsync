@@ -387,7 +387,7 @@
 				)
 			)
 		)
-		(property "Value" "To carrier J7"
+		(property "Value" "Solder wires to carrier J7"
 			(at 76.2 40.64 0)
 			(effects
 				(font
@@ -395,7 +395,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_JST:JST_SH_BM02B-SRSS-TB_1x02-1MP_P1.00mm_Vertical"
+		(property "Footprint" "ansonia:WirePads_1x02_P1.60mm"
 			(at 76.2 35.56 0)
 			(effects
 				(font

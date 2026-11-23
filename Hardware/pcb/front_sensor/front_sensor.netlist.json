@@ -3,8 +3,8 @@
  "parts": [
   {
    "ref": "J1",
-   "value": "To carrier J8",
-   "footprint": "Connector_JST:JST_SH_BM08B-SRSS-TB_1x08-1MP_P1.00mm_Vertical",
+   "value": "Solder wires to carrier J8",
+   "footprint": "ansonia:WirePads_1x08_P1.20mm",
    "lib_id": "Connector_Generic:Conn_01x08",
    "sheet": "sensors",
    "sheet_uuid": "a0ff3679-06af-5cc0-819a-bb4a35a3f3fe",

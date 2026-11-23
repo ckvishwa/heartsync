@@ -329,18 +329,17 @@ def power():
 
     s = d.sheet("charger", "Power-bank / PD IC (placeholder), cell, NTC, protection")
     s.note("U1 DNP placeholder: VBUS1/2, CC x2, DP2/DM2, BAT, SYS, NTC, SDA/SCL, INT, KEY. Qi TX is a separate module on J6 (IP5568 evaluated and rejected, README).")
-    s.note("Cell 1160100 10,000 mAh: MAIN PATH = BAT+/BAT- solder pads TP1/TP2 (4 x 4 mm, 18 AWG silicone leads). J4 (PH2.0, 2 A) carries")
-    s.note("ONLY the pack NTC + return (pin 1 = pack BAT+ left open: insulate that wire). Q = reverse-battery PFET (DMP3013SFV),")
+    s.note("Cell 1160100 10,000 mAh: J4 = Amass MR30PW-M (15 A, 3-pole: BAT+ on pin 1, BAT- on pin 3, middle pin open; the brief said 2-pin,")
+    s.note("the 2-pin Amass part is the XT30). J5 (JST SH 2) = pack NTC. Q = reverse-battery PFET (DMP3013SFV),")
     s.note("F1 = 8 A fuse, D = SMF5.0A TVS. The 0R (DNP) bridges BAT_SW -> VSYS for bring-up without the PD IC.")
     s.part("U1", "ansonia:PD_IC_PLACEHOLDER", "PD/charger IC TBD", "", {
         "VBUS1": "VBUS1", "CC1_1": "CC1_1", "CC2_1": "CC2_1", "VBUS2": "VBUS2", "CC1_2": "CC1_2", "CC2_2": "CC2_2",
         "DP2": "DP2", "DM2": "DM2", "BAT": "BAT_SW", "SYS": VSYS, "NTC": "NTC", "SDA": "I2C_SDA",
         "SCL": "I2C_SCL", "INT": "PWR_INT", "KEY": "PWR_KEY", "GND": GND},
            nc_ok=True, dnp=True)
-    conn(s, "J4", 3, [None, "NTC", GND], fp="Connector_JST:JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal",
-         value="Cell NTC (JST PH 2.0, pin order to verify)")
-    s.part("TP1", "Connector:TestPoint", "BAT+ pad 18 AWG", "TestPoint:TestPoint_Pad_4.0x4.0mm", {"1": "BAT_RAW"})
-    s.part("TP2", "Connector:TestPoint", "BAT- pad 18 AWG", "TestPoint:TestPoint_Pad_4.0x4.0mm", {"1": GND})
+    conn(s, "J4", 3, ["BAT_RAW", None, GND], fp="ansonia:Amass_MR30PW-M_1x03_P3.50mm_Horizontal",
+         value="Cell: Amass MR30PW-M (3-pole; pins 1 = BAT+, 3 = BAT-, 2 open)", MPN="MR30PW-M")
+    conn(s, "J5", 2, ["NTC", GND], value="Cell NTC (JST SH 2)")
     s.part("F1", "Device:Fuse", "8A fast", "Fuse:Fuse_1206_3216Metric", {"1": "BAT_RAW", "2": "BAT_F"},
            MPN="0466008.NR")
     s.part("Q", "Transistor_FET:DMP3013SFV", "DMP3013SFV", "", {"S": "BAT_SW", "G": "BAT_Q_G", "D": "BAT_F"},
@@ -454,7 +453,7 @@ def front_sensor():
     s.note("ICS-43434: L/R to GND = left slot; 0.1 uF at VDD; 100k pull-down on SD (ICS-43434 datasheet).")
     s.note("APDS-9960 single supply (datasheet fig. 14b): VDD via 22R + 1 uF; LEDA 1 uF + 10 uF; LDR tied to LEDK.")
     conn(s, "J1", 8, [V3, GND, "I2C_SDA", "I2C_SCL", "GEST_INT", "I2S1_BCLK", "I2S1_WS", "MIC_SD"],
-         value="To carrier J8", fp="Connector_JST:JST_SH_BM08B-SRSS-TB_1x08-1MP_P1.00mm_Vertical")
+         value="Solder wires to carrier J8", fp="ansonia:WirePads_1x08_P1.20mm")
     s.part("U1", "Sensor_Audio:ICS-43434", "ICS-43434", "", {"WS": "I2S1_WS", "LR": GND, "GND": GND,
                                                               "SCK": "I2S1_BCLK", "VDD": V3, "SD": "MIC_SD"},
            MPN="ICS-43434")
@@ -476,8 +475,8 @@ def front_touch():
     s = d.sheet("touch", "Touch pad")
     s.note("Sense pad on F.Cu facing the 1.2 mm front wall; hatched GND ring on F.Cu only, B.Cu kept clear under the pad.")
     s.part("E1", "Connector:TestPoint", "Touch pad 34x3", "ansonia:TouchPad_34x3", {"1": "TOUCH"}).in_bom = False
-    conn(s, "J1", 2, ["TOUCH", GND], value="To carrier J7",
-         fp="Connector_JST:JST_SH_BM02B-SRSS-TB_1x02-1MP_P1.00mm_Vertical")
+    conn(s, "J1", 2, ["TOUCH", GND], value="Solder wires to carrier J7",
+         fp="ansonia:WirePads_1x02_P1.60mm")
     s.part("TP1", "Connector:TestPoint", "GND", "TestPoint:TestPoint_Pad_D1.0mm", {"1": GND}).in_bom = False
     return d
 

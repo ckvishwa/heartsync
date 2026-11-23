@@ -32,3 +32,6 @@ and a power-bank / PD IC still to be chosen.
 - PH2.0 cell connector (2 A) cannot carry full-power audio: firmware cap or heavy-lead pads.
 - Footprints made or fixed by hand (USB-C from the drawing, Ebyte layer fix, SIM7080G trim) must be
   checked against the vendor drawings before fab.
+
+- Review 2 (connector rule): wires soldered to the remote boards (front sensor 8 pads, touch strip 2 pads, no tab); JST SH stays on the carrier end;
+  battery = Amass MR30PW-M (3-pole, 2 used) + SH-2 NTC; U.FL, FPC, J1 and speaker connectors unchanged.

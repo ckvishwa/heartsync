@@ -75,10 +75,10 @@ POWER = {
         "U2": (54.0, -3.0, 0),              # TPS61088
         "L1": (53.0, -11.5, 0),             # 2.2 uH
         "J6": (63.4, -9.5, 90),             # Qi TX module (24x32 at X 67.5, Y 0..-32), cable +X
-        "J1": (33.3, 9.0, 270),             # link to carrier (cable -X), 22 pin
-        "J4": (35.0, -10.3, 270),           # cell NTC (PH 2.0, 3 pin)
-        "TP1": (43.3, -13.2, 0), "TP2": (43.3, -8.0, 0),   # BAT+/BAT- 4x4 pads for 18 AWG leads
-        "U4": (36.0, 24.0, 0),              # 3V3 LDO
+        "J1": (33.3, 14.0, 270),            # link to carrier (cable -X), 22 pin
+        "J4": (42.0, -8.0, 90),             # cell: Amass MR30PW-M, mating face flush with the left edge (X 30)
+        "J5": (40.5, 29.8, 180),            # cell NTC (JST SH 2, cable up)
+        "U4": (39.0, 22.0, 0),              # 3V3 LDO
     },
     "near": {},
     # Amphenol's land pattern puts the B-row pads 0.2 mm from the mid-mount cut-out (by design)
@@ -96,12 +96,12 @@ FRONT_SENSOR = {
     "layers": 2, "thickness": 0.8,
     "comments": ["F.Cu faces the front wall (APDS-9960 window side); mic + connector on B.Cu",
                  "Mic port hole at device (-69.5, 31.25)"],
-    "outline": [rect(-72.5, 23.5, -59.2, 35.3)],
+    "outline": [rect(-72.0, 24.0, -60.4, 34.3)],
     "holes": {},
     "place": {
         "U2": (-64.0, 31.25, 0, "F"),
         "U1": (-68.79, 31.25, 90, "B"),   # port hole lands on (-69.5, 31.25)
-        "J1": (-65.85, 26.65, 180, "B"),
+        "J1": (-66.2, 25.4, 0, "B"),       # 8 wire pads along the bottom edge, back side
     },
     # ICS-43434 sound port (bottom port, mic on B.Cu) -> NPTH through the board under the front-wall hole,
     # plus a ring-gasket land (acoustic seal) drawn around it on F.Fab/F.SilkS and kept free of copper on F.Cu.
@@ -115,14 +115,13 @@ FRONT_TOUCH = {
     "title": "Ansonia touch strip rev A",
     "layers": 2, "thickness": 0.8,
     "comments": ["Sense pad on F.Cu (front), hatched GND ring on F.Cu, B.Cu clear under the pad"],
-    "outline": [[(-56.0, 27.25), (-23.0, 27.25), (-23.0, 21.0), (-16.0, 21.0), (-16.0, 32.25), (-56.0, 32.25)]],
+    "outline": [rect(-56.0, 27.25, -16.0, 32.25)],
     "holes": {},
-    "place": {"E1": (-37.0, 29.75, 0, "F"), "J1": (-19.5, 24.2, 0, "B"), "TP1": (-19.5, 29.75, 0, "B")},
+    "place": {"E1": (-37.0, 29.75, 0, "F"), "J1": (-17.8, 29.75, 0, "B"), "TP1": (-17.5, 29.75, 0, "F")},   # 2 wire pads on the back at the right end
     "no_default_pour": True,
-    "pours": [{"net": "GND", "layer": "F.Cu", "pts": [(-56.0, 27.25), (-23.0, 27.25), (-23.0, 21.0), (-16.0, 21.0),
-                                                      (-16.0, 32.25), (-56.0, 32.25)],
+    "pours": [{"net": "GND", "layer": "F.Cu", "pts": rect(-56.0, 27.25, -16.0, 32.25),
                "clearance": 1.0, "hatch": True},
-              {"net": "GND", "layer": "B.Cu", "pts": rect(-23.0, 21.0, -16.0, 32.25), "clearance": 0.3}],
+              {"net": "GND", "layer": "B.Cu", "pts": rect(-22.5, 27.25, -16.0, 32.25), "clearance": 0.3}],
     "keepouts": [{"name": "touch_pad_back", "pts": rect(-54.5, 27.6, -19.5, 31.9), "layers": ["B.Cu"]}],
     "power_nets": ["GND"],
 }

@@ -2,7 +2,7 @@
 Pin tables come from the vendor documents named in each Description."""
 import os
 import symlib
-from kisexp import Sym, dump
+from kisexp import Sym, dump, first
 
 P, B, I, O, PI, PO, NC, OC = ("passive", "bidirectional", "input", "output", "power_in", "power_out",
                               "no_connect", "open_collector")
@@ -98,7 +98,24 @@ def pdic():
                                   " Net labels only; pin numbers are NOT a real part's pinout")
 
 
-ALL = [sim7080g, ewm104, tps61088, usbc, pdic]
+def lsm6dsox():
+    """LSM6DSOX = pin-identical to KiCad's LSM6DSL (LGA-14); SDO/SA0, SDX, SCX made passive (strapped to GND)."""
+    import copy
+    base = symlib.load("Sensor_Motion:LSM6DSL")
+    node = copy.deepcopy(base["node"])
+    symlib._rename_units(node, "LSM6DSL", "LSM6DSOX")
+    node[1] = "ansonia:LSM6DSOX"
+    for sub in [x for x in node if isinstance(x, list) and x and x[0] == "symbol"]:
+        for p in [x for x in sub if isinstance(x, list) and x and x[0] == "pin"]:
+            if str(first(p, "number")[1]) in ("1", "2", "3"):
+                p[1] = Sym("passive")
+    for p in [x for x in node if isinstance(x, list) and x and x[0] == "property"]:
+        if p[1] == "Value":
+            p[2] = "LSM6DSOX"
+    return symlib._finish("ansonia:LSM6DSOX", node)
+
+
+ALL = [sim7080g, ewm104, tps61088, usbc, pdic, lsm6dsox]
 
 
 def build(lib_path):

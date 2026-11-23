@@ -1,32 +1,20 @@
 ** Drc report for front_sensor.kicad_pcb **
-** Created on 2026-11-23T03:00:25 **
+** Created on 2026-11-23T12:30:19 **
 ** Report includes: Errors, Warnings, Exclusions **
 
-** Found 37 DRC violations **
-[silk_edge_clearance]: Silkscreen clipped by board edge
-    Rule: board setup constraints silk; warning
-    @(40.8000 mm, 76.5000 mm): Segment on Edge.Cuts
-[silk_edge_clearance]: Silkscreen clipped by board edge
-    Rule: board setup constraints silk; warning
-    @(40.8000 mm, 64.7000 mm): Segment on Edge.Cuts
+** Found 18 DRC violations **
 [silk_overlap]: Silkscreen clearance
     Rule: board setup constraints silk; warning
-    @(37.0000 mm, 71.0900 mm): Reference field of C2
     @(36.3464 mm, 71.3800 mm): Segment of R2 on F.Silkscreen
+    @(37.0000 mm, 71.0900 mm): Reference field of C2
 [silk_overlap]: Silkscreen clearance
     Rule: board setup constraints silk; warning
-    @(36.3464 mm, 70.6200 mm): Segment of R2 on F.Silkscreen
     @(37.0000 mm, 71.0900 mm): Reference field of C2
+    @(36.3464 mm, 70.6200 mm): Segment of R2 on F.Silkscreen
 [silk_overlap]: Silkscreen clearance
     Rule: board setup constraints silk; warning
     @(34.0300 mm, 70.0400 mm): Segment of U2 on F.Silkscreen
     @(36.5000 mm, 69.8300 mm): Reference field of R2
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-    @(36.5000 mm, 69.8300 mm): Reference field of R2
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-    @(33.9000 mm, 68.0500 mm): Polygon of U2 on F.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
     @(37.0000 mm, 71.0900 mm): Reference field of C2
@@ -47,22 +35,6 @@
     Local override; warning
     @(36.5000 mm, 69.8300 mm): Reference field of R2
     @(37.4550 mm, 69.4500 mm): Pad 5 [+3V3] of U2 on F.Cu
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; warning
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; warning
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; warning
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; warning
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; warning
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-    @(34.1500 mm, 70.0500 mm): Reference field of J1
-    @(34.2100 mm, 68.7500 mm): Reference field of U1
 [silk_overlap]: Silkscreen clearance
     Rule: board setup constraints silk; warning
     @(35.1700 mm, 68.7500 mm): Reference field of R1
@@ -73,50 +45,36 @@
     @(34.2100 mm, 68.7500 mm): Reference field of U1
 [silk_overlap]: Silkscreen clearance
     Rule: board setup constraints silk; warning
-    @(33.2500 mm, 67.1600 mm): Reference field of C1
-    @(33.0600 mm, 67.3250 mm): Segment of U1 on B.Silkscreen
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-    @(33.2500 mm, 67.1600 mm): Reference field of C1
-    @(33.0600 mm, 69.8750 mm): Segment of U1 on B.Silkscreen
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-    @(33.0600 mm, 67.3250 mm): Segment of U1 on B.Silkscreen
-    @(30.5000 mm, 67.4300 mm): Reference field of C4
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-[silk_overlap]: Silkscreen clearance
-    Rule: board setup constraints silk; warning
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; warning
     @(34.1500 mm, 70.0500 mm): Reference field of J1
-    @(34.0000 mm, 69.2600 mm): Pad 1 [MIC_SD] of R1 on B.Cu
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; warning
     @(34.2100 mm, 68.7500 mm): Reference field of U1
-    @(34.0000 mm, 69.2600 mm): Pad 1 [MIC_SD] of R1 on B.Cu
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(30.5000 mm, 67.4300 mm): Reference field of C4
+    @(33.0600 mm, 67.3250 mm): Segment of U1 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(33.2500 mm, 67.1600 mm): Reference field of C1
+    @(33.0600 mm, 67.3250 mm): Segment of U1 on B.Silkscreen
+[silk_overlap]: Silkscreen clearance
+    Rule: board setup constraints silk; warning
+    @(33.0600 mm, 69.8750 mm): Segment of U1 on B.Silkscreen
+    @(33.2500 mm, 67.1600 mm): Reference field of C1
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
     @(34.2100 mm, 68.7500 mm): Reference field of U1
     @(34.0000 mm, 68.2400 mm): Pad 2 [GND] of R1 on B.Cu
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
+    @(34.2100 mm, 68.7500 mm): Reference field of U1
+    @(34.0000 mm, 69.2600 mm): Pad 1 [MIC_SD] of R1 on B.Cu
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; warning
+    @(34.1500 mm, 70.0500 mm): Reference field of J1
+    @(34.0000 mm, 69.2600 mm): Pad 1 [MIC_SD] of R1 on B.Cu
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; warning
     @(33.2500 mm, 67.1600 mm): Reference field of C1
     @(32.5740 mm, 67.8500 mm): Pad 5 [+3V3] of U1 on B.Cu
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; warning
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; warning
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; warning
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; warning
 
 ** Found 17 unconnected pads **
 [unconnected_items]: Missing connection between items

@@ -221,6 +221,44 @@ def build(name, keep=False):
             placed.append(ref)
     autoplace(board, spec, fps, placed, js)
 
+    # acoustic port: NPTH under a bottom-port MEMS mic + ring-gasket outline on F.Fab
+    apt = spec.get("acoustic_port")
+    if apt:
+        host = fps[apt["host"]][0]
+        have = [p for p in host.Pads() if p.GetAttribute() == P.PAD_ATTRIB_NPTH]
+        if have:
+            print("  acoustic port: footprint already has NPTH d=%.3f mm" % P.ToMM(have[0].GetDrillSize().x))
+            apt = dict(apt, host=None)
+    if apt and apt.get("host"):
+        pad = P.PAD(host)
+        pad.SetAttribute(P.PAD_ATTRIB_NPTH)
+        pad.SetShape(P.PAD_SHAPE_CIRCLE)
+        dd = MM(apt["drill"])
+        pad.SetSize(P.VECTOR2I(dd, dd))
+        pad.SetDrillShape(P.PAD_DRILL_SHAPE_CIRCLE)
+        pad.SetDrillSize(P.VECTOR2I(dd, dd))
+        ls = P.LSET()
+        for l in (P.F_Cu, P.B_Cu, P.F_Mask, P.B_Mask):
+            ls.AddLayer(l)
+        pad.SetLayerSet(ls)
+        pad.SetPosition(dev(*apt["at"]))
+        host.Add(pad)
+    if apt:
+        for r in (apt["gasket_od"] / 2, apt["gasket_id"] / 2):
+            c = P.PCB_SHAPE(board)
+            c.SetShape(P.SHAPE_T_CIRCLE)
+            c.SetLayer(P.F_Fab)
+            c.SetCenter(dev(*apt["at"]))
+            c.SetEnd(P.VECTOR2I(dev(*apt["at"]).x + MM(r), dev(*apt["at"]).y))
+            c.SetWidth(MM(0.1))
+            board.Add(c)
+        t = P.PCB_TEXT(board)
+        t.SetText("acoustic gasket ring OD%.1f ID%.1f, port hole = wall hole (-69.5, 31.25)" % (apt["gasket_od"], apt["gasket_id"]))
+        t.SetLayer(P.F_Fab)
+        t.SetPosition(dev(apt["at"][0] + 3.4, apt["at"][1] - 5.2))
+        t.SetTextSize(P.VECTOR2I(MM(0.6), MM(0.6)))
+        board.Add(t)
+
     # copper pours
     gnd = nets.get("GND")
     if gnd and not spec.get("no_default_pour"):

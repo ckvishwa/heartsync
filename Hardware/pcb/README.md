@@ -1,7 +1,8 @@
 # Ansonia rev A custom boards (rev G shell, 190 x 76 x 35.5)
 
-Status (2026-11-23): **schematics done (ERC 0 errors / 0 warnings on all four), boards outlined and
-placed, NOT routed.** Waiting for the placement review (`placement_review.png`) before routing.
+Status (2026-11-23, after placement review 1): **schematics done (ERC 0 errors / 0 warnings on all four), boards
+outlined and placed with the review changes, NOT routed yet.** Routing (RF + power by hand, then the rest) is next.
+DRC now = unrouted + silkscreen + starved-thermal items only (no courtyard, edge, drill or hole errors).
 
 ## Layout of this folder
 
@@ -32,7 +33,7 @@ After routing starts, rebuild with `--keep-placement` (or stop regenerating the 
 | Board | Outline (device mm) | Size | Stack | Notes |
 |---|---|---|---|---|
 | Carrier | X -62..+28, Y -17.5..+30 | 90 x 47.5 | 4L 1.0 mm (F sig / In1 GND / In2 PWR / B sig+GND) | grew left over the old SIM-board spot; all parts on the front side |
-| Power | X 30..73 (Y > -1), X 30..66.5 (Y < -1), Y -16..+33 | 43 x 49 | 4L 1.6 mm, 2 oz outer | notch X <= 43.3, Y >= 27.65 for the top lid boss; USB-C cut-outs in the top edge |
+| Power | X 30..73 (Y > -1), X 30..66.5 (Y < -1), Y -16..+33 | 43 x 49 | 4L 1.6 mm, 2 oz outer | plain outline (lid notch removed: the lid is clipped, no screws); USB-C cut-outs in the top edge |
 | Front sensor | X -72.5..-59.2, Y 23.5..35.3 | 13.3 x 11.8 | 2L 0.8 mm | smallest that fits the JST SH 8 (vertical) + mic + APDS |
 | Touch strip | X -56..-16, Y 27.25..32.25 + tab X -23..-16, Y 21..27.25 | 40 x 5 (+7 x 6.25 tab) | 2L 0.8 mm | 5 mm is too narrow for any JST SH: the tab carries a vertical SH-2 |
 
@@ -46,8 +47,10 @@ After routing starts, rebuild with `--keep-placement` (or stop regenerating the 
   **Dropped:** J2 (cell sense: the PD IC gauges the cell over I2C), J3 (SIM board is now on the carrier),
   J5 (speaker R plugs into the power board, J7 there, next to the amp), J10 (gesture shares J8 with the mic:
   one front board, one cable).
-- **Lid screws (rev G):** the two M2 screws at (+37.5, +33.45) and (+45, -33.45) are outside every board;
-  power board keeps >= 3 mm from the top boss via the notch; nothing near the bottom boss (board ends at Y -16).
+- **Lid (review 1):** no screws any more (gasket + 8 snap clips at Z 0..4 + a hook into each speaker box). The boss
+  notch and keep-outs are deleted; the power board is a full rectangle again.
+- **Review-1 changes:** J1 is now 22-pin (adds QI_EN, PWR_KEY; footprint `ansonia:JST_SH_SM22B...` made from KiCad's
+  SM20B, **verify against the JST drawing**); J5 dropped (NTC on J4); IMU U12 added; J13 e-paper fitted with booster.
 - **USB-C ports:** centres X +52.75 / +66.05 as briefed, but the footprint puts the board edge 0.25 mm further
   out than Amphenol's drawing so the rear shell legs keep 0.3 mm copper-to-edge (Amphenol's layout has 0.05 mm).
   The port mating face therefore sits 0.25 mm further inside: check against the wall opening.
@@ -63,9 +66,53 @@ After routing starts, rebuild with `--keep-placement` (or stop regenerating the 
 - **ESP32 pin map:** checked against the WROOM-1U datasheet, no clash (IO35-37 unused, straps unused, IO19/20 USB).
   Spare: IO1, IO2 (test pads). USB D+/D- reach the ESP32 through J1 from USB-C port 1 for flashing.
 - **12 V panel supply:** TPS61040 behind a P-FET switch so VCC floats when off (SSD1322 sec. 8.9).
-- **Amp boost:** TPS61088 at 11.9 V, PWM mode, 600 kHz, values from the datasheet design equations (sheet note).
-- **Battery path:** PH2.0 J4 -> 8 A fuse -> reverse-battery P-FET (DMP3013SFV) -> BAT_SW (5 V TVS). VSYS comes from
-  the PD IC (placeholder); a DNP 0R bridges BAT_SW -> VSYS for bring-up without it.
+- **Amp boost:** TPS61088 at **9.0 V** (499k / 76.8k), PWM mode, 600 kHz, values from the datasheet equations (sheet note). Amp limit 4 W/ch (see power budget).
+- **Battery path:** BAT+/BAT- 4 x 4 mm solder pads (TP1/TP2, 18 AWG silicone leads) -> 8 A fuse -> reverse-battery P-FET
+  (DMP3013SFV) -> BAT_SW (5 V TVS). J4 (PH2.0) carries only the pack NTC + return (pin 1 = pack BAT+ is left open: insulate that
+  wire; **pack connector pin order is unverified**). VSYS comes from the PD IC (placeholder); a DNP 0R bridges BAT_SW -> VSYS for bring-up.
+- **IMU (U12 LSM6DSOX, LGA-14):** I2C 0x6A (SA0 = GND, CS = VDDIO), INT1 -> ESP32 IO3 (RTC GPIO3, 100k pull-down so it is low at boot;
+  IO3 is the JTAG-source strap, left at its default), INT2 -> TCA9554 0x21 P7. Placed at (-10, 8) mid-board, far from the speaker magnets.
+  I2C map, no clash: 0x20/21/22 TCA9554, 0x2C TAS5805M, 0x39 APDS-9960, 0x5A DRV2605L, 0x6A LSM6DSOX; the power IC's address is TBD.
+  Symbol is a modified KiCad LSM6DSL (identical LGA-14 pinout); pins 10/11 (OCS_Aux, SDO_Aux) are left open: confirm in the LSM6DSOX datasheet.
+- **Qi TX:** separate 24 x 32 mm module on J6 (4-pin SH: 2 x QI_VIN 9 V, 2 x GND), P-FET (AO3401A) from PVDD switched by QI_EN
+  (expander 0x22 P6 over J1, 10k pull-down). PVDD must be running first (firmware order: boost on, then Qi).
+- **E-paper (J13 fitted):** Waveshare 3.97in raw panel (800 x 480, SSD1677, 24-pin 0.5 mm FPC). Pinout and booster (R1 2.2R sense,
+  R2 1M, Q1 AO3400A, L1 10uH, D1-D3 MBR0530, C1-C10) taken from Waveshare's *3.97inch e-Paper User Manual v1.0*, sec. 5 and 9. **Caveat:**
+  that manual is the two-colour panel; Waveshare's wiki and product page (the (G) red/yellow/black/white manual and the driver-board schematic)
+  returned HTTP 403, so the (G) panel's pinout/booster are **not verified**. BS (pin 8) = GND (4-wire SPI).
+  FPC route (plan, not checked against the cell position in the fit map): the 24-pin tail leaves the panel's bottom edge, runs along the
+  rear wall under the carrier's bottom edge (the carrier ends at Y -17.5, J13 enters from -Y) and folds once into J13; the cell and
+  power board are on the +X side, so the tail should not cross the cell. Measure the tail length and fold radius on the real panel.
+- **Bluetooth antenna:** 2.4 GHz FPC antenna on the inside of the BOTTOM wall, X +38..+64, Z 15..28 (above the pogo pads and the magnets
+  at X +32/+70), far from the Wi-Fi PIFA (X -52..-12) and the LTE flex (top wall). J17 stays at the module (X -50): the U.FL
+  cable is ~110 mm (about 1 dB at 2.4 GHz for 1.13 mm coax, estimate). It is near the Qi ferrite: test RSSI on the bench.
+- **Front sensor acoustics:** the ICS-43434 library footprint already carries the 0.5 mm sound-port NPTH; it lands on (-69.5, 31.25),
+  the front-wall hole. A ring-gasket outline (OD 3.6, ID 1.6) is drawn on F.Fab around it: foam/silicone ring between the PCB and the wall,
+  airtight. APDS-9960 package centre at (-64, 31.25); its optical-window offset inside the package is not checked.
+
+## IP5568 evaluation (review item 2): rejected, IP5356M + separate Qi board stays
+
+Read from the Injoinic IP5568 datasheet V1.31 (42 pages; mirror via flux.ai, not injoinic.com):
+- **NTC:** yes, two (NTC1 pin 14 battery, NTC2 pin 30 coil), 20 uA bias, 100k B3950 + 120k (p. 23-24).
+- **I2C:** **none.** The 65-pin list has no SDA/SCL; the interfaces are fast-charge, LED, key and digital tube (p. 1-2, pin table p. 5-7). Fails.
+- **Ports:** 2 x USB-A (VOUT1/VOUT2), USB-B in, **one** Type-C DRP. A second Type-C would be VOUT2 re-wired with our own Rp:
+  possible, but 5 V only when more than one output is on (p. 16).
+- **Qi TX:** 5/7.5/10/15 W, WPC 1.2.4, integrated full bridge, but it **runs whenever the chip is on** (p. 25, no host enable), and 10/15 W only
+  when VOUT1/VOUT2/VBUS are all off, 15 W only with 12 V on VIN (p. 16-17). The reference coil is a WPC A11 type with its own resonant
+  capacitor; whether our 50 mm coil works needs the coil's L/R, which the datasheet does not give: not confirmed.
+- **Verdict:** fails on I2C and host control of the Qi TX, and the coil is unconfirmed. Use **IP5356M + the separate Qi TX module**
+  (the review's fallback). The charger IC on the power board is still the DNP placeholder (IP5356M datasheet to be re-read for pins,
+  I2C address and NTC before the footprint is made).
+
+## Power budget (review item 3)
+
+- Amp: PVDD 9 V, **4 W per channel** (Dayton CE70-30P-8, 8 ohm, 5.66 Vrms): about 2 x 4 W / 0.85 = 9.5 W from PVDD, ~10.5 W from the cell.
+- Qi TX 15 W at 9 V = 1.7 A from PVDD (~17 W from the cell). USB-C out up to 22.5 W + 5 V port 2.
+- **Amp + Qi + USB-C out must not all run at maximum together**: the sum is about 50 W, ~13 A at 3.7 V, far above any 1S pack limit.
+  Firmware must cap the sum (priority: amp > USB-C out > Qi; reduce Qi first).
+- **Needs from you: the cell's PCM (protection board) continuous and peak discharge current limit.** The 8 A fuse and the pad/trace sizing
+  assume at most ~8 A; if the PCM trips lower, the firmware cap must be lower.
+- TAS5805M limit: configure AGL / digital volume ceiling for <= 5.66 Vrms before unmuting (firmware task, not written yet).
 
 ## Verification status
 
@@ -91,11 +138,10 @@ After routing starts, rebuild with `--keep-placement` (or stop regenerating the 
      for port 1, plus a 5 V boost and a Type-C source switch for port 2. Most parts, best documentation.
    (IP5389 has two bidirectional C ports but is a 2-5 cell part.) Note the Injoinic SoCs have no SYS rail:
    VSYS would then be BAT_SW directly.
-2. **Battery connector current:** PH2.0 is rated 2 A; full-power stereo at 12 V PVDD can pull ~7 A from the cell.
-   Cap amp power in firmware or use the BAT+/BAT- solder pads (TP1/TP2) with heavy leads. Needs a decision.
+2. **Battery connector current:** resolved by the heavy BAT pads; open: the cell's PCM current limit (see power budget).
 3. **ESP32-S3-WROOM-1U-N16R8 is rated 65 C ambient** (module datasheet table 1-2). Keep it away from the amp heat.
 4. Bluetooth 2.4 GHz FPC antenna position; GNSS active-patch bias (LNA) not provided (pi pads only).
-5. Back e-paper size (5.79 in B/W vs 3.5 in 4-colour) and its booster parts; how its FPC reaches the carrier past the cell.
+5. E-paper (G) panel pinout and booster unverified (see above).
 6. Front sensor and touch strip have no mounting holes (no room): bosses/adhesive in the front wall.
 7. The board-to-board cable J1 carries speaker L at up to ~1.5 A peak: 2 contacts per leg (JST SH 1 A each).
 8. Silkscreen cleanup, fiducials, and JLCPCB stack-up/impedance (CPWG widths) are done at routing.
@@ -106,3 +152,11 @@ SIM7080G/Y7080E Hardware Design (SIMCom), Accelerando `SIM7080G.kicad_mod`, Ebyt
 V1.0 + PCB package (cdebyte.com), SSD1322 datasheet rev 1.2 (Solomon Systech), TAS5805M SLASEH5D, TPS61088-Q1
 SLVSE52A, TPS61040, TPS63001, DRV2605L, TCA9554, TXB0104 (TI), APDS-9960 (Broadcom), ESP32-S3-WROOM-1/1U
 datasheet v1.8 (Espressif, in `cad/models/`), Amphenol drawing C 12401957.
+
+## Still unverified (flagged, review item 10)
+
+- USB-C 124019572112A footprint (built from the drawing read on screen).
+- TPS61088 values and footprint (taken from the -Q1 datasheet SLVSE52A).
+- EWM104 PIO1 reset / PIO2-5 button polarity.
+- Panel (SSD1322) FPC pin 1 after the fold; e-paper (G) pinout and booster (two-colour manual used).
+- JST SH 22-pin footprint (extended from SM20B), cell connector pin order, LSM6DSOX pins 10/11, APDS-9960 window offset.

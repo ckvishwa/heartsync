@@ -319,7 +319,7 @@
 			)
 		)
 	)
-	(text "3.12in SSD1322 panel (J11) + 12 V boost, back e-paper FPC (J13, DNP)"
+	(text "3.12in SSD1322 panel (J11) + 12 V boost, back e-paper (J13) with booster"
 		(exclude_from_sim no)
 		(at 27.4 88.74 0)
 		(effects

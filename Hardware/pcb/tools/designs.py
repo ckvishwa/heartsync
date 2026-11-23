@@ -11,6 +11,8 @@ UFL = "Connector_Coaxial:U.FL_Hirose_U.FL-R-SMT-1_Vertical"
 
 
 def sh(n):
+    if n == 22:  # not in the KiCad library: lib/ansonia.pretty (lib_build_fp.sh22)
+        return "ansonia:JST_SH_SM22B-SRSS-TB_1x22-1MP_P1.00mm_Horizontal"
     return JST_SH % (n, n)
 
 
@@ -27,7 +29,8 @@ def pi_match(s, rf_from, rf_to, tag):
 
 
 J1_NETS = [VSYS, VSYS, VSYS, GND, GND, GND, "I2C_SDA", "I2C_SCL", "PWR_INT", "I2S1_BCLK", "I2S1_WS",
-           "I2S1_DOUT", "TAS_PDN", "AMP_BOOST_EN", "USB_DP", "USB_DN", "SPKL_P", "SPKL_P", "SPKL_N", "SPKL_N"]
+           "I2S1_DOUT", "TAS_PDN", "AMP_BOOST_EN", "USB_DP", "USB_DN", "SPKL_P", "SPKL_P", "SPKL_N", "SPKL_N",
+           "QI_EN", "PWR_KEY"]
 
 
 # =====================================================================================  CARRIER
@@ -39,10 +42,10 @@ def carrier():
 
     # ---------------------------------------------------------------- power
     s = d.sheet("power", "Power in, 3V3 buck-boost")
-    s.note("J1 pin 1-3 VSYS (3.4-4.6 V from the power board), 4-6 GND; JST SH contacts are 1 A each.")
+    s.note("J1 pin 1-3 VSYS (3.4-4.6 V from the power board), 4-6 GND; JST SH contacts are 1 A each. Pin 21 QI_EN (expander 0x22 P6), 22 PWR_KEY.")
     s.note("U2 TPS63001 fixed 3.3 V buck-boost: L 2.2 uH, Cin 10 uF, VINA RC 100R/0.1 uF per TPS63001 datasheet fig. 1;")
     s.note("output 2 x 22 uF (Wi-Fi TX bursts).")
-    conn(s, "J1", 20, J1_NETS, value="Link to power board (SM20B-SRSS-TB)")
+    conn(s, "J1", 22, J1_NETS, value="Link to power board (SM22B-SRSS-TB)")
     s.C("22uF", VSYS, GND, "0805")
     s.C("22uF", VSYS, GND, "0805")
     s.part("U", "Regulator_Switching:TPS63001", "TPS63001DRC", "Package_SON:Texas_DRC0010J", {
@@ -58,7 +61,7 @@ def carrier():
 
     # ---------------------------------------------------------------- MCU
     s = d.sheet("mcu", "ESP32-S3-WROOM-1U-N16R8")
-    s.note("N16R8 = octal PSRAM: IO35-37 not usable (module datasheet table 3-1 note b). Straps IO0/3/45/46 unused.")
+    s.note("N16R8 = octal PSRAM: IO35-37 not usable (module datasheet table 3-1 note b). IO0/45/46 straps unused; IO3 (JTAG-source strap, RTC wake) = IMU INT1, idle low.")
     s.note("IO19/20 native USB -> J1 -> power board USB-C port 1 data. EN RC 10k/1uF per module datasheet fig. 9-1.")
     s.note("N16R8 is rated -40..65 C ambient (module datasheet table 1-2): keep it away from the amp/boost heat.")
     s.part("U", "RF_Module:ESP32-S3-WROOM-1", "ESP32-S3-WROOM-1U-N16R8", "ansonia:ESP32-S3-WROOM-1U_NoVias", {
@@ -66,7 +69,7 @@ def carrier():
         "IO4": "BT_I2S_BCLK", "IO5": "BT_I2S_WS", "IO6": "BT_I2S_SD", "IO7": "TOUCH",
         "IO15": "I2S1_BCLK", "IO16": "I2S1_WS", "IO17": "I2S1_DOUT", "IO18": "MIC_SD",
         "IO8": "I2C_SDA", "IO9": "I2C_SCL", "USB_D-": "USB_DN", "USB_D+": "USB_DP",
-        "IO3": None, "IO46": None, "IO10": "OLED_CS", "IO11": "SPI_MOSI", "IO12": "SPI_SCLK",
+        "IO3": "IMU_INT1", "IO46": None, "IO10": "OLED_CS", "IO11": "SPI_MOSI", "IO12": "SPI_SCLK",
         "IO13": "OLED_DC", "IO14": "OLED_RST", "IO21": "GEST_INT", "IO47": "SIM_RXD_3V3", "IO48": "SIM_TXD_3V3",
         "IO45": None, "IO0": "ESP_IO0", "IO35": None, "IO36": None, "IO37": None,
         "IO38": "EXP_INT", "IO39": "PWR_INT", "IO40": "EPD_CS", "IO41": "EPD_DC", "IO42": "EPD_BUSY",
@@ -82,6 +85,8 @@ def carrier():
     s.R("10k", V3, "EXP_INT")
     s.R("10k", V3, "GEST_INT")
     s.R("10k", V3, "PWR_INT")
+    s.R("100k", "IMU_INT1", GND, Note="LSM6DSOX INT1 must be low at power-up; IO3 strap left at its default")
+    s.part("TP", "Connector:TestPoint", "PWR_KEY", "TestPoint:TestPoint_Pad_D1.0mm", {"1": "PWR_KEY"}).in_bom = False
     for n in ["ESP_EN", "ESP_IO0", "ESP_RXD0", "ESP_TXD0", "USB_DP", "USB_DN", "ESP_IO1", "ESP_IO2", V3, GND]:
         tp = s.part("TP", "Connector:TestPoint", n, "TestPoint:TestPoint_Pad_D1.0mm", {"1": n})
         tp.in_bom = False
@@ -96,13 +101,21 @@ def carrier():
             "~{INT}": "EXP_INT", "SCL": "I2C_SCL", "SDA": "I2C_SDA", "VDD": V3, "GND": GND}
     s.part("U", "Interface_Expansion:TCA9554PW", "TCA9554PW (0x20)", "", exp1, MPN="TCA9554PWR", LCSC="C86803")
     exp2 = dict(exp1, A0=V3, P0="BTN_MUTE", P1="BTN_PWR", P2="BTN_VOLDN", P3="BTN_VOLUP", P4="BTN_PLAY",
-                P5="SIM_STATUS_3V3", P6="BT_AMP_EN", P7=None)
+                P5="SIM_STATUS_3V3", P6="BT_AMP_EN", P7="IMU_INT2")
     s.part("U", "Interface_Expansion:TCA9554PW", "TCA9554PW (0x21)", "", exp2, MPN="TCA9554PWR", LCSC="C86803")
     exp3 = dict(exp1, A0=GND, A1=V3, P0="BT_SYS_CTRL", P1="BT_RST", P2="BT_PIO2_CTL", P3="BT_PIO3_CTL",
-                P4="BT_PIO4_CTL", P5="BT_PIO5_CTL", P6=None, P7=None)
+                P4="BT_PIO4_CTL", P5="BT_PIO5_CTL", P6="QI_EN", P7=None)
     s.part("U", "Interface_Expansion:TCA9554PW", "TCA9554PW (0x22)", "", exp3, MPN="TCA9554PWR", LCSC="C86803")
     for _ in range(3):
         s.C("0.1uF", V3, GND)
+    s.part("U12", "ansonia:LSM6DSOX", "LSM6DSOX", "Package_LGA:LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y", {
+        "SDO/SA0": GND, "SDX": GND, "SCX": GND, "INT1": "IMU_INT1", "VDDIO": V3, "GND": GND, "VDD": V3,
+        "INT2": "IMU_INT2", "CS": V3, "SCL": "I2C_SCL", "SDA": "I2C_SDA", "NC": None}, nc_ok=True,
+        MPN="LSM6DSOXTR", Note="pins 10/11 = OCS_Aux/SDO_Aux left open")
+    s.C("0.1uF", V3, GND, Note="IMU VDD")
+    s.C("0.1uF", V3, GND, Note="IMU VDDIO")
+    s.note("U12 LSM6DSOX: CS = VDDIO (I2C), SA0 = GND -> 0x6A. INT1 -> ESP32 IO3 (RTC wake, 100k pull-down), INT2 -> TCA9554 0x21 P7.")
+    s.note("I2C map: 0x20/21/22 TCA9554, 0x2C TAS5805M, 0x39 APDS-9960, 0x5A DRV2605L, 0x6A LSM6DSOX, power IC TBD (check).")
     s.R("10k", "DRV_EN", GND)
     s.R("10k", "OLED_VCC_EN", GND)
     conn(s, "J12", 6, ["BTN_MUTE", "BTN_PWR", "BTN_VOLDN", "BTN_VOLUP", "BTN_PLAY", GND],
@@ -198,13 +211,16 @@ def carrier():
     s.part("J17", "Connector:Conn_Coaxial", "U.FL BT", UFL, {"In": "BT_UFL", "Ext": GND}, MPN="U.FL-R-SMT-1(10)")
 
     # ---------------------------------------------------------------- display
-    s = d.sheet("display", "3.12in SSD1322 panel (J11) + 12 V boost, back e-paper FPC (J13, DNP)")
+    s = d.sheet("display", "3.12in SSD1322 panel (J11) + 12 V boost, back e-paper (J13) with booster")
     s.note("SSD1322 values from the SSD1322 datasheet rev 1.2 fig. 14-1: C1-C3 1 uF (VCI, VDDIO, VDD), VCOMH 4.7 uF + 0.1 uF,")
     s.note("VCC 4.7 uF, VSL 50 ohm (51R used) + 2 x 1N4148 to VSS, IREF R = (VCC - 6 V)/10 uA = 600k at 12 V -> 620k (sec. 8.6).")
     s.note("4-wire SPI: BS0 = BS1 = 0, E/RD# and R/W# to VSS, D2 open, D3-D7 to VSS (pin table 7-1). VCC floats when off (8.9).")
     s.note("TPS61040: Vout = 1.233 V x (1 + 487k/56k) = 11.96 V; 10 uH, Schottky, 4.7 uF in, 1 uF out (TPS61040 datasheet).")
     s.note("Q1/Q2 high-side switch removes the boost input so VCC floats when the panel is off (SSD1322 8.9 note 2).")
-    s.note("J13 e-paper: generic 24-pin 0.5 mm FPC (SSD168x-style pinout), DNP; panel booster parts to add once chosen.")
+    s.note("J13 e-paper (FITTED): Waveshare 3.97in e-Paper raw panel, SSD1677, 24-pin 0.5 mm FPC. Pinout and booster (R1 2.2R, R2 1M,")
+    s.note("Q1 AO3400A, L1 10uH, D1-D3 MBR0530, C1-C10 4.7/1 uF 25 V) from Waveshare's 3.97inch e-Paper user manual v1.0 sec. 5 and 9.")
+    s.note("UNVERIFIED: that manual is the two-colour panel; the (G) red/yellow/black/white panel's own manual/schematic was not reachable.")
+    s.note("BS (pin 8) low = 4-wire SPI. VCI/VDDIO 2.2-3.3 V. Booster runs from +3V3 (L1 -> Q1 drain; D3 -> VGH, C5 + D1/D2 -> VGL).")
     s.part("Q", "Transistor_FET:AO3401A", "AO3401A", "", {"G": "OLED_SW_G", "S": VSYS, "D": "OLED_VIN"})
     s.R("100k", VSYS, "OLED_SW_G")
     s.part("Q", "Transistor_FET:2N7002", "2N7002", "", {"G": "OLED_VCC_EN", "S": GND, "D": "OLED_SW_G"})
@@ -236,12 +252,30 @@ def carrier():
     s.D("1N4148WS", "OLED_VSL_D2", "OLED_VSL_D", "Diode_SMD:D_SOD-323")
     s.D("1N4148WS", GND, "OLED_VSL_D2", "Diode_SMD:D_SOD-323")
     p24 = {i: None for i in range(1, 25)}
-    p24.update({8: GND, 9: "EPD_BUSY", 10: "EPD_RST", 11: "EPD_DC", 12: "EPD_CS", 13: "SPI_SCLK", 14: "SPI_MOSI",
-                15: V3, 16: V3, 17: GND})
-    s.part("J13", "Connector_Generic:Conn_01x24", "FH12-24S-0.5SH (e-paper, DNP)",
+    p24.update({2: "EPD_GDR", 3: "EPD_RESE", 5: "EPD_VSH2", 8: GND, 9: "EPD_BUSY", 10: "EPD_RST", 11: "EPD_DC",
+                12: "EPD_CS", 13: "SPI_SCLK", 14: "SPI_MOSI", 15: V3, 16: V3, 17: GND, 18: "EPD_VDD",
+                20: "EPD_VSH1", 21: "EPD_VGH", 22: "EPD_VSL", 23: "EPD_VGL", 24: "EPD_VCOM"})
+    s.part("J13", "Connector_Generic:Conn_01x24", "FH12-24S-0.5SH (3.97in e-paper)",
            "Connector_FFC-FPC:Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal",
-           {str(k): v for k, v in p24.items()}, dnp=True, MPN="FH12-24S-0.5SH(55)")
-    s.C("1uF", V3, GND, dnp=True, Note="e-paper VCI")
+           {str(k): v for k, v in p24.items()}, MPN="FH12-24S-0.5SH(55)")
+    s.part("Q", "Transistor_FET:AO3400A", "AO3400A", "", {"G": "EPD_GDR", "S": "EPD_RESE", "D": "EPD_SW"},
+           MPN="AO3400A", Note="Q1")
+    s.R("2.2R", "EPD_RESE", GND, "0603", Note="R1 current sense")
+    s.R("1M", "EPD_GDR", GND, "0603", Note="R2")
+    s.L("10uH", V3, "EPD_SW", "1008", MPN="DFE252012F-100M", Note="L1 (NR3015 class, Io 0.5 A)")
+    s.D("MBR0530", "EPD_VGH", "EPD_SW", "Diode_SMD:D_SOD-123", lib="Device:D_Schottky", Note="D3")
+    s.D("MBR0530", "EPD_N", "EPD_VGL", "Diode_SMD:D_SOD-123", lib="Device:D_Schottky", Note="D1")
+    s.D("MBR0530", GND, "EPD_N", "Diode_SMD:D_SOD-123", lib="Device:D_Schottky", Note="D2")
+    s.C("4.7uF", V3, GND, "0805", Note="C3 booster input, 25 V")
+    s.C("4.7uF", "EPD_SW", "EPD_N", "0805", Note="C5 charge pump, 25 V")
+    s.C("4.7uF", "EPD_VSH2", GND, "0805", Note="C1")
+    s.C("1uF", V3, GND, "0603", Note="C2 VCI/VDDIO, 50 V")
+    s.C("1uF", "EPD_VDD", GND, "0603", Note="C4 VDD")
+    s.C("4.7uF", "EPD_VSH1", GND, "0805", Note="C6")
+    s.C("4.7uF", "EPD_VGH", GND, "0805", Note="C7")
+    s.C("4.7uF", "EPD_VSL", GND, "0805", Note="C8")
+    s.C("4.7uF", "EPD_VGL", GND, "0805", Note="C9")
+    s.C("1uF", "EPD_VCOM", GND, "0603", Note="C10")
 
     # ---------------------------------------------------------------- front-wall links
     s = d.sheet("links", "Front-wall boards and speaker L")
@@ -294,20 +328,19 @@ def power():
         s.C("10uF", v, GND, "0805", Note="25 V")
 
     s = d.sheet("charger", "Power-bank / PD IC (placeholder), cell, NTC, protection")
-    s.note("U1 DNP placeholder: VBUS1/2, CC x2, DP2/DM2, BAT, SYS, NTC, SDA/SCL, INT, KEY, QI_5V, QI_EN.")
-    s.note("Cell 1160100 10,000 mAh on J4 (PH2.0, 2 A rating!). Full-power audio can pull ~7 A from the cell:")
-    s.note("either cap amp power in firmware or use the BAT solder pads (TP) with 18 AWG leads. Q = reverse-battery PFET (DMP3013SFV),")
+    s.note("U1 DNP placeholder: VBUS1/2, CC x2, DP2/DM2, BAT, SYS, NTC, SDA/SCL, INT, KEY. Qi TX is a separate module on J6 (IP5568 evaluated and rejected, README).")
+    s.note("Cell 1160100 10,000 mAh: MAIN PATH = BAT+/BAT- solder pads TP1/TP2 (4 x 4 mm, 18 AWG silicone leads). J4 (PH2.0, 2 A) carries")
+    s.note("ONLY the pack NTC + return (pin 1 = pack BAT+ left open: insulate that wire). Q = reverse-battery PFET (DMP3013SFV),")
     s.note("F1 = 8 A fuse, D = SMF5.0A TVS. The 0R (DNP) bridges BAT_SW -> VSYS for bring-up without the PD IC.")
     s.part("U1", "ansonia:PD_IC_PLACEHOLDER", "PD/charger IC TBD", "", {
         "VBUS1": "VBUS1", "CC1_1": "CC1_1", "CC2_1": "CC2_1", "VBUS2": "VBUS2", "CC1_2": "CC1_2", "CC2_2": "CC2_2",
         "DP2": "DP2", "DM2": "DM2", "BAT": "BAT_SW", "SYS": VSYS, "NTC": "NTC", "SDA": "I2C_SDA",
-        "SCL": "I2C_SCL", "INT": "PWR_INT", "KEY": "PWR_KEY", "QI_5V": "QI_5V", "QI_EN": "QI_EN", "GND": GND},
+        "SCL": "I2C_SCL", "INT": "PWR_INT", "KEY": "PWR_KEY", "GND": GND},
            nc_ok=True, dnp=True)
-    conn(s, "J4", 2, ["BAT_RAW", GND], fp="Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
-         value="Cell (JST PH 2.0)")
-    s.part("TP1", "Connector:TestPoint", "BAT+ pad", "TestPoint:TestPoint_Pad_3.0x3.0mm", {"1": "BAT_RAW"})
-    s.part("TP2", "Connector:TestPoint", "BAT- pad", "TestPoint:TestPoint_Pad_3.0x3.0mm", {"1": GND})
-    conn(s, "J5", 2, ["NTC", GND], value="NTC 10k B3435")
+    conn(s, "J4", 3, [None, "NTC", GND], fp="Connector_JST:JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal",
+         value="Cell NTC (JST PH 2.0, pin order to verify)")
+    s.part("TP1", "Connector:TestPoint", "BAT+ pad 18 AWG", "TestPoint:TestPoint_Pad_4.0x4.0mm", {"1": "BAT_RAW"})
+    s.part("TP2", "Connector:TestPoint", "BAT- pad 18 AWG", "TestPoint:TestPoint_Pad_4.0x4.0mm", {"1": GND})
     s.part("F1", "Device:Fuse", "8A fast", "Fuse:Fuse_1206_3216Metric", {"1": "BAT_RAW", "2": "BAT_F"},
            MPN="0466008.NR")
     s.part("Q", "Transistor_FET:DMP3013SFV", "DMP3013SFV", "", {"S": "BAT_SW", "G": "BAT_Q_G", "D": "BAT_F"},
@@ -318,10 +351,17 @@ def power():
     s.R("0R", "BAT_SW", VSYS, "1206", dnp=True, Note="bring-up bypass, PD IC absent")
     s.C("22uF", VSYS, GND, "0805")
     s.R("10k", "PWR_KEY", V3, dnp=True)
-    conn(s, "J6", 3, ["QI_5V", "QI_EN", GND], value="Qi TX driver")
+    conn(s, "J6", 4, ["QI_VIN", "QI_VIN", GND, GND], value="Qi TX module 24x32 (9 V, 2 contacts per leg)")
+    s.note("Qi TX module (24 x 32 mm, own driver + coil) on J6: 9 V from PVDD through Q (AO3401A) switched by QI_EN (carrier expander")
+    s.note("0x22 P6 via J1, 10k pull-down here so it is off while the expander pin floats). PVDD must be running: firmware enables the boost first.")
+    s.part("Q", "Transistor_FET:AO3401A", "AO3401A", "", {"G": "QI_SW_G", "S": "PVDD", "D": "QI_VIN"})
+    s.R("100k", "PVDD", "QI_SW_G")
+    s.part("Q", "Transistor_FET:2N7002", "2N7002", "", {"G": "QI_EN", "S": GND, "D": "QI_SW_G"})
+    s.R("10k", "QI_EN", GND)
+    s.C("10uF", "QI_VIN", GND, "0805", Note="25 V")
 
-    s = d.sheet("boost", "TPS61088 PVDD boost, 12 V")
-    s.note("Values from TPS61088(-Q1) datasheet sec. 9.2: Vout = 1.204 x (1 + 499k/56k) = 11.93 V; RFREQ = 4(1/fsw - tdelay*Vout/Vin)/CFREQ")
+    s = d.sheet("boost", "TPS61088 PVDD boost, 9 V")
+    s.note("Values from TPS61088(-Q1) datasheet sec. 9.2: Vout = 1.204 x (1 + 499k/76.8k) = 9.03 V (was 11.9 V; 9 V keeps 4 W/ch into 8 ohm with headroom); RFREQ = 4(1/fsw - tdelay*Vout/Vin)/CFREQ")
     s.note("-> 232k for ~600 kHz at Vin 3.2 V; L 2.2 uH (Isat > 11 A); ILIM 49.9k (9.4 A typ in PWM, MODE = GND);")
     s.note("comp R5 = 2pi Vout Rsense fc Co / ((1-D) Vref Gea) = 23.7k at fc 5 kHz, Co 45 uF eff, D 0.75; C5 = Ro Co/(2 R5) = 8.2 nF; C8 open.")
     s.note("SS 47 nF, BOOT 0.1 uF, VCC 4.7 uF. EN from the carrier expander (10k pull-down: off at power-up).")
@@ -344,12 +384,14 @@ def power():
     s.C("8.2nF", "BST_COMP_RC", GND)
     s.C("10pF", "BST_COMP", GND, dnp=True, Note="C8, open per eq. 20")
     s.R("499k", "PVDD", "BST_FB")
-    s.R("56k", "BST_FB", GND)
+    s.R("76.8k", "BST_FB", GND)
     for _ in range(3):
         s.C("22uF", "PVDD", GND, "1206", Note="25 V X5R")
     s.C("1uF", "PVDD", GND, "0603", Note="25 V")
 
     s = d.sheet("amp", "TAS5805M stereo BTL amplifier")
+    s.note("PVDD = 9 V. Power limit 4 W per channel (Dayton CE70-30P-8 = 4 W max, 8 ohm -> 5.66 Vrms = 8 Vpk): set the TAS5805M")
+    s.note("AGL / digital volume ceiling so the output never exceeds 5.66 Vrms; firmware must load that limit before unmuting.")
     s.note("TAS5805M datasheet fig. 8-1 / table 8-3 (ferrite-bead output filter): PVDD 2 x (22 uF + 22 uF + 0.1 uF), L5 100R@100MHz bead,")
     s.note("DVDD 4.7 uF + 0.1 uF, AVDD 1 uF, VR_DIG 1 uF, BST 0.22 uF x4, outputs 300R@100MHz beads + 2200 pF + (2200 pF + 68R) per leg.")
     s.note("ADR 4.7k to DVDD -> I2C 0x2C. PDN from the expander with a 10k pull-down; start-up: PDN high, wait >= 5 ms, then clocks.")
@@ -385,7 +427,7 @@ def power():
 
     s = d.sheet("link", "Link to carrier, 3V3 LDO")
     s.note("J1 mirrors carrier J1 (straight cable). U: AP2112K-3.3 for TAS5805M DVDD (I2C pull-ups live on the carrier).")
-    conn(s, "J1", 20, J1_NETS, value="Link to carrier (SM20B-SRSS-TB)")
+    conn(s, "J1", 22, J1_NETS, value="Link to carrier (SM22B-SRSS-TB)")
     s.part("U", "Regulator_Linear:AP2112K-3.3", "AP2112K-3.3", "", {"VIN": VSYS, "GND": GND, "EN": VSYS,
                                                                     "NC": None, "VOUT": V3},
            MPN="AP2112K-3.3TRG1", LCSC="C51118")

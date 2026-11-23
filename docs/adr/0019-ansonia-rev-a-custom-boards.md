@@ -1,6 +1,6 @@
 # 0019: Ansonia rev A custom boards (carrier, power, front sensor, touch strip)
 
-Status: Proposed (placement under review, not routed)
+Status: Proposed (placement review 1 applied, not routed)
 Date: 2026-11-23
 
 ## Context
@@ -21,6 +21,10 @@ and a power-bank / PD IC still to be chosen.
 - TXB0104 for the SIM7080G 1.8 V UART; external U.FL for Bluetooth (the module has no antenna).
 - Speaker R connects to the power board; speaker L goes through J1 to carrier J4.
 - The PD IC is a DNP placeholder until chosen (options in `Hardware/pcb/README.md`).
+- Review 1: lid is clipped (no screws), power board notch removed. IP5568 rejected (no I2C, Qi TX not host-controlled, coil
+  unconfirmed): IP5356M + separate Qi TX module on J6 (9 V from PVDD via a P-FET). Main battery path = BAT+/BAT- pads, PH2.0 = NTC only.
+  PVDD 9 V, 4 W/ch limit. LSM6DSOX IMU added (0x6A, INT1 -> IO3, INT2 -> TCA9554). 3.97in e-paper fitted with its booster.
+  J1 is 22-pin (QI_EN, PWR_KEY).
 
 ## Consequences
 

@@ -223,6 +223,40 @@ def placeholder_pdic():
          "land, DNP). Pads carry labelled nets only; replace with the real part's footprint.")
 
 
+def sh22():
+    """JST SH SM22B-SRSS-TB (22 pin) is not in the KiCad library: extend the SM20B by two pads (1.0 mm pitch)."""
+    fp = P.FootprintLoad(os.path.join(KFP, "Connector_JST.pretty"),
+                         "JST_SH_SM20B-SRSS-TB_1x20-1MP_P1.00mm_Horizontal")
+    dx = MM(1.0)
+
+    def sh_x(x):
+        return x + dx if x > 0 else x - dx
+
+    for g in fp.GraphicalItems():
+        if not hasattr(g, "GetStart"):
+            continue
+        a, b = g.GetStart(), g.GetEnd()
+        g.SetStart(P.VECTOR2I(sh_x(a.x), a.y))
+        g.SetEnd(P.VECTOR2I(sh_x(b.x), b.y))
+    pads = {p.GetNumber(): p for p in fp.Pads()}
+    for n in (21, 22):
+        q = pads["20"].Duplicate()
+        q.SetNumber(str(n))
+        fp.Add(q)
+        pads[str(n)] = q
+    for i in range(1, 23):
+        p = pads[str(i)]
+        p.SetPosition(P.VECTOR2I(MM(i - 11.5), p.GetPosition().y))
+    for p in fp.Pads():
+        if p.GetNumber() == "MP":
+            pos = p.GetPosition()
+            p.SetPosition(P.VECTOR2I(sh_x(pos.x), pos.y))
+    fp.Models().clear()
+    save(fp, "JST_SH_SM22B-SRSS-TB_1x22-1MP_P1.00mm_Horizontal",
+         "JST SH 22-pin side-entry SMD, made from KiCad's SM20B by adding two 1.0 mm pitch pads (JST SM22B-SRSS-TB). "
+         "Verify against the JST drawing.")
+
+
 def touchpad():
     fp = P.FOOTPRINT(None)
     p = smd_pad(fp, "1", 0, 0, 34.0, 3.0)
@@ -246,3 +280,4 @@ if __name__ == "__main__":
     usbc()
     placeholder_pdic()
     touchpad()
+    sh22()

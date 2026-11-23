@@ -160,7 +160,7 @@
 			)
 		)
 	)
-	(text "TPS61088 PVDD boost, 12 V"
+	(text "TPS61088 PVDD boost, 9 V"
 		(exclude_from_sim no)
 		(at 154.4 50.64 0)
 		(effects

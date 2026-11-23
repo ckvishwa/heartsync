@@ -11,7 +11,7 @@ RF_ZONES = {
     "gps_patch": (-72.0, -35.75, -56.0, -22.75),
     "lte_flex_top_wall": (-14.0, 35.8, 28.0, 36.5),
 }
-LID_BOSSES = [(37.5, 33.45), (45.0, -33.45)]  # boss OD 5.6, keep 3 mm clear -> r 5.8
+# rev G lid has no screws (gasket + 8 snap clips + speaker-box hooks): no boss keep-outs
 
 
 def rect(x0, y0, x1, y1):
@@ -42,27 +42,27 @@ CARRIER = {
         "J9": (-58.7, -13.5, 270),     # mute LED
         "J6": (-50.0, -14.2, 0),       # haptic LRA (bottom edge)
         "J11": (-25.5, -13.4, 0),      # SSD1322 panel FPC (bottom edge)
-        "J13": (-4.0, -13.4, 0),       # e-paper FPC (DNP)
+        "J13": (-4.0, -13.4, 0),       # e-paper FPC (fitted)
         "U3": (-33.0, -2.0, 0), "U4": (-25.0, -2.0, 0), "U5": (-17.0, -2.0, 0),
         "U6": (-43.0, -7.0, 0),        # DRV2605L
         "U8": (-4.0, 6.0, 0),          # TXB0104
         "U9": (11.0, -5.0, 0),         # SIM ESD
         "U11": (-9.5, -4.0, 0),        # TPS61040 12 V
+        "U12": (-10.0, 8.0, 0),        # LSM6DSOX IMU, rigid centre of the board
     },
     "near": {},
     "keepouts": [],
     "power_nets": ["GND", "+3V3", "VSYS"],
 }
 
-# power board: rectangular notch for the top lid boss, USB-C board cut-outs come from the footprints
+# power board: plain outline (lid notch removed), USB-C board cut-outs come from the footprints
 _P_TOP = 33.0
 POWER = {
     "title": "Ansonia power board rev A",
     "layers": 4, "thickness": 1.6,
-    "comments": ["4-layer 1.6 mm, 2 oz outer copper", "Lid boss notch X<=43.3, Y>=27.65 (boss (37.5,33.45) r2.8 + 3)"],
+    "comments": ["4-layer 1.6 mm, 2 oz outer copper", "Lid is clipped (no screws): full rectangle, no notch"],
     "outline": [[(30.0, -16.0), (66.5, -16.0), (66.5, -1.0), (73.0, -1.0), (73.0, _P_TOP),
-                 (71.35, _P_TOP), (60.75, _P_TOP), (58.05, _P_TOP), (47.45, _P_TOP), (43.3, _P_TOP),
-                 (43.3, 27.6), (30.0, 27.6)]],
+                 (71.35, _P_TOP), (60.75, _P_TOP), (58.05, _P_TOP), (47.45, _P_TOP), (30.0, _P_TOP)]],
     "outline_gaps": [((71.35, _P_TOP), (60.75, _P_TOP)), ((58.05, _P_TOP), (47.45, _P_TOP))],
     "holes": {},
     "place": {
@@ -74,12 +74,11 @@ POWER = {
         "J7": (68.0, 9.0, 90),              # speaker R
         "U2": (54.0, -3.0, 0),              # TPS61088
         "L1": (53.0, -11.5, 0),             # 2.2 uH
-        "J6": (63.4, -9.5, 90),             # Qi TX driver (cable +X)
-        "J1": (33.3, 6.5, 270),             # link to carrier (cable -X)
-        "J4": (35.0, -11.5, 270),           # cell (PH 2.0)
-        "TP1": (43.3, -13.5, 0), "TP2": (43.3, -9.3, 0),
-        "J5": (41.0, 23.8, 180),            # NTC lead
-        "U4": (35.0, 22.0, 0),              # 3V3 LDO
+        "J6": (63.4, -9.5, 90),             # Qi TX module (24x32 at X 67.5, Y 0..-32), cable +X
+        "J1": (33.3, 9.0, 270),             # link to carrier (cable -X), 22 pin
+        "J4": (35.0, -10.3, 270),           # cell NTC (PH 2.0, 3 pin)
+        "TP1": (43.3, -13.2, 0), "TP2": (43.3, -8.0, 0),   # BAT+/BAT- 4x4 pads for 18 AWG leads
+        "U4": (36.0, 24.0, 0),              # 3V3 LDO
     },
     "near": {},
     # Amphenol's land pattern puts the B-row pads 0.2 mm from the mid-mount cut-out (by design)
@@ -104,6 +103,10 @@ FRONT_SENSOR = {
         "U1": (-68.79, 31.25, 90, "B"),   # port hole lands on (-69.5, 31.25)
         "J1": (-65.85, 26.65, 180, "B"),
     },
+    # ICS-43434 sound port (bottom port, mic on B.Cu) -> NPTH through the board under the front-wall hole,
+    # plus a ring-gasket land (acoustic seal) drawn around it on F.Fab/F.SilkS and kept free of copper on F.Cu.
+    "acoustic_port": {"at": (-69.5, 31.25), "drill": 0.8, "gasket_od": 3.6, "gasket_id": 1.6, "host": "U1"},
+    "apds_window": (-64.0, 31.25),
     "power_nets": ["GND", "+3V3"],
     "gap": 0.2,
 }

@@ -351,9 +351,9 @@
     "18": "I2C_SCL",
     "19": "PWR_INT",
     "20": "PWR_KEY",
-    "21": "QI_5V",
-    "22": "QI_EN",
     "41": "GND",
+    "21": null,
+    "22": null,
     "23": null,
     "24": null,
     "25": null,
@@ -419,30 +419,32 @@
   },
   {
    "ref": "J4",
-   "value": "Cell (JST PH 2.0)",
-   "footprint": "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
-   "lib_id": "Connector_Generic:Conn_01x02",
+   "value": "Cell NTC (JST PH 2.0, pin order to verify)",
+   "footprint": "Connector_JST:JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal",
+   "lib_id": "Connector_Generic:Conn_01x03",
    "sheet": "charger",
    "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
    "sym_uuid": "a6a8d71d-4165-5074-b97b-7974ebe5a12a",
    "dnp": false,
    "fields": {},
    "datasheet": "",
-   "description": "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",
+   "description": "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)",
    "in_bom": true,
    "pins": {
-    "1": "BAT_RAW",
-    "2": "GND"
+    "1": null,
+    "2": "NTC",
+    "3": "GND"
    },
    "pin_names": {
     "1": "Pin_1",
-    "2": "Pin_2"
+    "2": "Pin_2",
+    "3": "Pin_3"
    }
   },
   {
    "ref": "TP1",
-   "value": "BAT+ pad",
-   "footprint": "TestPoint:TestPoint_Pad_3.0x3.0mm",
+   "value": "BAT+ pad 18 AWG",
+   "footprint": "TestPoint:TestPoint_Pad_4.0x4.0mm",
    "lib_id": "Connector:TestPoint",
    "sheet": "charger",
    "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
@@ -461,8 +463,8 @@
   },
   {
    "ref": "TP2",
-   "value": "BAT- pad",
-   "footprint": "TestPoint:TestPoint_Pad_3.0x3.0mm",
+   "value": "BAT- pad 18 AWG",
+   "footprint": "TestPoint:TestPoint_Pad_4.0x4.0mm",
    "lib_id": "Connector:TestPoint",
    "sheet": "charger",
    "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
@@ -477,28 +479,6 @@
    },
    "pin_names": {
     "1": "1"
-   }
-  },
-  {
-   "ref": "J5",
-   "value": "NTC 10k B3435",
-   "footprint": "Connector_JST:JST_SH_SM02B-SRSS-TB_1x02-1MP_P1.00mm_Horizontal",
-   "lib_id": "Connector_Generic:Conn_01x02",
-   "sheet": "charger",
-   "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
-   "sym_uuid": "116a89df-71aa-5047-94af-d1fa3c932732",
-   "dnp": false,
-   "fields": {},
-   "datasheet": "",
-   "description": "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",
-   "in_bom": true,
-   "pins": {
-    "1": "NTC",
-    "2": "GND"
-   },
-   "pin_names": {
-    "1": "Pin_1",
-    "2": "Pin_2"
    }
   },
   {
@@ -691,26 +671,144 @@
   },
   {
    "ref": "J6",
-   "value": "Qi TX driver",
-   "footprint": "Connector_JST:JST_SH_SM03B-SRSS-TB_1x03-1MP_P1.00mm_Horizontal",
-   "lib_id": "Connector_Generic:Conn_01x03",
+   "value": "Qi TX module 24x32 (9 V, 2 contacts per leg)",
+   "footprint": "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal",
+   "lib_id": "Connector_Generic:Conn_01x04",
    "sheet": "charger",
    "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
    "sym_uuid": "f901861b-a190-5aa2-9f64-d847fb8a0144",
    "dnp": false,
    "fields": {},
    "datasheet": "",
-   "description": "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)",
+   "description": "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)",
    "in_bom": true,
    "pins": {
-    "1": "QI_5V",
-    "2": "QI_EN",
-    "3": "GND"
+    "1": "QI_VIN",
+    "2": "QI_VIN",
+    "3": "GND",
+    "4": "GND"
    },
    "pin_names": {
     "1": "Pin_1",
     "2": "Pin_2",
-    "3": "Pin_3"
+    "3": "Pin_3",
+    "4": "Pin_4"
+   }
+  },
+  {
+   "ref": "Q2",
+   "value": "AO3401A",
+   "footprint": "Package_TO_SOT_SMD:SOT-23",
+   "lib_id": "Transistor_FET:AO3401A",
+   "sheet": "charger",
+   "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
+   "sym_uuid": "3a4a0e61-5498-5255-92a9-98c8c7d33246",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "http://www.aosmd.com/pdfs/datasheet/AO3401A.pdf",
+   "description": "-4.0A Id, -30V Vds, P-Channel MOSFET, SOT-23",
+   "in_bom": true,
+   "pins": {
+    "1": "QI_SW_G",
+    "2": "PVDD",
+    "3": "QI_VIN"
+   },
+   "pin_names": {
+    "1": "G",
+    "2": "S",
+    "3": "D"
+   }
+  },
+  {
+   "ref": "R4",
+   "value": "100k",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lib_id": "Device:R",
+   "sheet": "charger",
+   "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
+   "sym_uuid": "0f705a0f-751f-59ae-83b2-45716bb61551",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Resistor",
+   "in_bom": true,
+   "pins": {
+    "1": "PVDD",
+    "2": "QI_SW_G"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
+   "ref": "Q3",
+   "value": "2N7002",
+   "footprint": "Package_TO_SOT_SMD:SOT-23",
+   "lib_id": "Transistor_FET:2N7002",
+   "sheet": "charger",
+   "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
+   "sym_uuid": "ac58b77c-4e61-5d1c-902d-36e078b1cbb5",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF",
+   "description": "0.115A Id, 60V Vds, N-Channel MOSFET, SOT-23",
+   "in_bom": true,
+   "pins": {
+    "1": "QI_EN",
+    "2": "GND",
+    "3": "QI_SW_G"
+   },
+   "pin_names": {
+    "1": "G",
+    "2": "S",
+    "3": "D"
+   }
+  },
+  {
+   "ref": "R5",
+   "value": "10k",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lib_id": "Device:R",
+   "sheet": "charger",
+   "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
+   "sym_uuid": "e94f400d-178f-59a9-b833-caac5dbe6f9b",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Resistor",
+   "in_bom": true,
+   "pins": {
+    "1": "QI_EN",
+    "2": "GND"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
+   "ref": "C5",
+   "value": "10uF",
+   "footprint": "Capacitor_SMD:C_0805_2012Metric",
+   "lib_id": "Device:C",
+   "sheet": "charger",
+   "sheet_uuid": "0894dae8-e3e7-56b0-89c5-7117a59abc3b",
+   "sym_uuid": "3d3b8745-ac9b-5fe0-a480-bdba7e5c047f",
+   "dnp": false,
+   "fields": {
+    "Note": "25 V"
+   },
+   "datasheet": "",
+   "description": "Unpolarized capacitor",
+   "in_bom": true,
+   "pins": {
+    "1": "QI_VIN",
+    "2": "GND"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
    }
   },
   {
@@ -777,13 +875,13 @@
    }
   },
   {
-   "ref": "R4",
+   "ref": "R6",
    "value": "10k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "0f705a0f-751f-59ae-83b2-45716bb61551",
+   "sym_uuid": "697aa89f-a140-5375-8d13-7e9191a022d7",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -791,28 +889,6 @@
    "in_bom": true,
    "pins": {
     "1": "AMP_BOOST_EN",
-    "2": "GND"
-   },
-   "pin_names": {
-    "1": "",
-    "2": ""
-   }
-  },
-  {
-   "ref": "C5",
-   "value": "22uF",
-   "footprint": "Capacitor_SMD:C_0805_2012Metric",
-   "lib_id": "Device:C",
-   "sheet": "boost",
-   "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "3d3b8745-ac9b-5fe0-a480-bdba7e5c047f",
-   "dnp": false,
-   "fields": {},
-   "datasheet": "",
-   "description": "Unpolarized capacitor",
-   "in_bom": true,
-   "pins": {
-    "1": "BAT_SW",
     "2": "GND"
    },
    "pin_names": {
@@ -844,8 +920,8 @@
   },
   {
    "ref": "C7",
-   "value": "10uF",
-   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "value": "22uF",
+   "footprint": "Capacitor_SMD:C_0805_2012Metric",
    "lib_id": "Device:C",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
@@ -866,12 +942,34 @@
   },
   {
    "ref": "C8",
+   "value": "10uF",
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "lib_id": "Device:C",
+   "sheet": "boost",
+   "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
+   "sym_uuid": "37d97a72-eb0e-541a-8312-3c0f5dd98355",
+   "dnp": false,
+   "fields": {},
+   "datasheet": "",
+   "description": "Unpolarized capacitor",
+   "in_bom": true,
+   "pins": {
+    "1": "BAT_SW",
+    "2": "GND"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
+   "ref": "C9",
    "value": "0.1uF",
    "footprint": "Capacitor_SMD:C_0402_1005Metric",
    "lib_id": "Device:C",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "37d97a72-eb0e-541a-8312-3c0f5dd98355",
+   "sym_uuid": "c64a7c63-213b-5c9b-8224-0176926246ee",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -911,13 +1009,13 @@
    }
   },
   {
-   "ref": "R5",
+   "ref": "R7",
    "value": "232k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "e94f400d-178f-59a9-b833-caac5dbe6f9b",
+   "sym_uuid": "82ba5d24-2743-5980-80eb-78962c801bcb",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -933,13 +1031,13 @@
    }
   },
   {
-   "ref": "C9",
+   "ref": "C10",
    "value": "0.1uF",
    "footprint": "Capacitor_SMD:C_0402_1005Metric",
    "lib_id": "Device:C",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "c64a7c63-213b-5c9b-8224-0176926246ee",
+   "sym_uuid": "f4ed9040-2d05-53d2-bd9b-3dfe06110e2b",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -955,13 +1053,13 @@
    }
   },
   {
-   "ref": "C10",
+   "ref": "C11",
    "value": "4.7uF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "f4ed9040-2d05-53d2-bd9b-3dfe06110e2b",
+   "sym_uuid": "105b8843-f136-593e-8fc5-164643bfb560",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -977,13 +1075,13 @@
    }
   },
   {
-   "ref": "C11",
+   "ref": "C12",
    "value": "47nF",
    "footprint": "Capacitor_SMD:C_0402_1005Metric",
    "lib_id": "Device:C",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "105b8843-f136-593e-8fc5-164643bfb560",
+   "sym_uuid": "c0a7e350-174b-5e4b-afa6-6308645590f3",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -999,13 +1097,13 @@
    }
   },
   {
-   "ref": "R6",
+   "ref": "R8",
    "value": "49.9k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "697aa89f-a140-5375-8d13-7e9191a022d7",
+   "sym_uuid": "44592886-da3c-5a92-8103-0681deec705c",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1021,13 +1119,13 @@
    }
   },
   {
-   "ref": "R7",
+   "ref": "R9",
    "value": "23.7k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "82ba5d24-2743-5980-80eb-78962c801bcb",
+   "sym_uuid": "778a98f4-ecdc-5379-a8ab-4440010b8877",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1043,13 +1141,13 @@
    }
   },
   {
-   "ref": "C12",
+   "ref": "C13",
    "value": "8.2nF",
    "footprint": "Capacitor_SMD:C_0402_1005Metric",
    "lib_id": "Device:C",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "c0a7e350-174b-5e4b-afa6-6308645590f3",
+   "sym_uuid": "8165d6e4-2607-55f8-9fc7-78458cfbfbe8",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1065,13 +1163,13 @@
    }
   },
   {
-   "ref": "C13",
+   "ref": "C14",
    "value": "10pF",
    "footprint": "Capacitor_SMD:C_0402_1005Metric",
    "lib_id": "Device:C",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "8165d6e4-2607-55f8-9fc7-78458cfbfbe8",
+   "sym_uuid": "43b4734d-2a63-5f49-b7d5-e418649341d6",
    "dnp": true,
    "fields": {
     "Note": "C8, open per eq. 20"
@@ -1089,13 +1187,13 @@
    }
   },
   {
-   "ref": "R8",
+   "ref": "R10",
    "value": "499k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "44592886-da3c-5a92-8103-0681deec705c",
+   "sym_uuid": "00d154df-3226-55ca-896a-d398caa494fb",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1111,13 +1209,13 @@
    }
   },
   {
-   "ref": "R9",
-   "value": "56k",
+   "ref": "R11",
+   "value": "76.8k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "778a98f4-ecdc-5379-a8ab-4440010b8877",
+   "sym_uuid": "dc37e456-815a-57ee-879f-7de777a16d68",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1125,30 +1223,6 @@
    "in_bom": true,
    "pins": {
     "1": "BST_FB",
-    "2": "GND"
-   },
-   "pin_names": {
-    "1": "",
-    "2": ""
-   }
-  },
-  {
-   "ref": "C14",
-   "value": "22uF",
-   "footprint": "Capacitor_SMD:C_1206_3216Metric",
-   "lib_id": "Device:C",
-   "sheet": "boost",
-   "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "43b4734d-2a63-5f49-b7d5-e418649341d6",
-   "dnp": false,
-   "fields": {
-    "Note": "25 V X5R"
-   },
-   "datasheet": "",
-   "description": "Unpolarized capacitor",
-   "in_bom": true,
-   "pins": {
-    "1": "PVDD",
     "2": "GND"
    },
    "pin_names": {
@@ -1206,12 +1280,36 @@
   },
   {
    "ref": "C17",
+   "value": "22uF",
+   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+   "lib_id": "Device:C",
+   "sheet": "boost",
+   "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
+   "sym_uuid": "67aee613-8202-5b50-9b53-dc1081eeeeb4",
+   "dnp": false,
+   "fields": {
+    "Note": "25 V X5R"
+   },
+   "datasheet": "",
+   "description": "Unpolarized capacitor",
+   "in_bom": true,
+   "pins": {
+    "1": "PVDD",
+    "2": "GND"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
+   "ref": "C18",
    "value": "1uF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "boost",
    "sheet_uuid": "e2285f6d-9c4a-560a-9345-7743f96e4234",
-   "sym_uuid": "67aee613-8202-5b50-9b53-dc1081eeeeb4",
+   "sym_uuid": "fdc39f05-3eed-525c-8d66-cd91965f1bb6",
    "dnp": false,
    "fields": {
     "Note": "25 V"
@@ -1253,13 +1351,13 @@
    }
   },
   {
-   "ref": "C18",
+   "ref": "C19",
    "value": "2200pF",
    "footprint": "Capacitor_SMD:C_0402_1005Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "fdc39f05-3eed-525c-8d66-cd91965f1bb6",
+   "sym_uuid": "74acaf69-9e79-5217-93fb-d375ff07a697",
    "dnp": false,
    "fields": {
     "Note": "C23"
@@ -1356,30 +1454,6 @@
    }
   },
   {
-   "ref": "C19",
-   "value": "22uF",
-   "footprint": "Capacitor_SMD:C_0805_2012Metric",
-   "lib_id": "Device:C",
-   "sheet": "amp",
-   "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "74acaf69-9e79-5217-93fb-d375ff07a697",
-   "dnp": false,
-   "fields": {
-    "Note": "35 V"
-   },
-   "datasheet": "",
-   "description": "Unpolarized capacitor",
-   "in_bom": true,
-   "pins": {
-    "1": "PVDD_AMP",
-    "2": "GND"
-   },
-   "pin_names": {
-    "1": "",
-    "2": ""
-   }
-  },
-  {
    "ref": "C20",
    "value": "22uF",
    "footprint": "Capacitor_SMD:C_0805_2012Metric",
@@ -1405,15 +1479,15 @@
   },
   {
    "ref": "C21",
-   "value": "0.1uF",
-   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "value": "22uF",
+   "footprint": "Capacitor_SMD:C_0805_2012Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
    "sym_uuid": "afb03b7e-2b00-5c2e-99ce-733dda821351",
    "dnp": false,
    "fields": {
-    "Note": "50 V"
+    "Note": "35 V"
    },
    "datasheet": "",
    "description": "Unpolarized capacitor",
@@ -1429,15 +1503,15 @@
   },
   {
    "ref": "C22",
-   "value": "22uF",
-   "footprint": "Capacitor_SMD:C_0805_2012Metric",
+   "value": "0.1uF",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
    "sym_uuid": "ff2b7e67-934a-502d-81d5-ade5db94db8c",
    "dnp": false,
    "fields": {
-    "Note": "35 V"
+    "Note": "50 V"
    },
    "datasheet": "",
    "description": "Unpolarized capacitor",
@@ -1477,12 +1551,36 @@
   },
   {
    "ref": "C24",
+   "value": "22uF",
+   "footprint": "Capacitor_SMD:C_0805_2012Metric",
+   "lib_id": "Device:C",
+   "sheet": "amp",
+   "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
+   "sym_uuid": "90e5c88a-1202-5a08-8612-da8ad5a9397b",
+   "dnp": false,
+   "fields": {
+    "Note": "35 V"
+   },
+   "datasheet": "",
+   "description": "Unpolarized capacitor",
+   "in_bom": true,
+   "pins": {
+    "1": "PVDD_AMP",
+    "2": "GND"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
+   "ref": "C25",
    "value": "0.1uF",
    "footprint": "Capacitor_SMD:C_0402_1005Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "90e5c88a-1202-5a08-8612-da8ad5a9397b",
+   "sym_uuid": "2ea79fe4-6e9f-555c-a335-df30a52b38c5",
    "dnp": false,
    "fields": {
     "Note": "50 V"
@@ -1500,13 +1598,13 @@
    }
   },
   {
-   "ref": "C25",
+   "ref": "C26",
    "value": "4.7uF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "2ea79fe4-6e9f-555c-a335-df30a52b38c5",
+   "sym_uuid": "83828391-c165-5cfd-9af4-e22893943915",
    "dnp": false,
    "fields": {
     "Note": "C7 DVDD"
@@ -1524,13 +1622,13 @@
    }
   },
   {
-   "ref": "C26",
+   "ref": "C27",
    "value": "0.1uF",
    "footprint": "Capacitor_SMD:C_0402_1005Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "83828391-c165-5cfd-9af4-e22893943915",
+   "sym_uuid": "800ae435-850a-5281-bdd0-ccb26cf4c121",
    "dnp": false,
    "fields": {
     "Note": "C8"
@@ -1548,13 +1646,13 @@
    }
   },
   {
-   "ref": "C27",
+   "ref": "C28",
    "value": "1uF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "800ae435-850a-5281-bdd0-ccb26cf4c121",
+   "sym_uuid": "03579d37-9d61-5dfe-a044-f28c2f55d982",
    "dnp": false,
    "fields": {
     "Note": "C9"
@@ -1572,13 +1670,13 @@
    }
   },
   {
-   "ref": "C28",
+   "ref": "C29",
    "value": "1uF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "03579d37-9d61-5dfe-a044-f28c2f55d982",
+   "sym_uuid": "27e486c4-20a6-5f5e-bf2d-d2b725cac2b5",
    "dnp": false,
    "fields": {
     "Note": "C10"
@@ -1596,13 +1694,13 @@
    }
   },
   {
-   "ref": "R10",
+   "ref": "R12",
    "value": "4.7k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "00d154df-3226-55ca-896a-d398caa494fb",
+   "sym_uuid": "9cef7cc8-b89e-52f3-809f-e47bc1810d97",
    "dnp": false,
    "fields": {
     "Note": "R1 -> addr 0x2C"
@@ -1620,13 +1718,13 @@
    }
   },
   {
-   "ref": "R11",
+   "ref": "R13",
    "value": "10k",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
    "lib_id": "Device:R",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "dc37e456-815a-57ee-879f-7de777a16d68",
+   "sym_uuid": "ef2038d2-7526-5efb-8f65-cbcec23b9ee7",
    "dnp": false,
    "fields": {
     "Note": "hold PDN low until firmware enables"
@@ -1637,30 +1735,6 @@
    "pins": {
     "1": "TAS_PDN",
     "2": "GND"
-   },
-   "pin_names": {
-    "1": "",
-    "2": ""
-   }
-  },
-  {
-   "ref": "C29",
-   "value": "0.22uF",
-   "footprint": "Capacitor_SMD:C_0603_1608Metric",
-   "lib_id": "Device:C",
-   "sheet": "amp",
-   "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "27e486c4-20a6-5f5e-bf2d-d2b725cac2b5",
-   "dnp": false,
-   "fields": {
-    "Note": "BST, 50 V"
-   },
-   "datasheet": "",
-   "description": "Unpolarized capacitor",
-   "in_bom": true,
-   "pins": {
-    "1": "BSTA_P",
-    "2": "OUTA_P"
    },
    "pin_names": {
     "1": "",
@@ -1683,8 +1757,8 @@
    "description": "Unpolarized capacitor",
    "in_bom": true,
    "pins": {
-    "1": "BSTA_N",
-    "2": "OUTA_N"
+    "1": "BSTA_P",
+    "2": "OUTA_P"
    },
    "pin_names": {
     "1": "",
@@ -1707,8 +1781,8 @@
    "description": "Unpolarized capacitor",
    "in_bom": true,
    "pins": {
-    "1": "BSTB_P",
-    "2": "OUTB_P"
+    "1": "BSTA_N",
+    "2": "OUTA_N"
    },
    "pin_names": {
     "1": "",
@@ -1723,6 +1797,30 @@
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
    "sym_uuid": "8f230dc9-0b17-5d5a-919e-9419d1e0add7",
+   "dnp": false,
+   "fields": {
+    "Note": "BST, 50 V"
+   },
+   "datasheet": "",
+   "description": "Unpolarized capacitor",
+   "in_bom": true,
+   "pins": {
+    "1": "BSTB_P",
+    "2": "OUTB_P"
+   },
+   "pin_names": {
+    "1": "",
+    "2": ""
+   }
+  },
+  {
+   "ref": "C33",
+   "value": "0.22uF",
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "lib_id": "Device:C",
+   "sheet": "amp",
+   "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
+   "sym_uuid": "137e5d2a-3643-51d9-a598-01b0a4dedac9",
    "dnp": false,
    "fields": {
     "Note": "BST, 50 V"
@@ -1764,13 +1862,13 @@
    }
   },
   {
-   "ref": "C33",
+   "ref": "C34",
    "value": "2200pF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "137e5d2a-3643-51d9-a598-01b0a4dedac9",
+   "sym_uuid": "c58a6e6e-8508-5b5f-8e85-56dc2c6865e7",
    "dnp": false,
    "fields": {
     "Note": "100 V"
@@ -1788,13 +1886,13 @@
    }
   },
   {
-   "ref": "C34",
+   "ref": "C35",
    "value": "2200pF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "c58a6e6e-8508-5b5f-8e85-56dc2c6865e7",
+   "sym_uuid": "47263f37-61a2-5b86-a473-da9a351cd25e",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1810,13 +1908,13 @@
    }
   },
   {
-   "ref": "R12",
+   "ref": "R14",
    "value": "68R",
    "footprint": "Resistor_SMD:R_0603_1608Metric",
    "lib_id": "Device:R",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "9cef7cc8-b89e-52f3-809f-e47bc1810d97",
+   "sym_uuid": "05cdebb8-8a9f-5995-8ac1-d78c98425ae8",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1856,13 +1954,13 @@
    }
   },
   {
-   "ref": "C35",
+   "ref": "C36",
    "value": "2200pF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "47263f37-61a2-5b86-a473-da9a351cd25e",
+   "sym_uuid": "b5d279a2-5a0c-56ca-be74-27ef2d6e99c6",
    "dnp": false,
    "fields": {
     "Note": "100 V"
@@ -1880,13 +1978,13 @@
    }
   },
   {
-   "ref": "C36",
+   "ref": "C37",
    "value": "2200pF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "b5d279a2-5a0c-56ca-be74-27ef2d6e99c6",
+   "sym_uuid": "0faf825d-ce31-5bfa-a9af-90443a544e68",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1902,13 +2000,13 @@
    }
   },
   {
-   "ref": "R13",
+   "ref": "R15",
    "value": "68R",
    "footprint": "Resistor_SMD:R_0603_1608Metric",
    "lib_id": "Device:R",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "ef2038d2-7526-5efb-8f65-cbcec23b9ee7",
+   "sym_uuid": "0118410a-3ca0-540c-b891-024661ae84c5",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1948,13 +2046,13 @@
    }
   },
   {
-   "ref": "C37",
+   "ref": "C38",
    "value": "2200pF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "0faf825d-ce31-5bfa-a9af-90443a544e68",
+   "sym_uuid": "ea24e1d5-6c18-510f-8763-97d433055a81",
    "dnp": false,
    "fields": {
     "Note": "100 V"
@@ -1972,13 +2070,13 @@
    }
   },
   {
-   "ref": "C38",
+   "ref": "C39",
    "value": "2200pF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "ea24e1d5-6c18-510f-8763-97d433055a81",
+   "sym_uuid": "ba7db65c-e588-5065-8d94-eef055c8c199",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -1994,13 +2092,13 @@
    }
   },
   {
-   "ref": "R14",
+   "ref": "R16",
    "value": "68R",
    "footprint": "Resistor_SMD:R_0603_1608Metric",
    "lib_id": "Device:R",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "05cdebb8-8a9f-5995-8ac1-d78c98425ae8",
+   "sym_uuid": "0aa4a8e3-53a9-584a-a4bf-b9209a98c434",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -2040,13 +2138,13 @@
    }
   },
   {
-   "ref": "C39",
+   "ref": "C40",
    "value": "2200pF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "ba7db65c-e588-5065-8d94-eef055c8c199",
+   "sym_uuid": "04cb88f5-bc47-5183-b1d3-2e59aabcbc56",
    "dnp": false,
    "fields": {
     "Note": "100 V"
@@ -2064,13 +2162,13 @@
    }
   },
   {
-   "ref": "C40",
+   "ref": "C41",
    "value": "2200pF",
    "footprint": "Capacitor_SMD:C_0603_1608Metric",
    "lib_id": "Device:C",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "04cb88f5-bc47-5183-b1d3-2e59aabcbc56",
+   "sym_uuid": "ba36649f-4d47-5ca3-8d62-0a8930a6bf78",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -2086,13 +2184,13 @@
    }
   },
   {
-   "ref": "R15",
+   "ref": "R17",
    "value": "68R",
    "footprint": "Resistor_SMD:R_0603_1608Metric",
    "lib_id": "Device:R",
    "sheet": "amp",
    "sheet_uuid": "4bbf0963-71b4-5b19-8a54-7c192f22d4c7",
-   "sym_uuid": "0118410a-3ca0-540c-b891-024661ae84c5",
+   "sym_uuid": "cfd702e9-cde0-5ccb-907d-8c404bc85e6c",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -2131,16 +2229,16 @@
   },
   {
    "ref": "J1",
-   "value": "Link to carrier (SM20B-SRSS-TB)",
-   "footprint": "Connector_JST:JST_SH_SM20B-SRSS-TB_1x20-1MP_P1.00mm_Horizontal",
-   "lib_id": "Connector_Generic:Conn_01x20",
+   "value": "Link to carrier (SM22B-SRSS-TB)",
+   "footprint": "ansonia:JST_SH_SM22B-SRSS-TB_1x22-1MP_P1.00mm_Horizontal",
+   "lib_id": "Connector_Generic:Conn_01x22",
    "sheet": "link",
    "sheet_uuid": "4a00bd29-6b55-5051-820b-4c571d59bf74",
    "sym_uuid": "65726c14-02b3-5d6b-b9d3-4824067d2cf8",
    "dnp": false,
    "fields": {},
    "datasheet": "",
-   "description": "Generic connector, single row, 01x20, script generated (kicad-library-utils/schlib/autogen/connector/)",
+   "description": "Generic connector, single row, 01x22, script generated (kicad-library-utils/schlib/autogen/connector/)",
    "in_bom": true,
    "pins": {
     "1": "VSYS",
@@ -2162,7 +2260,9 @@
     "17": "SPKL_P",
     "18": "SPKL_P",
     "19": "SPKL_N",
-    "20": "SPKL_N"
+    "20": "SPKL_N",
+    "21": "QI_EN",
+    "22": "PWR_KEY"
    },
    "pin_names": {
     "1": "Pin_1",
@@ -2184,7 +2284,9 @@
     "17": "Pin_17",
     "18": "Pin_18",
     "19": "Pin_19",
-    "20": "Pin_20"
+    "20": "Pin_20",
+    "21": "Pin_21",
+    "22": "Pin_22"
    }
   },
   {
@@ -2219,13 +2321,13 @@
    }
   },
   {
-   "ref": "C41",
+   "ref": "C42",
    "value": "1uF",
    "footprint": "Capacitor_SMD:C_0402_1005Metric",
    "lib_id": "Device:C",
    "sheet": "link",
    "sheet_uuid": "4a00bd29-6b55-5051-820b-4c571d59bf74",
-   "sym_uuid": "ba36649f-4d47-5ca3-8d62-0a8930a6bf78",
+   "sym_uuid": "3cdf326f-6ec9-58c0-be2b-6704f406011e",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -2241,13 +2343,13 @@
    }
   },
   {
-   "ref": "C42",
+   "ref": "C43",
    "value": "1uF",
    "footprint": "Capacitor_SMD:C_0402_1005Metric",
    "lib_id": "Device:C",
    "sheet": "link",
    "sheet_uuid": "4a00bd29-6b55-5051-820b-4c571d59bf74",
-   "sym_uuid": "3cdf326f-6ec9-58c0-be2b-6704f406011e",
+   "sym_uuid": "956527cf-244a-5f2f-bdce-f709b28756b9",
    "dnp": false,
    "fields": {},
    "datasheet": "",
@@ -2274,15 +2376,15 @@
     "2"
    ],
    [
-    "C25",
-    "1"
-   ],
-   [
     "C26",
     "1"
    ],
    [
-    "R10",
+    "C27",
+    "1"
+   ],
+   [
+    "R12",
     "1"
    ],
    [
@@ -2290,7 +2392,7 @@
     "5"
    ],
    [
-    "C42",
+    "C43",
     "1"
    ]
   ],
@@ -2300,7 +2402,7 @@
     "2"
    ],
    [
-    "R4",
+    "R6",
     "1"
    ],
    [
@@ -2329,10 +2431,6 @@
    ]
   ],
   "BAT_RAW": [
-   [
-    "J4",
-    "1"
-   ],
    [
     "TP1",
     "1"
@@ -2384,10 +2482,6 @@
     "9"
    ],
    [
-    "C5",
-    "1"
-   ],
-   [
     "C6",
     "1"
    ],
@@ -2397,6 +2491,10 @@
    ],
    [
     "C8",
+    "1"
+   ],
+   [
+    "C9",
     "1"
    ],
    [
@@ -2410,7 +2508,7 @@
     "22"
    ],
    [
-    "C30",
+    "C31",
     "1"
    ]
   ],
@@ -2420,7 +2518,7 @@
     "25"
    ],
    [
-    "C29",
+    "C30",
     "1"
    ]
   ],
@@ -2430,7 +2528,7 @@
     "21"
    ],
    [
-    "C32",
+    "C33",
     "1"
    ]
   ],
@@ -2440,7 +2538,7 @@
     "18"
    ],
    [
-    "C31",
+    "C32",
     "1"
    ]
   ],
@@ -2450,7 +2548,7 @@
     "8"
    ],
    [
-    "C9",
+    "C10",
     "1"
    ]
   ],
@@ -2460,21 +2558,21 @@
     "18"
    ],
    [
-    "R7",
+    "R9",
     "1"
    ],
    [
-    "C13",
+    "C14",
     "1"
    ]
   ],
   "BST_COMP_RC": [
    [
-    "R7",
+    "R9",
     "2"
    ],
    [
-    "C12",
+    "C13",
     "1"
    ]
   ],
@@ -2484,11 +2582,11 @@
     "17"
    ],
    [
-    "R8",
+    "R10",
     "2"
    ],
    [
-    "R9",
+    "R11",
     "1"
    ]
   ],
@@ -2498,7 +2596,7 @@
     "3"
    ],
    [
-    "R5",
+    "R7",
     "1"
    ]
   ],
@@ -2508,7 +2606,7 @@
     "19"
    ],
    [
-    "R6",
+    "R8",
     "1"
    ]
   ],
@@ -2518,7 +2616,7 @@
     "10"
    ],
    [
-    "C11",
+    "C12",
     "1"
    ]
   ],
@@ -2544,11 +2642,11 @@
     "2"
    ],
    [
-    "R5",
+    "R7",
     "2"
    ],
    [
-    "C9",
+    "C10",
     "2"
    ]
   ],
@@ -2558,7 +2656,7 @@
     "1"
    ],
    [
-    "C10",
+    "C11",
     "1"
    ]
   ],
@@ -2733,15 +2831,11 @@
    ],
    [
     "J4",
-    "2"
+    "3"
    ],
    [
     "TP2",
     "1"
-   ],
-   [
-    "J5",
-    "2"
    ],
    [
     "R1",
@@ -2764,6 +2858,22 @@
     "3"
    ],
    [
+    "J6",
+    "4"
+   ],
+   [
+    "Q3",
+    "2"
+   ],
+   [
+    "R5",
+    "2"
+   ],
+   [
+    "C5",
+    "2"
+   ],
+   [
     "U2",
     "13"
    ],
@@ -2784,11 +2894,7 @@
     "21"
    ],
    [
-    "R4",
-    "2"
-   ],
-   [
-    "C5",
+    "R6",
     "2"
    ],
    [
@@ -2804,7 +2910,7 @@
     "2"
    ],
    [
-    "C10",
+    "C9",
     "2"
    ],
    [
@@ -2812,11 +2918,11 @@
     "2"
    ],
    [
-    "R6",
+    "C12",
     "2"
    ],
    [
-    "C12",
+    "R8",
     "2"
    ],
    [
@@ -2824,11 +2930,11 @@
     "2"
    ],
    [
-    "R9",
+    "C14",
     "2"
    ],
    [
-    "C14",
+    "R11",
     "2"
    ],
    [
@@ -2845,6 +2951,10 @@
    ],
    [
     "C18",
+    "2"
+   ],
+   [
+    "C19",
     "2"
    ],
    [
@@ -2870,10 +2980,6 @@
    [
     "U3",
     "29"
-   ],
-   [
-    "C19",
-    "2"
    ],
    [
     "C20",
@@ -2912,19 +3018,7 @@
     "2"
    ],
    [
-    "R11",
-    "2"
-   ],
-   [
-    "C33",
-    "2"
-   ],
-   [
-    "R12",
-    "2"
-   ],
-   [
-    "C35",
+    "C29",
     "2"
    ],
    [
@@ -2932,7 +3026,7 @@
     "2"
    ],
    [
-    "C37",
+    "C34",
     "2"
    ],
    [
@@ -2940,11 +3034,27 @@
     "2"
    ],
    [
-    "C39",
+    "C36",
     "2"
    ],
    [
     "R15",
+    "2"
+   ],
+   [
+    "C38",
+    "2"
+   ],
+   [
+    "R16",
+    "2"
+   ],
+   [
+    "C40",
+    "2"
+   ],
+   [
+    "R17",
     "2"
    ],
    [
@@ -2964,11 +3074,11 @@
     "2"
    ],
    [
-    "C41",
+    "C42",
     "2"
    ],
    [
-    "C42",
+    "C43",
     "2"
    ]
   ],
@@ -3036,8 +3146,8 @@
     "16"
    ],
    [
-    "J5",
-    "1"
+    "J4",
+    "2"
    ]
   ],
   "OUTA_N": [
@@ -3046,7 +3156,7 @@
     "23"
    ],
    [
-    "C30",
+    "C31",
     "2"
    ],
    [
@@ -3060,7 +3170,7 @@
     "26"
    ],
    [
-    "C29",
+    "C30",
     "2"
    ],
    [
@@ -3074,7 +3184,7 @@
     "20"
    ],
    [
-    "C32",
+    "C33",
     "2"
    ],
    [
@@ -3088,7 +3198,7 @@
     "17"
    ],
    [
-    "C31",
+    "C32",
     "2"
    ],
    [
@@ -3097,6 +3207,14 @@
    ]
   ],
   "PVDD": [
+   [
+    "Q2",
+    "2"
+   ],
+   [
+    "R4",
+    "1"
+   ],
    [
     "U2",
     "14"
@@ -3110,11 +3228,7 @@
     "16"
    ],
    [
-    "R8",
-    "1"
-   ],
-   [
-    "C14",
+    "R10",
     "1"
    ],
    [
@@ -3130,11 +3244,15 @@
     "1"
    ],
    [
+    "C18",
+    "1"
+   ],
+   [
     "FB1",
     "1"
    ],
    [
-    "C18",
+    "C19",
     "1"
    ]
   ],
@@ -3160,10 +3278,6 @@
     "28"
    ],
    [
-    "C19",
-    "1"
-   ],
-   [
     "C20",
     "1"
    ],
@@ -3181,6 +3295,10 @@
    ],
    [
     "C24",
+    "1"
+   ],
+   [
+    "C25",
     "1"
    ]
   ],
@@ -3202,26 +3320,56 @@
    [
     "R3",
     "1"
-   ]
-  ],
-  "QI_5V": [
-   [
-    "U1",
-    "21"
    ],
    [
-    "J6",
-    "1"
+    "J1",
+    "22"
    ]
   ],
   "QI_EN": [
    [
-    "U1",
-    "22"
+    "Q3",
+    "1"
+   ],
+   [
+    "R5",
+    "1"
+   ],
+   [
+    "J1",
+    "21"
+   ]
+  ],
+  "QI_SW_G": [
+   [
+    "Q2",
+    "1"
+   ],
+   [
+    "R4",
+    "2"
+   ],
+   [
+    "Q3",
+    "3"
+   ]
+  ],
+  "QI_VIN": [
+   [
+    "J6",
+    "1"
    ],
    [
     "J6",
     "2"
+   ],
+   [
+    "Q2",
+    "3"
+   ],
+   [
+    "C5",
+    "1"
    ]
   ],
   "SPKL_N": [
@@ -3230,11 +3378,11 @@
     "2"
    ],
    [
-    "C35",
+    "C36",
     "1"
    ],
    [
-    "C36",
+    "C37",
     "1"
    ],
    [
@@ -3248,11 +3396,11 @@
   ],
   "SPKL_N_SN": [
    [
-    "C36",
+    "C37",
     "2"
    ],
    [
-    "R13",
+    "R15",
     "1"
    ]
   ],
@@ -3262,11 +3410,11 @@
     "2"
    ],
    [
-    "C33",
+    "C34",
     "1"
    ],
    [
-    "C34",
+    "C35",
     "1"
    ],
    [
@@ -3280,11 +3428,11 @@
   ],
   "SPKL_P_SN": [
    [
-    "C34",
+    "C35",
     "2"
    ],
    [
-    "R12",
+    "R14",
     "1"
    ]
   ],
@@ -3294,11 +3442,11 @@
     "2"
    ],
    [
-    "C39",
+    "C40",
     "1"
    ],
    [
-    "C40",
+    "C41",
     "1"
    ],
    [
@@ -3308,11 +3456,11 @@
   ],
   "SPKR_N_SN": [
    [
-    "C40",
+    "C41",
     "2"
    ],
    [
-    "R15",
+    "R17",
     "1"
    ]
   ],
@@ -3322,11 +3470,11 @@
     "2"
    ],
    [
-    "C37",
+    "C38",
     "1"
    ],
    [
-    "C38",
+    "C39",
     "1"
    ],
    [
@@ -3336,11 +3484,11 @@
   ],
   "SPKR_P_SN": [
    [
-    "C38",
+    "C39",
     "2"
    ],
    [
-    "R14",
+    "R16",
     "1"
    ]
   ],
@@ -3350,7 +3498,7 @@
     "3"
    ],
    [
-    "R10",
+    "R12",
     "2"
    ]
   ],
@@ -3360,7 +3508,7 @@
     "13"
    ],
    [
-    "C27",
+    "C28",
     "1"
    ]
   ],
@@ -3370,7 +3518,7 @@
     "12"
    ],
    [
-    "R11",
+    "R13",
     "1"
    ],
    [
@@ -3384,7 +3532,7 @@
     "4"
    ],
    [
-    "C28",
+    "C29",
     "1"
    ]
   ],
@@ -3530,7 +3678,7 @@
     "3"
    ],
    [
-    "C41",
+    "C42",
     "1"
    ]
   ]

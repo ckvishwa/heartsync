@@ -1668,9 +1668,17 @@
 		)
 		(uuid "c407c4a4-f462-557c-8de5-81c0456ee492")
 	)
-	(no_connect
-		(at 45.72 53.34)
-		(uuid "92cf443d-2f9a-5080-9a02-a806858cc4f7")
+	(global_label "IMU_INT1"
+		(shape passive)
+		(at 45.72 53.34 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "915f44fd-4a10-5c22-bc99-17bf56c73c32")
 	)
 	(no_connect
 		(at 76.2 81.28)
@@ -2840,32 +2848,32 @@
 		(uuid "6fb3fa5f-6142-5b2c-83f3-5c59fc1b0fb7")
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 452.12 35.56 0)
+		(lib_id "Device:R")
+		(at 454.66 40.64 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "4cf238ed-6c38-5691-bc51-54f35878f54a")
-		(property "Reference" "TP1"
-			(at 452.12 33.02 0)
+		(uuid "d7f4f800-d63e-5835-9180-d8a33d3a3339")
+		(property "Reference" "R9"
+			(at 454.66 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "ESP_EN"
-			(at 452.12 38.1 0)
+		(property "Value" "100k"
+			(at 454.66 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 452.12 35.56 0)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 454.66 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2874,7 +2882,107 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 452.12 35.56 0)
+			(at 454.66 40.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 454.66 40.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "LSM6DSOX INT1 must be low at power-up; IO3 strap left at its default"
+			(at 454.66 40.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d0b125f5-bc54-5008-9614-ad7fca879abc")
+		)
+		(pin "2"
+			(uuid "55ea70a4-0e6b-5438-9c5f-b0fcd632adb3")
+		)
+		(instances
+			(project "carrier"
+				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/c4dacaaf-dfba-54a6-9057-cc86a9d4cf53"
+					(reference "R9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(global_label "IMU_INT1"
+		(shape passive)
+		(at 454.66 36.83 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "a48d2665-c0cb-5a8d-9ede-d46c8c5f9667")
+	)
+	(global_label "GND"
+		(shape passive)
+		(at 454.66 44.45 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "6a85ec15-3b0d-54a1-9e22-d84befed8e76")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 492.76 35.56 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "4cf238ed-6c38-5691-bc51-54f35878f54a")
+		(property "Reference" "TP1"
+			(at 492.76 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "PWR_KEY"
+			(at 492.76 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 492.76 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 492.76 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2883,7 +2991,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 452.12 35.56 0)
+			(at 492.76 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2903,9 +3011,9 @@
 			)
 		)
 	)
-	(global_label "ESP_EN"
+	(global_label "PWR_KEY"
 		(shape passive)
-		(at 452.12 35.56 270)
+		(at 492.76 35.56 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2917,7 +3025,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 487.68 35.56 0)
+		(at 40.64 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -2925,15 +3033,15 @@
 		(dnp no)
 		(uuid "161f8c9f-84cb-522d-a9d0-4327103ef47f")
 		(property "Reference" "TP2"
-			(at 487.68 33.02 0)
+			(at 40.64 109.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "ESP_IO0"
-			(at 487.68 38.1 0)
+		(property "Value" "ESP_EN"
+			(at 40.64 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2941,7 +3049,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 487.68 35.56 0)
+			(at 40.64 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2950,7 +3058,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 487.68 35.56 0)
+			(at 40.64 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2959,7 +3067,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 487.68 35.56 0)
+			(at 40.64 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2979,9 +3087,9 @@
 			)
 		)
 	)
-	(global_label "ESP_IO0"
+	(global_label "ESP_EN"
 		(shape passive)
-		(at 487.68 35.56 270)
+		(at 40.64 111.76 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2993,7 +3101,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 43.18 111.76 0)
+		(at 73.66 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -3001,15 +3109,15 @@
 		(dnp no)
 		(uuid "e3303ac2-59fd-5de6-a255-448e2e6f5f4c")
 		(property "Reference" "TP3"
-			(at 43.18 109.22 0)
+			(at 73.66 109.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "ESP_RXD0"
-			(at 43.18 114.3 0)
+		(property "Value" "ESP_IO0"
+			(at 73.66 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3017,7 +3125,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 43.18 111.76 0)
+			(at 73.66 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3026,7 +3134,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 43.18 111.76 0)
+			(at 73.66 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3035,7 +3143,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 43.18 111.76 0)
+			(at 73.66 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3055,9 +3163,9 @@
 			)
 		)
 	)
-	(global_label "ESP_RXD0"
+	(global_label "ESP_IO0"
 		(shape passive)
-		(at 43.18 111.76 270)
+		(at 73.66 111.76 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3069,7 +3177,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 78.74 111.76 0)
+		(at 111.76 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -3077,15 +3185,15 @@
 		(dnp no)
 		(uuid "506c2851-1f0d-58d2-a46e-530a61c3a736")
 		(property "Reference" "TP4"
-			(at 78.74 109.22 0)
+			(at 111.76 109.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "ESP_TXD0"
-			(at 78.74 114.3 0)
+		(property "Value" "ESP_RXD0"
+			(at 111.76 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3093,7 +3201,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 78.74 111.76 0)
+			(at 111.76 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3102,7 +3210,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 78.74 111.76 0)
+			(at 111.76 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3111,7 +3219,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 78.74 111.76 0)
+			(at 111.76 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3131,9 +3239,9 @@
 			)
 		)
 	)
-	(global_label "ESP_TXD0"
+	(global_label "ESP_RXD0"
 		(shape passive)
-		(at 78.74 111.76 270)
+		(at 111.76 111.76 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3145,7 +3253,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 114.3 111.76 0)
+		(at 147.32 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -3153,82 +3261,6 @@
 		(dnp no)
 		(uuid "9feba5df-a3fe-5ec0-b5d2-460667ed2a7b")
 		(property "Reference" "TP5"
-			(at 114.3 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "USB_DP"
-			(at 114.3 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 114.3 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 114.3 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 114.3 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "f722df05-da02-5bb0-b6bc-31a7101e627f")
-		)
-		(instances
-			(project "carrier"
-				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/c4dacaaf-dfba-54a6-9057-cc86a9d4cf53"
-					(reference "TP5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(global_label "USB_DP"
-		(shape passive)
-		(at 114.3 111.76 270)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify right)
-		)
-		(uuid "9aa8af9a-7196-59d1-8d86-3b2288496af8")
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 147.32 111.76 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(dnp no)
-		(uuid "4ed83ca4-b0b2-5849-ad0f-8a464cee379c")
-		(property "Reference" "TP6"
 			(at 147.32 109.22 0)
 			(effects
 				(font
@@ -3236,7 +3268,7 @@
 				)
 			)
 		)
-		(property "Value" "USB_DN"
+		(property "Value" "ESP_TXD0"
 			(at 147.32 114.3 0)
 			(effects
 				(font
@@ -3272,18 +3304,18 @@
 			)
 		)
 		(pin "1"
-			(uuid "4436c074-0140-5acb-8a00-a2737fcc5614")
+			(uuid "f722df05-da02-5bb0-b6bc-31a7101e627f")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/c4dacaaf-dfba-54a6-9057-cc86a9d4cf53"
-					(reference "TP6")
+					(reference "TP5")
 					(unit 1)
 				)
 			)
 		)
 	)
-	(global_label "USB_DN"
+	(global_label "ESP_TXD0"
 		(shape passive)
 		(at 147.32 111.76 270)
 		(fields_autoplaced yes)
@@ -3293,7 +3325,7 @@
 			)
 			(justify right)
 		)
-		(uuid "a9dd0ab4-fe93-575d-98b9-f74b59d7743d")
+		(uuid "9aa8af9a-7196-59d1-8d86-3b2288496af8")
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
@@ -3303,8 +3335,8 @@
 		(in_bom no)
 		(on_board yes)
 		(dnp no)
-		(uuid "28933cc4-83a8-5dc4-84f4-83bf0aaa7808")
-		(property "Reference" "TP7"
+		(uuid "4ed83ca4-b0b2-5849-ad0f-8a464cee379c")
+		(property "Reference" "TP6"
 			(at 182.88 109.22 0)
 			(effects
 				(font
@@ -3312,7 +3344,7 @@
 				)
 			)
 		)
-		(property "Value" "ESP_IO1"
+		(property "Value" "USB_DP"
 			(at 182.88 114.3 0)
 			(effects
 				(font
@@ -3348,6 +3380,82 @@
 			)
 		)
 		(pin "1"
+			(uuid "4436c074-0140-5acb-8a00-a2737fcc5614")
+		)
+		(instances
+			(project "carrier"
+				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/c4dacaaf-dfba-54a6-9057-cc86a9d4cf53"
+					(reference "TP6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(global_label "USB_DP"
+		(shape passive)
+		(at 182.88 111.76 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "a9dd0ab4-fe93-575d-98b9-f74b59d7743d")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 215.9 111.76 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "28933cc4-83a8-5dc4-84f4-83bf0aaa7808")
+		(property "Reference" "TP7"
+			(at 215.9 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "USB_DN"
+			(at 215.9 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 215.9 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 215.9 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 215.9 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
 			(uuid "f49936e6-7017-5ab7-ab02-015f06719e68")
 		)
 		(instances
@@ -3359,9 +3467,9 @@
 			)
 		)
 	)
-	(global_label "ESP_IO1"
+	(global_label "USB_DN"
 		(shape passive)
-		(at 182.88 111.76 270)
+		(at 215.9 111.76 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3373,7 +3481,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 218.44 111.76 0)
+		(at 251.46 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -3381,82 +3489,6 @@
 		(dnp no)
 		(uuid "019f4c64-7be1-5eb2-8b8a-345204791a78")
 		(property "Reference" "TP8"
-			(at 218.44 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "ESP_IO2"
-			(at 218.44 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 218.44 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 218.44 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 218.44 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "0227ca45-c8fa-500f-ad9d-e3b3e94cfb81")
-		)
-		(instances
-			(project "carrier"
-				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/c4dacaaf-dfba-54a6-9057-cc86a9d4cf53"
-					(reference "TP8")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(global_label "ESP_IO2"
-		(shape passive)
-		(at 218.44 111.76 270)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify right)
-		)
-		(uuid "225830c7-4501-5a53-8b91-9d3bb24ae555")
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 251.46 111.76 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(dnp no)
-		(uuid "a09bbd0d-6e1e-5772-add5-8ba233a4f220")
-		(property "Reference" "TP9"
 			(at 251.46 109.22 0)
 			(effects
 				(font
@@ -3464,7 +3496,7 @@
 				)
 			)
 		)
-		(property "Value" "+3V3"
+		(property "Value" "ESP_IO1"
 			(at 251.46 114.3 0)
 			(effects
 				(font
@@ -3500,6 +3532,82 @@
 			)
 		)
 		(pin "1"
+			(uuid "0227ca45-c8fa-500f-ad9d-e3b3e94cfb81")
+		)
+		(instances
+			(project "carrier"
+				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/c4dacaaf-dfba-54a6-9057-cc86a9d4cf53"
+					(reference "TP8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(global_label "ESP_IO1"
+		(shape passive)
+		(at 251.46 111.76 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "225830c7-4501-5a53-8b91-9d3bb24ae555")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 287.02 111.76 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "a09bbd0d-6e1e-5772-add5-8ba233a4f220")
+		(property "Reference" "TP9"
+			(at 287.02 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "ESP_IO2"
+			(at 287.02 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 287.02 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 287.02 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 287.02 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
 			(uuid "198beef8-02a4-5c26-8208-a095c5c118a5")
 		)
 		(instances
@@ -3511,9 +3619,9 @@
 			)
 		)
 	)
-	(global_label "+3V3"
+	(global_label "ESP_IO2"
 		(shape passive)
-		(at 251.46 111.76 270)
+		(at 287.02 111.76 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3525,7 +3633,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 276.86 111.76 0)
+		(at 320.04 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -3533,15 +3641,15 @@
 		(dnp no)
 		(uuid "930f0974-2ecd-587f-8a13-85918fce04d2")
 		(property "Reference" "TP10"
-			(at 276.86 109.22 0)
+			(at 320.04 109.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "GND"
-			(at 276.86 114.3 0)
+		(property "Value" "+3V3"
+			(at 320.04 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3549,7 +3657,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 276.86 111.76 0)
+			(at 320.04 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3558,7 +3666,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 276.86 111.76 0)
+			(at 320.04 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3567,7 +3675,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 276.86 111.76 0)
+			(at 320.04 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3587,9 +3695,9 @@
 			)
 		)
 	)
-	(global_label "GND"
+	(global_label "+3V3"
 		(shape passive)
-		(at 276.86 111.76 270)
+		(at 320.04 111.76 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3598,6 +3706,82 @@
 			(justify right)
 		)
 		(uuid "0d593aac-02a4-5f54-b51d-fbe9387a6b5f")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 345.44 111.76 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "731b93da-04ab-59a9-824a-d1e515188237")
+		(property "Reference" "TP11"
+			(at 345.44 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 345.44 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 345.44 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 345.44 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 345.44 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ef4d94c4-9792-5380-bd4f-fa443d9c4d07")
+		)
+		(instances
+			(project "carrier"
+				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/c4dacaaf-dfba-54a6-9057-cc86a9d4cf53"
+					(reference "TP11")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(global_label "GND"
+		(shape passive)
+		(at 345.44 111.76 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "c6fc4fb9-b528-595a-b083-4909ca7cf5d5")
 	)
 	(text "ESP32-S3-WROOM-1U-N16R8 - Ansonia carrier board rev A (rev G shell)"
 		(exclude_from_sim no)
@@ -3610,7 +3794,7 @@
 		)
 		(uuid "14db768c-3bd7-54a3-bd18-f4a7000ba8e1")
 	)
-	(text "N16R8 = octal PSRAM: IO35-37 not usable (module datasheet table 3-1 note b). Straps IO0/3/45/46 unused."
+	(text "N16R8 = octal PSRAM: IO35-37 not usable (module datasheet table 3-1 note b). IO0/45/46 straps unused; IO3 (JTAG-source strap, RTC wake) = IMU INT1, idle low."
 		(exclude_from_sim no)
 		(at 25.4 21.2 0)
 		(effects

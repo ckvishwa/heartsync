@@ -1130,8 +1130,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "574dd326-ce0d-538a-b735-cbf91e2c0325")
-		(property "Reference" "C48"
+		(uuid "f1f23db6-afbc-5e66-a0b9-a7b82ecd1857")
+		(property "Reference" "C59"
 			(at 142.24 34.29 0)
 			(effects
 				(font
@@ -1184,15 +1184,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "03fc9f10-028b-5855-8857-0cfa6a73bfaa")
+			(uuid "d14a5b4c-68bd-5769-b2b6-67c5cd87f8d1")
 		)
 		(pin "2"
-			(uuid "599a6b45-ba68-525f-a689-37b1cac8a2c0")
+			(uuid "deae21aa-6f36-589a-ba31-6b5a91278a31")
 		)
 		(instances
 			(project "carrier"
 				(path "/349e1fc6-ff30-5be7-9fa6-06ad0ba79e08/a9ba9662-4c00-5784-bf88-cf1da34af939"
-					(reference "C48")
+					(reference "C59")
 					(unit 1)
 				)
 			)
@@ -1208,7 +1208,7 @@
 			)
 			(justify left)
 		)
-		(uuid "241eb99d-fe3d-5e5a-92ba-22ec43a40e8b")
+		(uuid "50e108ff-cc24-59a2-a17a-dc5ee1273361")
 	)
 	(global_label "GND"
 		(shape passive)
@@ -1220,7 +1220,7 @@
 			)
 			(justify right)
 		)
-		(uuid "083f04db-8a5c-5a09-8995-f0a57e307da7")
+		(uuid "64f99ae1-0643-5afe-ac7c-c1bcb0f46819")
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")

@@ -135,164 +135,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Connector_Generic:Conn_01x02"
-			(pin_names
-				(offset 1.016)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "J"
-				(at 0 2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "Conn_01x02"
-				(at 0 -5.08 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "connector"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_fp_filters" "Connector*:*_1x??_*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "Conn_01x02_1_1"
-				(rectangle
-					(start -1.27 1.27)
-					(end 1.27 -3.81)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(rectangle
-					(start -1.27 0.127)
-					(end 0 -0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 -2.413)
-					(end 0 -2.667)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin passive line
-					(at -5.08 0 0)
-					(length 3.81)
-					(name "Pin_1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 -2.54 0)
-					(length 3.81)
-					(name "Pin_2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Connector_Generic:Conn_01x03"
 			(pin_names
 				(offset 1.016)
@@ -470,6 +312,222 @@
 						)
 					)
 					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Connector_Generic:Conn_01x04"
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "J"
+				(at 0 5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_01x04"
+				(at 0 -7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_1x??_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "Conn_01x04_1_1"
+				(rectangle
+					(start -1.27 3.81)
+					(end 1.27 -6.35)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(rectangle
+					(start -1.27 2.667)
+					(end 0 2.413)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 0.127)
+					(end 0 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -4.953)
+					(end 0 -5.207)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -5.08 2.54 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -5.08 0)
+					(length 3.81)
+					(name "Pin_4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1092,6 +1150,673 @@
 						)
 					)
 					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Transistor_FET:2N7002"
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "Q"
+				(at 5.08 1.905 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "2N7002"
+				(at 5.08 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+				(at 5.08 -1.905 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(justify left)
+				)
+			)
+			(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
+				(at 5.08 -3.81 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Description" "0.115A Id, 60V Vds, N-Channel MOSFET, SOT-23"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "N-Channel Switching MOSFET"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "2N7002_0_1"
+				(polyline
+					(pts
+						(xy 0.254 1.905)
+						(xy 0.254 -1.905)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 0)
+						(xy -2.54 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 2.286)
+						(xy 0.762 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 0.508)
+						(xy 0.762 -0.508)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 -1.27)
+						(xy 0.762 -2.286)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 -1.778)
+						(xy 3.302 -1.778)
+						(xy 3.302 1.778)
+						(xy 0.762 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.016 0)
+						(xy 2.032 0.381)
+						(xy 2.032 -0.381)
+						(xy 1.016 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(circle
+					(center 1.651 0)
+					(radius 2.794)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 2.54)
+						(xy 2.54 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.54 1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(circle
+					(center 2.54 -1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 -2.54)
+						(xy 2.54 0)
+						(xy 0.762 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.921 0.381)
+						(xy 3.683 0.381)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.302 0.381)
+						(xy 2.921 -0.254)
+						(xy 3.683 -0.254)
+						(xy 3.302 0.381)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "2N7002_1_1"
+				(pin input line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "G"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(name "S"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 5.08 270)
+					(length 2.54)
+					(name "D"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+			(property "ki_fp_filters" "SOT?23*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+		)
+		(symbol "Transistor_FET:AO3401A"
+			(pin_names
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "Q"
+				(at 5.08 1.905 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "AO3401A"
+				(at 5.08 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+				(at 5.08 -1.905 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(justify left)
+				)
+			)
+			(property "Datasheet" "http://www.aosmd.com/pdfs/datasheet/AO3401A.pdf"
+				(at 5.08 -3.81 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Description" "-4.0A Id, -30V Vds, P-Channel MOSFET, SOT-23"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "P-Channel MOSFET"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "SOT?23*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "AO3401A_0_1"
+				(polyline
+					(pts
+						(xy 0.254 1.905)
+						(xy 0.254 -1.905)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 0)
+						(xy -2.54 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 2.286)
+						(xy 0.762 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 1.778)
+						(xy 3.302 1.778)
+						(xy 3.302 -1.778)
+						(xy 0.762 -1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 0.508)
+						(xy 0.762 -0.508)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 -1.27)
+						(xy 0.762 -2.286)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 1.651 0)
+					(radius 2.794)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.286 0)
+						(xy 1.27 0.381)
+						(xy 1.27 -0.381)
+						(xy 2.286 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 2.54)
+						(xy 2.54 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.54 1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(circle
+					(center 2.54 -1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 -2.54)
+						(xy 2.54 0)
+						(xy 0.762 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.794 -0.508)
+						(xy 2.921 -0.381)
+						(xy 3.683 -0.381)
+						(xy 3.81 -0.254)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.302 -0.381)
+						(xy 2.921 0.254)
+						(xy 3.683 0.254)
+						(xy 3.302 -0.381)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "AO3401A_1_1"
+				(pin input line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "G"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(name "S"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 5.08 270)
+					(length 2.54)
+					(name "D"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2712,29 +3437,13 @@
 		)
 		(uuid "f0b975f6-6606-504f-99ad-cf1a3b6e8cf9")
 	)
-	(global_label "QI_5V"
-		(shape passive)
-		(at 40.64 63.5 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify right)
-		)
-		(uuid "51ca20aa-508e-5ce5-a874-8ba23c1d102b")
+	(no_connect
+		(at 40.64 63.5)
+		(uuid "cccf07d6-2dbe-580e-a99d-df198bcdaa74")
 	)
-	(global_label "QI_EN"
-		(shape passive)
-		(at 40.64 66.04 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify right)
-		)
-		(uuid "c420ba16-cd7e-5e1e-bba4-5596192854d8")
+	(no_connect
+		(at 40.64 66.04)
+		(uuid "89bd5543-cd1b-5170-a52c-ed91003e4967")
 	)
 	(global_label "BAT_SW"
 		(shape passive)
@@ -2929,8 +3638,8 @@
 		(uuid "5996e83c-0136-5f6f-8f25-41e9e49d2d26")
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x02")
-		(at 137.16 35.56 0)
+		(lib_id "Connector_Generic:Conn_01x03")
+		(at 132.08 38.1 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2938,23 +3647,23 @@
 		(dnp no)
 		(uuid "a6a8d71d-4165-5074-b97b-7974ebe5a12a")
 		(property "Reference" "J4"
-			(at 137.16 33.02 0)
+			(at 132.08 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "Cell (JST PH 2.0)"
-			(at 137.16 40.64 0)
+		(property "Value" "Cell NTC (JST PH 2.0, pin order to verify)"
+			(at 132.08 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal"
-			(at 137.16 35.56 0)
+		(property "Footprint" "Connector_JST:JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal"
+			(at 132.08 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2963,7 +3672,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 137.16 35.56 0)
+			(at 132.08 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2971,8 +3680,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 137.16 35.56 0)
+		(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 132.08 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2986,6 +3695,9 @@
 		(pin "2"
 			(uuid "ecff2c43-258a-58b9-a80b-a962dadc2ce8")
 		)
+		(pin "3"
+			(uuid "d18144e3-3c45-5401-8574-a33a64539497")
+		)
 		(instances
 			(project "power"
 				(path "/0d0463c5-0c3b-52e3-bd42-31c800875d2b/0894dae8-e3e7-56b0-89c5-7117a59abc3b"
@@ -2995,21 +3707,13 @@
 			)
 		)
 	)
-	(global_label "BAT_RAW"
-		(shape passive)
-		(at 132.08 35.56 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify right)
-		)
-		(uuid "0577a558-350f-5424-8e05-dd1bebcdfa65")
+	(no_connect
+		(at 127 35.56)
+		(uuid "d20ae54c-b9a2-5d86-9c1a-76bb9dce1184")
 	)
-	(global_label "GND"
+	(global_label "NTC"
 		(shape passive)
-		(at 132.08 38.1 180)
+		(at 127 38.1 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3019,9 +3723,21 @@
 		)
 		(uuid "e01250d5-6ff5-5fe5-9e0c-1625f25c4238")
 	)
+	(global_label "GND"
+		(shape passive)
+		(at 127 40.64 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "45a5abb4-ba69-54f8-b156-7c2cf707e821")
+	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 167.64 35.56 0)
+		(at 160.02 35.56 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3029,23 +3745,23 @@
 		(dnp no)
 		(uuid "7a022c09-78a8-575f-aa19-d347d12b8e42")
 		(property "Reference" "TP1"
-			(at 167.64 33.02 0)
+			(at 160.02 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "BAT+ pad"
-			(at 167.64 38.1 0)
+		(property "Value" "BAT+ pad 18 AWG"
+			(at 160.02 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_3.0x3.0mm"
-			(at 167.64 35.56 0)
+		(property "Footprint" "TestPoint:TestPoint_Pad_4.0x4.0mm"
+			(at 160.02 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3054,7 +3770,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 167.64 35.56 0)
+			(at 160.02 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3063,7 +3779,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 167.64 35.56 0)
+			(at 160.02 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3085,7 +3801,7 @@
 	)
 	(global_label "BAT_RAW"
 		(shape passive)
-		(at 167.64 35.56 270)
+		(at 160.02 35.56 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3097,7 +3813,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 198.12 35.56 0)
+		(at 190.5 35.56 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3105,23 +3821,23 @@
 		(dnp no)
 		(uuid "ea859e31-0696-5116-aba6-107989ebce76")
 		(property "Reference" "TP2"
-			(at 198.12 33.02 0)
+			(at 190.5 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "BAT- pad"
-			(at 198.12 38.1 0)
+		(property "Value" "BAT- pad 18 AWG"
+			(at 190.5 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_3.0x3.0mm"
-			(at 198.12 35.56 0)
+		(property "Footprint" "TestPoint:TestPoint_Pad_4.0x4.0mm"
+			(at 190.5 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3130,7 +3846,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 198.12 35.56 0)
+			(at 190.5 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3139,7 +3855,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 198.12 35.56 0)
+			(at 190.5 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3161,7 +3877,7 @@
 	)
 	(global_label "GND"
 		(shape passive)
-		(at 198.12 35.56 270)
+		(at 190.5 35.56 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3172,99 +3888,8 @@
 		(uuid "772ac4b5-103c-5b33-a69a-99e4868f9b35")
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x02")
-		(at 231.14 35.56 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "116a89df-71aa-5047-94af-d1fa3c932732")
-		(property "Reference" "J5"
-			(at 231.14 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "NTC 10k B3435"
-			(at 231.14 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Connector_JST:JST_SH_SM02B-SRSS-TB_1x02-1MP_P1.00mm_Horizontal"
-			(at 231.14 35.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 231.14 35.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 231.14 35.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "ec5946ce-ba6f-5b43-a4ef-b290f451707a")
-		)
-		(pin "2"
-			(uuid "61d6338b-eee0-5f55-85f7-96ff0d85f182")
-		)
-		(instances
-			(project "power"
-				(path "/0d0463c5-0c3b-52e3-bd42-31c800875d2b/0894dae8-e3e7-56b0-89c5-7117a59abc3b"
-					(reference "J5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(global_label "NTC"
-		(shape passive)
-		(at 226.06 35.56 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify right)
-		)
-		(uuid "43e7ce4c-b634-5882-8725-1766f16bf214")
-	)
-	(global_label "GND"
-		(shape passive)
-		(at 226.06 38.1 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify right)
-		)
-		(uuid "a48842ef-9be5-58d6-9ecc-47bd87e278f6")
-	)
-	(symbol
 		(lib_id "Device:Fuse")
-		(at 256.54 40.64 0)
+		(at 220.98 40.64 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3272,7 +3897,7 @@
 		(dnp no)
 		(uuid "aee87850-600d-50ff-85e9-2cfcf814d200")
 		(property "Reference" "F1"
-			(at 256.54 34.29 0)
+			(at 220.98 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3280,7 +3905,7 @@
 			)
 		)
 		(property "Value" "8A fast"
-			(at 256.54 46.99 0)
+			(at 220.98 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3288,7 +3913,7 @@
 			)
 		)
 		(property "Footprint" "Fuse:Fuse_1206_3216Metric"
-			(at 256.54 40.64 0)
+			(at 220.98 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3297,7 +3922,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 256.54 40.64 0)
+			(at 220.98 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3306,7 +3931,7 @@
 			)
 		)
 		(property "Description" "Fuse"
-			(at 256.54 40.64 0)
+			(at 220.98 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3315,7 +3940,7 @@
 			)
 		)
 		(property "MPN" "0466008.NR"
-			(at 256.54 40.64 0)
+			(at 220.98 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3340,7 +3965,7 @@
 	)
 	(global_label "BAT_RAW"
 		(shape passive)
-		(at 256.54 36.83 90)
+		(at 220.98 36.83 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3352,7 +3977,7 @@
 	)
 	(global_label "BAT_F"
 		(shape passive)
-		(at 256.54 44.45 270)
+		(at 220.98 44.45 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3364,7 +3989,7 @@
 	)
 	(symbol
 		(lib_id "Transistor_FET:DMP3013SFV")
-		(at 297.18 40.64 0)
+		(at 261.62 40.64 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3372,7 +3997,7 @@
 		(dnp no)
 		(uuid "7be712b4-ea79-5627-b9b7-51f93baad6d7")
 		(property "Reference" "Q1"
-			(at 297.18 33.02 0)
+			(at 261.62 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3380,7 +4005,7 @@
 			)
 		)
 		(property "Value" "DMP3013SFV"
-			(at 297.18 48.26 0)
+			(at 261.62 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3388,7 +4013,7 @@
 			)
 		)
 		(property "Footprint" "Package_SON:Diodes_PowerDI3333-8"
-			(at 297.18 40.64 0)
+			(at 261.62 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3397,7 +4022,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/DMP3013SFV.pdf"
-			(at 297.18 40.64 0)
+			(at 261.62 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3406,7 +4031,7 @@
 			)
 		)
 		(property "Description" "-12A Id, -30V Vds, P-Channel Power MOSFET, 9.5mOhm Ron, 33.7nC Qg (typ), PowerDI3333-8"
-			(at 297.18 40.64 0)
+			(at 261.62 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3415,7 +4040,7 @@
 			)
 		)
 		(property "Note" "reverse-battery PFET (drain to cell)"
-			(at 297.18 40.64 0)
+			(at 261.62 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3449,7 +4074,7 @@
 	)
 	(global_label "BAT_SW"
 		(shape passive)
-		(at 299.72 45.72 270)
+		(at 264.16 45.72 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3461,7 +4086,7 @@
 	)
 	(global_label "BAT_Q_G"
 		(shape passive)
-		(at 292.1 40.64 180)
+		(at 256.54 40.64 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3473,7 +4098,7 @@
 	)
 	(global_label "BAT_F"
 		(shape passive)
-		(at 299.72 35.56 90)
+		(at 264.16 35.56 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3485,7 +4110,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 335.28 40.64 0)
+		(at 299.72 40.64 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3493,7 +4118,7 @@
 		(dnp no)
 		(uuid "eedd31a4-e38b-5fd6-ba78-f24ce76b8bc4")
 		(property "Reference" "R1"
-			(at 335.28 34.29 0)
+			(at 299.72 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3501,7 +4126,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 335.28 46.99 0)
+			(at 299.72 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3509,7 +4134,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 335.28 40.64 0)
+			(at 299.72 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3518,7 +4143,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 335.28 40.64 0)
+			(at 299.72 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3527,7 +4152,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 335.28 40.64 0)
+			(at 299.72 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3552,7 +4177,7 @@
 	)
 	(global_label "BAT_Q_G"
 		(shape passive)
-		(at 335.28 36.83 90)
+		(at 299.72 36.83 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3564,7 +4189,7 @@
 	)
 	(global_label "GND"
 		(shape passive)
-		(at 335.28 44.45 270)
+		(at 299.72 44.45 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3576,7 +4201,7 @@
 	)
 	(symbol
 		(lib_id "Device:D_Zener")
-		(at 373.38 35.56 0)
+		(at 337.82 35.56 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3584,7 +4209,7 @@
 		(dnp no)
 		(uuid "69b78225-69e3-58c0-a83b-12eac88da7f1")
 		(property "Reference" "D3"
-			(at 373.38 33.02 0)
+			(at 337.82 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3592,7 +4217,7 @@
 			)
 		)
 		(property "Value" "SMF5.0A"
-			(at 373.38 38.1 0)
+			(at 337.82 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3600,7 +4225,7 @@
 			)
 		)
 		(property "Footprint" "Diode_SMD:D_SOD-123F"
-			(at 373.38 35.56 0)
+			(at 337.82 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3609,7 +4234,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 373.38 35.56 0)
+			(at 337.82 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3618,7 +4243,7 @@
 			)
 		)
 		(property "Description" "Zener diode"
-			(at 373.38 35.56 0)
+			(at 337.82 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3643,7 +4268,7 @@
 	)
 	(global_label "BAT_SW"
 		(shape passive)
-		(at 369.57 35.56 180)
+		(at 334.01 35.56 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3655,7 +4280,7 @@
 	)
 	(global_label "GND"
 		(shape passive)
-		(at 377.19 35.56 0)
+		(at 341.63 35.56 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3667,7 +4292,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 408.94 40.64 0)
+		(at 373.38 40.64 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3675,7 +4300,7 @@
 		(dnp no)
 		(uuid "2346cc1d-6968-5c06-8d9c-fa57c5b64b66")
 		(property "Reference" "C3"
-			(at 408.94 34.29 0)
+			(at 373.38 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3683,7 +4308,7 @@
 			)
 		)
 		(property "Value" "22uF"
-			(at 408.94 46.99 0)
+			(at 373.38 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3691,7 +4316,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 408.94 40.64 0)
+			(at 373.38 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3700,7 +4325,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 408.94 40.64 0)
+			(at 373.38 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3709,7 +4334,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 408.94 40.64 0)
+			(at 373.38 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3734,7 +4359,7 @@
 	)
 	(global_label "BAT_SW"
 		(shape passive)
-		(at 408.94 36.83 90)
+		(at 373.38 36.83 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3746,7 +4371,7 @@
 	)
 	(global_label "GND"
 		(shape passive)
-		(at 408.94 44.45 270)
+		(at 373.38 44.45 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3758,7 +4383,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 441.96 40.64 0)
+		(at 408.94 40.64 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3766,7 +4391,7 @@
 		(dnp yes)
 		(uuid "f2701d0d-611a-5f12-bcd1-fd3efb042768")
 		(property "Reference" "R2"
-			(at 441.96 34.29 0)
+			(at 408.94 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3774,7 +4399,7 @@
 			)
 		)
 		(property "Value" "0R"
-			(at 441.96 46.99 0)
+			(at 408.94 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3782,7 +4407,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
-			(at 441.96 40.64 0)
+			(at 408.94 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3791,7 +4416,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 441.96 40.64 0)
+			(at 408.94 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3800,7 +4425,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 441.96 40.64 0)
+			(at 408.94 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3809,7 +4434,7 @@
 			)
 		)
 		(property "Note" "bring-up bypass, PD IC absent"
-			(at 441.96 40.64 0)
+			(at 408.94 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3834,7 +4459,7 @@
 	)
 	(global_label "BAT_SW"
 		(shape passive)
-		(at 441.96 36.83 90)
+		(at 408.94 36.83 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3846,7 +4471,7 @@
 	)
 	(global_label "VSYS"
 		(shape passive)
-		(at 441.96 44.45 270)
+		(at 408.94 44.45 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3858,7 +4483,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 474.98 40.64 0)
+		(at 439.42 40.64 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3866,7 +4491,7 @@
 		(dnp no)
 		(uuid "0ae7318f-d665-5e87-92bf-13d53c449e13")
 		(property "Reference" "C4"
-			(at 474.98 34.29 0)
+			(at 439.42 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3874,7 +4499,7 @@
 			)
 		)
 		(property "Value" "22uF"
-			(at 474.98 46.99 0)
+			(at 439.42 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3882,7 +4507,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 474.98 40.64 0)
+			(at 439.42 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3891,7 +4516,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 474.98 40.64 0)
+			(at 439.42 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3900,7 +4525,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 474.98 40.64 0)
+			(at 439.42 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3925,7 +4550,7 @@
 	)
 	(global_label "VSYS"
 		(shape passive)
-		(at 474.98 36.83 90)
+		(at 439.42 36.83 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3937,7 +4562,7 @@
 	)
 	(global_label "GND"
 		(shape passive)
-		(at 474.98 44.45 270)
+		(at 439.42 44.45 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3949,7 +4574,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 40.64 96.52 0)
+		(at 469.9 40.64 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3957,7 +4582,7 @@
 		(dnp yes)
 		(uuid "7b72c229-8172-531f-89bf-5ca13e3ecbd5")
 		(property "Reference" "R3"
-			(at 40.64 90.17 0)
+			(at 469.9 34.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3965,7 +4590,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 40.64 102.87 0)
+			(at 469.9 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3973,7 +4598,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 40.64 96.52 0)
+			(at 469.9 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3982,7 +4607,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 40.64 96.52 0)
+			(at 469.9 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3991,7 +4616,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 40.64 96.52 0)
+			(at 469.9 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4016,7 +4641,7 @@
 	)
 	(global_label "PWR_KEY"
 		(shape passive)
-		(at 40.64 92.71 90)
+		(at 469.9 36.83 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4028,7 +4653,7 @@
 	)
 	(global_label "+3V3"
 		(shape passive)
-		(at 40.64 100.33 270)
+		(at 469.9 44.45 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4039,8 +4664,8 @@
 		(uuid "2133ef21-4d82-5cd0-86ec-91cab02fb425")
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x03")
-		(at 78.74 93.98 0)
+		(lib_id "Connector_Generic:Conn_01x04")
+		(at 45.72 93.98 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4048,23 +4673,23 @@
 		(dnp no)
 		(uuid "f901861b-a190-5aa2-9f64-d847fb8a0144")
 		(property "Reference" "J6"
-			(at 78.74 88.9 0)
+			(at 45.72 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "Qi TX driver"
-			(at 78.74 99.06 0)
+		(property "Value" "Qi TX module 24x32 (9 V, 2 contacts per leg)"
+			(at 45.72 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Connector_JST:JST_SH_SM03B-SRSS-TB_1x03-1MP_P1.00mm_Horizontal"
-			(at 78.74 93.98 0)
+		(property "Footprint" "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal"
+			(at 45.72 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4073,7 +4698,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 78.74 93.98 0)
+			(at 45.72 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4081,8 +4706,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 78.74 93.98 0)
+		(property "Description" "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 45.72 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4099,6 +4724,9 @@
 		(pin "3"
 			(uuid "48c3cadc-7a49-5884-a9fe-f0cdeb15a048")
 		)
+		(pin "4"
+			(uuid "eaa51e51-d47d-57fd-939d-4c7c3a5cab55")
+		)
 		(instances
 			(project "power"
 				(path "/0d0463c5-0c3b-52e3-bd42-31c800875d2b/0894dae8-e3e7-56b0-89c5-7117a59abc3b"
@@ -4108,9 +4736,9 @@
 			)
 		)
 	)
-	(global_label "QI_5V"
+	(global_label "QI_VIN"
 		(shape passive)
-		(at 73.66 91.44 180)
+		(at 40.64 91.44 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4120,9 +4748,9 @@
 		)
 		(uuid "16fc35fe-f423-59fb-b3b1-6be72dda5ed2")
 	)
-	(global_label "QI_EN"
+	(global_label "QI_VIN"
 		(shape passive)
-		(at 73.66 93.98 180)
+		(at 40.64 93.98 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4134,7 +4762,7 @@
 	)
 	(global_label "GND"
 		(shape passive)
-		(at 73.66 96.52 180)
+		(at 40.64 96.52 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4143,6 +4771,512 @@
 			(justify right)
 		)
 		(uuid "fa9928f0-1069-5cfd-938e-545942720da8")
+	)
+	(global_label "GND"
+		(shape passive)
+		(at 40.64 99.06 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "e10d60f2-2d6f-548e-a3c0-feacc2fb8736")
+	)
+	(symbol
+		(lib_id "Transistor_FET:AO3401A")
+		(at 78.74 96.52 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "3a4a0e61-5498-5255-92a9-98c8c7d33246")
+		(property "Reference" "Q2"
+			(at 78.74 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "AO3401A"
+			(at 78.74 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 78.74 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.aosmd.com/pdfs/datasheet/AO3401A.pdf"
+			(at 78.74 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "-4.0A Id, -30V Vds, P-Channel MOSFET, SOT-23"
+			(at 78.74 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "64b41fd3-037c-56de-9e62-c7f1e975a1bf")
+		)
+		(pin "2"
+			(uuid "b03aef7c-a57a-5929-80ca-42b8fcb2ec90")
+		)
+		(pin "3"
+			(uuid "a2c739de-b5d1-5759-976c-945c1a52f2c2")
+		)
+		(instances
+			(project "power"
+				(path "/0d0463c5-0c3b-52e3-bd42-31c800875d2b/0894dae8-e3e7-56b0-89c5-7117a59abc3b"
+					(reference "Q2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(global_label "QI_SW_G"
+		(shape passive)
+		(at 73.66 96.52 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "1538ffe0-5ac1-5d36-9982-2e08b969e0d4")
+	)
+	(global_label "PVDD"
+		(shape passive)
+		(at 81.28 101.6 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "5c9aa064-80a1-516b-82c8-af31e92c4e0b")
+	)
+	(global_label "QI_VIN"
+		(shape passive)
+		(at 81.28 91.44 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "7c784629-4fe5-530e-a598-162d3a84939a")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 116.84 96.52 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0f705a0f-751f-59ae-83b2-45716bb61551")
+		(property "Reference" "R4"
+			(at 116.84 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100k"
+			(at 116.84 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 116.84 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 116.84 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 116.84 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "43f93aae-8d07-5f53-9eca-3eb7c2b254b3")
+		)
+		(pin "2"
+			(uuid "1c9d90f3-14a1-5e8f-a790-fd0391f01984")
+		)
+		(instances
+			(project "power"
+				(path "/0d0463c5-0c3b-52e3-bd42-31c800875d2b/0894dae8-e3e7-56b0-89c5-7117a59abc3b"
+					(reference "R4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(global_label "PVDD"
+		(shape passive)
+		(at 116.84 92.71 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "b578c3d0-ddf3-5333-bbde-e7d2e9b376b7")
+	)
+	(global_label "QI_SW_G"
+		(shape passive)
+		(at 116.84 100.33 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "926dc2cf-e95e-5015-8bad-7fe14dc38929")
+	)
+	(symbol
+		(lib_id "Transistor_FET:2N7002")
+		(at 157.48 96.52 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ac58b77c-4e61-5d1c-902d-36e078b1cbb5")
+		(property "Reference" "Q3"
+			(at 157.48 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "2N7002"
+			(at 157.48 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 157.48 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/NDS7002A-D.PDF"
+			(at 157.48 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "0.115A Id, 60V Vds, N-Channel MOSFET, SOT-23"
+			(at 157.48 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4d41893c-a30a-5cc6-8ca7-ca4de99fc553")
+		)
+		(pin "2"
+			(uuid "01b6db2a-6c7a-5619-b53b-e52f9310801e")
+		)
+		(pin "3"
+			(uuid "4c3b7f1a-5658-5834-a68e-3857f406fb54")
+		)
+		(instances
+			(project "power"
+				(path "/0d0463c5-0c3b-52e3-bd42-31c800875d2b/0894dae8-e3e7-56b0-89c5-7117a59abc3b"
+					(reference "Q3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(global_label "QI_EN"
+		(shape passive)
+		(at 152.4 96.52 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "34b4bc4e-68dd-5de1-bcdb-4cd7557e803b")
+	)
+	(global_label "GND"
+		(shape passive)
+		(at 160.02 101.6 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "9efa41a0-6aae-552f-b9a7-b338f2d51e9a")
+	)
+	(global_label "QI_SW_G"
+		(shape passive)
+		(at 160.02 91.44 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "186685a1-9a55-50f2-8dd2-659e05cd47a4")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 193.04 96.52 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e94f400d-178f-59a9-b833-caac5dbe6f9b")
+		(property "Reference" "R5"
+			(at 193.04 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10k"
+			(at 193.04 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 193.04 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 193.04 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 193.04 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7696d582-ddae-5dff-a769-776e9d30a7c9")
+		)
+		(pin "2"
+			(uuid "3ef5ae7d-a334-550c-a546-a6b0f083c7db")
+		)
+		(instances
+			(project "power"
+				(path "/0d0463c5-0c3b-52e3-bd42-31c800875d2b/0894dae8-e3e7-56b0-89c5-7117a59abc3b"
+					(reference "R5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(global_label "QI_EN"
+		(shape passive)
+		(at 193.04 92.71 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "9e246a4b-5179-58dc-bd7d-42b6b8a19300")
+	)
+	(global_label "GND"
+		(shape passive)
+		(at 193.04 100.33 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "08c28585-be45-5a9e-a009-2633c88b59a3")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 226.06 96.52 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "3d3b8745-ac9b-5fe0-a480-bdba7e5c047f")
+		(property "Reference" "C5"
+			(at 226.06 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10uF"
+			(at 226.06 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 226.06 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 226.06 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 226.06 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "25 V"
+			(at 226.06 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1a1ec566-647c-56cf-98b2-5672accc709f")
+		)
+		(pin "2"
+			(uuid "091ad98f-9716-5451-9865-c46e2720c93d")
+		)
+		(instances
+			(project "power"
+				(path "/0d0463c5-0c3b-52e3-bd42-31c800875d2b/0894dae8-e3e7-56b0-89c5-7117a59abc3b"
+					(reference "C5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(global_label "QI_VIN"
+		(shape passive)
+		(at 226.06 92.71 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "f7f8a7ca-3841-5a33-854c-7be8f6020aff")
+	)
+	(global_label "GND"
+		(shape passive)
+		(at 226.06 100.33 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "a34b849d-f5c0-5ae5-8f5c-5125d770a8df")
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
@@ -4291,7 +5425,7 @@
 		)
 		(uuid "8b1f2d85-d4aa-589c-b1c4-f88a2c3783c0")
 	)
-	(text "U1 DNP placeholder: VBUS1/2, CC x2, DP2/DM2, BAT, SYS, NTC, SDA/SCL, INT, KEY, QI_5V, QI_EN."
+	(text "U1 DNP placeholder: VBUS1/2, CC x2, DP2/DM2, BAT, SYS, NTC, SDA/SCL, INT, KEY. Qi TX is a separate module on J6 (IP5568 evaluated and rejected, README)."
 		(exclude_from_sim no)
 		(at 25.4 21.2 0)
 		(effects
@@ -4302,7 +5436,7 @@
 		)
 		(uuid "b2dbec32-ae9e-57ea-9b02-0b703fe1019a")
 	)
-	(text "Cell 1160100 10,000 mAh on J4 (PH2.0, 2 A rating!). Full-power audio can pull ~7 A from the cell:"
+	(text "Cell 1160100 10,000 mAh: MAIN PATH = BAT+/BAT- solder pads TP1/TP2 (4 x 4 mm, 18 AWG silicone leads). J4 (PH2.0, 2 A) carries"
 		(exclude_from_sim no)
 		(at 25.4 23.6 0)
 		(effects
@@ -4313,7 +5447,7 @@
 		)
 		(uuid "586e9406-05fc-5b65-a33e-52529e7bfd31")
 	)
-	(text "either cap amp power in firmware or use the BAT solder pads (TP) with 18 AWG leads. Q = reverse-battery PFET (DMP3013SFV),"
+	(text "ONLY the pack NTC + return (pin 1 = pack BAT+ left open: insulate that wire). Q = reverse-battery PFET (DMP3013SFV),"
 		(exclude_from_sim no)
 		(at 25.4 26 0)
 		(effects
@@ -4334,6 +5468,28 @@
 			(justify left bottom)
 		)
 		(uuid "0914d9c5-f026-5577-809d-0c7ca433e6d0")
+	)
+	(text "Qi TX module (24 x 32 mm, own driver + coil) on J6: 9 V from PVDD through Q (AO3401A) switched by QI_EN (carrier expander"
+		(exclude_from_sim no)
+		(at 25.4 30.8 0)
+		(effects
+			(font
+				(size 1.4 1.4)
+			)
+			(justify left bottom)
+		)
+		(uuid "74f5e2a4-d9bd-55f3-afa1-90cdf77b103d")
+	)
+	(text "0x22 P6 via J1, 10k pull-down here so it is off while the expander pin floats). PVDD must be running: firmware enables the boost first."
+		(exclude_from_sim no)
+		(at 25.4 33.2 0)
+		(effects
+			(font
+				(size 1.4 1.4)
+			)
+			(justify left bottom)
+		)
+		(uuid "df7d731b-7946-5709-8efd-bb2108109e57")
 	)
 	(embedded_fonts no)
 )

@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "D:\\SyncD\\Hardware\\pcb\\front_sensor\\front_sensor.kicad_sch")
-		(date "2026-11-23T03:00:15")
+		(date "2026-11-23T12:27:38")
 		(tool "Eeschema 10.0.8")
 		(sheet
 			(number "1")

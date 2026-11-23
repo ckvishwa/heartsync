@@ -6,3 +6,7 @@ fp-info-cache
 ~*.lck
 *.lck
 */fab/*.svg
+*.dsn
+*.ses
+*_freerouting.log
+*_drc.json

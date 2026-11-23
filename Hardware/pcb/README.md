@@ -1,8 +1,36 @@
 # Ansonia rev A custom boards (rev G shell, 190 x 76 x 35.5)
 
-Status (2026-11-23, after placement review 1): **schematics done (ERC 0 errors / 0 warnings on all four), boards
-outlined and placed with the review changes, NOT routed yet.** Routing (RF + power by hand, then the rest) is next.
-DRC now = unrouted + silkscreen + starved-thermal items only (no courtyard, edge, drill or hole errors).
+Status (2026-11-23, after review 3): **schematics done (ERC 0 errors / 0 warnings on all four), placement done, routing INCOMPLETE:**
+only the touch strip is routed; the carrier has its RF lines only; the power board and most of the carrier are not routed. See "Routing status".
+DRC/ERC reports are in each board folder (`<board>_DRC.rpt`, `<board>_ERC.rpt`).
+
+## Routing status (honest summary)
+
+| Board | State |
+|---|---|
+| front_touch | **routed**, GND stitched; DRC: only `copper_sliver` from the hatched pour. Gerbers/BOM/CPL in `fab/` (still unverified by a fab DFM check). |
+| front_sensor | routed with GND in the autorouter; **6 connections still open** (GND pads/zone islands, `front_sensor_DRC.rpt`). Gerbers withheld. |
+| carrier | **only the three RF lines are routed** (hand-routed, DRC clean: no shorts/clearance; `tools/handroute.py`). The other 262 connections are **unrouted**. Freerouting 2.1.0 stalls at 110 unrouted (168 with the 0.5 mm power widths) and never ends, so no result could be imported. Gerbers withheld. |
+| power | placement + In2 BAT_SW plane only: **unrouted** (210 connections). Freerouting not run on it (same stall expected). Gerbers withheld. |
+
+What I would do next (not done): fan out the fine-pitch parts by hand (ESP32, SIM7080G, TCA9554s, TPS61088, IP5356M), pour +3V3/VSYS on In2 on the carrier,
+hand-route PVDD / QB / IP_LX / BAT_* on the power board, then autoroute the remainder with a hard pass limit (the jar ignores `-mp`).
+Tools: `tools/handroute.py`, `tools/route.py` (Freerouting 2.1.0 jar via DSN/SES, GND poured not routed, width cap per board), `tools/stitch.py`
+(GND / pad stitching vias, pruned by DRC), `tools/export.py` (schematic PDF, Gerber+drill zip, JLCPCB BOM/CPL, renders).
+Freerouting v2.5.0's CLI crashes (native-image serialization error) and v2.3+ needs Java 25, so the v2.1.0 jar from the project's GitHub release
+(66,978,394 bytes, git-ignored `_vendor/freerouting/`) is used. RF width 0.2 mm is an estimate: recompute with the JLCPCB impedance calculator
+for the real 1.0 mm 4-layer stack-up. Pi-match shunt pads (DNP) are connected by the autorouter later, not yet.
+
+## DRC / ERC summary (reports in each board folder)
+
+| Board | ERC err / warn | DRC items (refilled zones, schematic parity on) |
+|---|---|---|
+| carrier | 0 / 0 | silk_edge_clearance 6, silk_over_copper 151, silk_overlap 98, starved_thermal 3, unconnected_items 262 |
+| power | 0 / 0 | isolated_copper 15, silk_edge_clearance 1, silk_over_copper 163, silk_overlap 103, starved_thermal 12, unconnected_items 220 |
+| front_sensor | 0 / 0 | silk_over_copper 8, silk_overlap 6, starved_thermal 2, unconnected_items 6 |
+| front_touch | 0 / 0 | copper_sliver 4 |
+
+No courtyard, edge, drill, short or hole errors remain on any board; `unconnected_items` is the unrouted work above, the rest is silkscreen and starved thermals (cosmetic / to review).
 
 ## Layout of this folder
 
@@ -78,18 +106,23 @@ locating-hole row position (10 mm from the pins) are my reading of it: **verify 
   Spare: IO1, IO2 (test pads). USB D+/D- reach the ESP32 through J1 from USB-C port 1 for flashing.
 - **12 V panel supply:** TPS61040 behind a P-FET switch so VCC floats when off (SSD1322 sec. 8.9).
 - **Amp boost:** TPS61088 at **9.0 V** (499k / 76.8k), PWM mode, 600 kHz, values from the datasheet equations (sheet note). Amp limit 4 W/ch (see power budget).
-- **Battery path:** MR30 J4 (BAT+ pin 1, BAT- pin 3) -> 8 A fuse -> reverse-battery P-FET (DMP3013SFV) -> BAT_SW (5 V TVS). Pack NTC on
-  JST SH J5. VSYS comes from the PD IC (placeholder); a DNP 0R bridges BAT_SW -> VSYS for bring-up.
+- **Battery path:** MR30 J4 (BAT+ pin 1, BAT- pin 3; DNP 4x4 pads TP1/TP2 as an 18 AWG alternative) -> 8 A fuse -> reverse-battery P-FET
+  (DMP3013SFV) -> BAT_SW (5 V TVS). Pack NTC on JST SH J5. **The IP5356M's VSYS pins are its internal 5-12 V DC-DC bus, not a system rail**:
+  the system rail VSYS is the battery (BAT_SW) through a fitted 0R. Consequence: the system loads bypass the IC, so its fuel gauge does
+  not see them and charge termination sees battery current net of the load. J1 now says VSYS = 3.0-4.2 V.
 - **IMU (U12 LSM6DSOX, LGA-14):** I2C 0x6A (SA0 = GND, CS = VDDIO), INT1 -> ESP32 IO3 (RTC GPIO3, 100k pull-down so it is low at boot;
   IO3 is the JTAG-source strap, left at its default), INT2 -> TCA9554 0x21 P7. Placed at (-10, 8) mid-board, far from the speaker magnets.
   I2C map, no clash: 0x20/21/22 TCA9554, 0x2C TAS5805M, 0x39 APDS-9960, 0x5A DRV2605L, 0x6A LSM6DSOX; the power IC's address is TBD.
-  Symbol is a modified KiCad LSM6DSL (identical LGA-14 pinout); pins 10/11 (OCS_Aux, SDO_Aux) are left open: confirm in the LSM6DSOX datasheet.
-- **Qi TX:** separate 24 x 32 mm module on J6 (4-pin SH: 2 x QI_VIN 9 V, 2 x GND), P-FET (AO3401A) from PVDD switched by QI_EN
-  (expander 0x22 P6 over J1, 10k pull-down). PVDD must be running first (firmware order: boost on, then Qi).
-- **E-paper (J13 fitted):** Waveshare 3.97in raw panel (800 x 480, SSD1677, 24-pin 0.5 mm FPC). Pinout and booster (R1 2.2R sense,
-  R2 1M, Q1 AO3400A, L1 10uH, D1-D3 MBR0530, C1-C10) taken from Waveshare's *3.97inch e-Paper User Manual v1.0*, sec. 5 and 9. **Caveat:**
-  that manual is the two-colour panel; Waveshare's wiki and product page (the (G) red/yellow/black/white manual and the driver-board schematic)
-  returned HTTP 403, so the (G) panel's pinout/booster are **not verified**. BS (pin 8) = GND (4-wire SPI).
+  Aux pins, from ST DS12814 rev 3 table 2 (p. 9), Mode 1 (aux SPI not used): pin 2 SDx and pin 3 SCx "Connect to VDDIO or GND" -> GND;
+  pin 10 OCS_Aux "Leave unconnected" -> no connect; pin 11 SDO_Aux "Connect to VDD_IO or leave unconnected" -> VDDIO. (The pins have
+  internal pull-ups, register bit "disable pull-up on OCS_Aux and SDO_Aux".) Symbol: modified KiCad LSM6DSL, identical LGA-14 pinout.
+- **Qi TX:** separate 24 x 32 mm module on J6 (4-pin SH: 2 x QI_VIN 9 V, 2 x GND) with its **own TPS61088 boost (U7) and an LC filter**,
+  see "Qi supply decision". Enable = QI_EN (expander 0x22 P6 over J1), which is U7's EN pin with a 10k pull-down.
+- **E-paper (J13 fitted):** Waveshare 3.97inch e-Paper (G), 800 x 480, SSD2677, 24-pin 0.5 mm FPC. **Verified** against Waveshare's
+  *3.97inch e-Paper (G) User Manual v1.0* (pin table sec. 5: identical to your list, pin 5 = VSH2) and the *3.97inch e-Paper HAT+ (G)* driver-board
+  schematic (R1 2.2R, R2 1M, Q1 AO3400, L1 10uH, D1-D3 MBR0530, C1 4.7uF/25V on pin 5 VSH2, C2 1uF/50V on VDDIO+VCI, C4 1uF on VDD,
+  C6-C9 4.7uF on VSH1/VGH/VSL/VGL, C10 1uF on VCOM, C3/C5 4.7uF). The two-colour panel has the same circuit. Pins 1/4/6/7 are NC, each its own
+  net; pin 8 BS1 = GND (4-wire SPI). Differences to know: **BUSY is active low** (low = busy), **operating temperature 0..40 C**.
   FPC route (plan, not checked against the cell position in the fit map): the 24-pin tail leaves the panel's bottom edge, runs along the
   rear wall under the carrier's bottom edge (the carrier ends at Y -17.5, J13 enters from -Y) and folds once into J13; the cell and
   power board are on the +X side, so the tail should not cross the cell. Measure the tail length and fold radius on the real panel.
@@ -100,29 +133,60 @@ locating-hole row position (10 mm from the pins) are my reading of it: **verify 
   the front-wall hole. A ring-gasket outline (OD 3.6, ID 1.6) is drawn on F.Fab around it: foam/silicone ring between the PCB and the wall,
   airtight. APDS-9960 package centre at (-64, 31.25); its optical-window offset inside the package is not checked.
 
-## IP5568 evaluation (review item 2): rejected, IP5356M + separate Qi board stays
+## IP5356M charger (review 3, item 1) - datasheet V1.00 read (IP5356M-datasheet-en-V1.00.pdf)
 
-Read from the Injoinic IP5568 datasheet V1.31 (42 pages; mirror via flux.ai, not injoinic.com):
-- **NTC:** yes, two (NTC1 pin 14 battery, NTC2 pin 30 coil), 20 uA bias, 100k B3950 + 120k (p. 23-24).
-- **I2C:** **none.** The 65-pin list has no SDA/SCL; the interfaces are fast-charge, LED, key and digital tube (p. 1-2, pin table p. 5-7). Fails.
-- **Ports:** 2 x USB-A (VOUT1/VOUT2), USB-B in, **one** Type-C DRP. A second Type-C would be VOUT2 re-wired with our own Rp:
-  possible, but 5 V only when more than one output is on (p. 16).
-- **Qi TX:** 5/7.5/10/15 W, WPC 1.2.4, integrated full bridge, but it **runs whenever the chip is on** (p. 25, no host enable), and 10/15 W only
-  when VOUT1/VOUT2/VBUS are all off, 15 W only with 12 V on VIN (p. 16-17). The reference coil is a WPC A11 type with its own resonant
-  capacitor; whether our 50 mm coil works needs the coil's L/R, which the datasheet does not give: not confirmed.
-- **Verdict:** fails on I2C and host control of the Qi TX, and the coil is unconfirmed. Use **IP5356M + the separate Qi TX module**
-  (the review's fallback). The charger IC on the power board is still the DNP placeholder (IP5356M datasheet to be re-read for pins,
-  I2C address and NTC before the footprint is made).
+- **Cell count / power:** 1 cell (4.2/4.3/4.35/4.4 V), charge up to 18 W / 5 A at the battery, boost 5 V 3.1 A, 9 V 2.22 A, 12 V 1.67 A (p. 1).
+- **Ports:** 2 USB-A, USB-B in, Micro/lightning in, **1 Type-C in/out** (PD2.0/3.0, PPS) and "1 USB C input/output port + 1 USB C output port
+  (customize)" (p. 1). The datasheet's customised-model table (p. 10: LBZ, DBZ, DBZ_4V35, LCL, DCL1W, DCL1W_4V35) has **no dual-Type-C model
+  and no part number for it**: ask Injoinic (service@injoinic.com) for the exact orderable name.
+- **I2C:** only the `_L` (LED) models: **IP5356M_LBZ** (orderable at LCSC as **IP5356M_LBZ_CB, C46550232**) and IP5356M_LCL (with lightning).
+  Pins: LED2 (pin 1) = SDA, LED1 (pin 40) = SCL, LED3 (pin 2) = INT; fig. 20 on p. 30: 3.3k from each of SDA/SCL to the IC's VCC and 510k from
+  INT to ground; the IC enters I2C mode by itself from that wiring; INT is Hi-Z in standby and high when working. **The I2C slave address
+  and the register map are NOT in this datasheet** (separate Injoinic document): not found. This design uses exactly fig. 20 and removes
+  the carrier's 10k PWR_INT pull-up (it would hide the standby state).
+- **NTC:** pin 22 sources 20 uA / 80 uA through the 10k NTC, 100 nF at the pin; if the NTC is absent a 10k to ground is required (p. 29-30, fig. 18).
+  The pack's 10k NTC goes to J5. An unplugged J5 reads as "cold" and stops charging (safe).
+- **Second Type-C (what I built):** port 2 = VOUT2 (pins 34/35, DPA2/DMA2 pins 32/33) to the J3 Type-C, 2.2 uF + 0.1 uF, Rp 22k from VBUS2 to
+  CC1 and CC2 (1.5 A). Only 5 V when more than one port is on. **Open risk:** a real Type-C sink waits for VBUS before drawing current, but VOUT2
+  turns on only when the IC detects a load: whether a plain Rd sink wakes it is not in the datasheet. The customised part may solve it: ask Injoinic.
+- **Wiring used (datasheet fig. 25):** L1 2.2 uH LX to BAT, BST 0.1 uF to LX, VCC 2.2 uF, VSYS 6 x 22 uF (+0.1 uF), BAT 22 uF + 0.1 uF, VBUS 2 x 2.2 uF + 0.1 uF,
+  FCAP (pin 10) 22.1k = 9.9 Ah (R x 0.448 mAh), KEY = PWR_KEY (J1 pin 22 and a carrier test pad), VIN/DPB/DMB (Micro-B), CL (lightning), VOUT1/DPA1/DMA1 (USB-A 1),
+  LED4/LED6 left open. D+/D- of the Type-C (DPC/DMC) share the node with the ESP32's USB lines: flag, it may need series resistors or a
+  jumper if charge detection and ESP USB flashing disturb each other.
+- **Package:** QFN-40 6 x 6 0.5 mm, exposed pad; the KiCad 4.6 x 4.6 EP footprint is used: check against the Injoinic drawing (not in the PDF text I read).
 
-## Power budget (review item 3)
+IP5568 (review 2) was rejected: no I2C pins, Qi TX not host-controllable (runs whenever the chip is on, 10/15 W only with all USB ports off,
+15 W only at 12 V on VIN), coil unconfirmed (datasheet V1.31 p. 1-2, 16-17, 25).
 
-- Amp: PVDD 9 V, **4 W per channel** (Dayton CE70-30P-8, 8 ohm, 5.66 Vrms): about 2 x 4 W / 0.85 = 9.5 W from PVDD, ~10.5 W from the cell.
-- Qi TX 15 W at 9 V = 1.7 A from PVDD (~17 W from the cell). USB-C out up to 22.5 W + 5 V port 2.
-- **Amp + Qi + USB-C out must not all run at maximum together**: the sum is about 50 W, ~13 A at 3.7 V, far above any 1S pack limit.
-  Firmware must cap the sum (priority: amp > USB-C out > Qi; reduce Qi first).
-- **Needs from you: the cell's PCM (protection board) continuous and peak discharge current limit.** The 8 A fuse and the pad/trace sizing
-  assume at most ~8 A; if the PCM trips lower, the firmware cap must be lower.
-- TAS5805M limit: configure AGL / digital volume ceiling for <= 5.66 Vrms before unmuting (firmware task, not written yet).
+## Qi supply decision (review 3, item 4): own boost, not the amp's PVDD
+
+- TPS61088 peak switch limit at R_ILIM 49.9k in FPWM (MODE = GND): **7.2 A min / 8.7 A typ / 10.5 A max** (SLVSE52A electrical table); 10 A is the part's
+  headline rating only in PFM.
+- Amp 2 x 4 W (9.4 W at PVDD) + Qi module ~18 W (15 W TX) = 28 W at 9 V = 3.1 A out = **9.4 A in at 3.3 V** (90 %): above the 7.2 A minimum.
+  Qi alone: 6.3 A average + 1.6 A ripple: also too close. So the Qi module does not hang on PVDD.
+- Chosen: **second TPS61088 (U7), same circuit as the amp boost, 9.0 V output, EN = QI_EN**, then an LC filter (1 uH + 2 x 10 uF) on the rail that goes to J6.
+  Its switching noise stays off PVDD (and the speakers). Charger-path alternative (the IC's 9 V PD output) rejected: it is the port-1 connector rail.
+- The cell budget (below) still limits the sum; the second boost only fixes the converter limit and the noise coupling.
+
+## Power budget (review 3, item 2): design for 5 A continuous / 8 A peak from the cell
+
+Cell power at 5 A and 3.3 V (worst case) = 16.5 W; base system (ESP32, SIM idle, display, sensors, IC) taken as 1.5 W; conversion 90 % (amp chain 85 % x 90 %).
+
+| Load | Output power | From the cell | At 3.3 V | Firmware rule |
+|---|---|---|---|---|
+| Base system | - | 1.5 W | 0.45 A | always on |
+| Amp 2 x 4 W (PVDD 9 V) | 8 W | 10.5 W | 3.2 A | gain is cut when Qi or USB-C out is active |
+| Qi TX 5 W profile | 5 W | ~7 W | 2.1 A | allowed with the amp at reduced gain |
+| Qi TX 10 W profile | 10 W | ~14 W | 4.2 A | leaves ~1 W for the amp: amp muted |
+| Qi TX 15 W profile | 15 W | ~21 W | 6.4 A | **not on battery** (over 5 A): only with VBUS present, and then the cell is bypassed by the IC input path |
+| USB-C out 5 V 3 A | 15 W | ~16.5 W | 5.0 A | amp muted; limit to 10 W (9 V 1.1 A) when the amp or Qi is on |
+| USB-C port 2 5 V 1.5 A | 7.5 W | ~8.5 W | 2.6 A | counted in the sum |
+
+Priority (firmware): **charging other devices first** (USB-C out, Qi), then the amp: the amp gain is cut so that
+`P_cell_total <= 16.5 W` (about 5 A at 3.3 V; use the measured battery voltage: I_cell <= 5 A). Peak 8 A is allowed for bursts only (SIM TX, amp
+transients, < 100 ms); F1 (8 A fast) protects the path. The amp's per-channel limit of 4 W (5.66 Vrms into 8 ohm) is set in the TAS5805M
+(AGL / digital volume ceiling) before unmuting. Examples: Qi 5 W (7 W) + base (1.5 W) -> 8 W left -> about 5.7 W electrical -> 2.8 W per channel; the amp
+alone: full 4 W per channel. **The pack's PCM limit is still unknown: if it is below 5 A the table scales down.**
 
 ## Verification status
 
@@ -134,27 +198,23 @@ Read from the Injoinic IP5568 datasheet V1.31 (42 pages; mirror via flux.ai, not
 | TAS5805M PWP | KiCad footprint matches TI PWP0028M (3.4 x 9.7 pad, 3.1 x 4.05 mask); vias raised to 0.3 mm. |
 | TPS61088 RHL | KiCad `Texas_VQFN-RHL-20`; the TPS61088 datasheet download was blocked, the **-Q1 datasheet (SLVSE52A)** was used for pins and values. Check the RHL land pattern against the TPS61088 drawing. |
 | SSD1322 support parts | From the SSD1322 datasheet rev 1.2 fig. 14-1 and sec. 8.6 (IREF = 620k at 12 V). FPC pin 1 direction vs the folded panel tail: **not verified**. |
-| E-paper FPC pinout | Generic SSD168x 24-pin assumption, DNP. Panel booster circuit not included. |
+| E-paper (G) FPC pinout + booster | Verified against the Waveshare (G) panel manual and the HAT+ (G) driver-board schematic (see above). BUSY active low, 0..40 C. |
+| IP5356M | Pins, I2C wiring (fig. 20), NTC, application circuit (fig. 25) from the datasheet V1.00. I2C address, dual-Type-C part number, EP size: not found. |
+| LSM6DSOX aux pins | From DS12814 rev 3 table 2 (quoted above). |
 | EWM104 PIO1 reset polarity, PIO2-5 button polarity | **Not verified** (needs Ebyte firmware notes). |
 | APDS-9960, ICS-43434, DRV2605L, TCA9554, TXB0104, TPS61040, TPS63001 | KiCad symbols/footprints; key values checked against the datasheets (sheet notes). |
 
 ## Open items
 
-1. **PD / power-bank IC not chosen** (U1 on the power board is a DNP placeholder, QFN-40 land, 14 x 14 mm reserved).
-   Candidates (verify each datasheet before choosing):
-   - **Injoinic IP5356M**: 1-cell, one Type-C in/out + one Type-C out (customised), PD/QC, I2C, NTC. Closest to the brief.
-   - **Injoinic IP5356 / IP5356H (I2C "_L" variant)**: 1-cell, QC/PD; dual Type-C only as a customised scheme.
-   - **TI discrete**: BQ25792 (1-4 cell buck-boost charger, I2C, NTC, NVDC SYS) + TPS25750 (PD controller, I2C)
-     for port 1, plus a 5 V boost and a Type-C source switch for port 2. Most parts, best documentation.
-   (IP5389 has two bidirectional C ports but is a 2-5 cell part.) Note the Injoinic SoCs have no SYS rail:
-   VSYS would then be BAT_SW directly.
-2. **Battery connector current:** resolved by the heavy BAT pads; open: the cell's PCM current limit (see power budget).
+1. **Charger:** IP5356M_LBZ_CB (see above). Open: its I2C address/registers, the dual-Type-C part number (ask Injoinic), the port-2 wake-up question.
+2. **Battery connector current:** MR30 (15 A); open: the cell's PCM current limit (see power budget).
 3. **ESP32-S3-WROOM-1U-N16R8 is rated 65 C ambient** (module datasheet table 1-2). Keep it away from the amp heat.
 4. Bluetooth 2.4 GHz FPC antenna position; GNSS active-patch bias (LNA) not provided (pi pads only).
-5. E-paper (G) panel pinout and booster unverified (see above).
+5. E-paper FPC route past the cell: plan only, measure on the real panel.
 6. Front sensor and touch strip have no mounting holes (no room): bosses/adhesive in the front wall.
 7. The board-to-board cable J1 carries speaker L at up to ~1.5 A peak: 2 contacts per leg (JST SH 1 A each).
-8. Silkscreen cleanup, fiducials, and JLCPCB stack-up/impedance (CPWG widths) are done at routing.
+8. Silkscreen cleanup, fiducials, and JLCPCB stack-up/impedance (CPWG widths) are still to do after routing.
+9. Power board: leftover passives are placed on B.Cu (`allow_back`): check the height behind the board; the 4 DNP/alt parts and heights are not checked against the fit map.
 
 ## Sources
 
@@ -168,5 +228,6 @@ datasheet v1.8 (Espressif, in `cad/models/`), Amphenol drawing C 12401957.
 - USB-C 124019572112A footprint (built from the drawing read on screen).
 - TPS61088 values and footprint (taken from the -Q1 datasheet SLVSE52A).
 - EWM104 PIO1 reset / PIO2-5 button polarity.
-- Panel (SSD1322) FPC pin 1 after the fold; e-paper (G) pinout and booster (two-colour manual used).
-- JST SH 22-pin footprint (extended from SM20B), cell connector pin order, LSM6DSOX pins 10/11, APDS-9960 window offset.
+- Panel (SSD1322) FPC pin 1 after the fold.
+- JST SH 22-pin footprint (extended from SM20B), MR30 footprint outline, APDS-9960 window offset, IP5356M EP size and I2C address.
+- RF line width (0.2 mm estimate) and the 1.0 mm stack-up.

@@ -29,7 +29,7 @@ CARRIER = {
         "U2": (-23.5, 19.5, 0),        # ESP32-S3-WROOM-1U, U.FL at the top edge
         "U7": (5.5, 19.6, 0),          # SIM7080G
         "J15": (18.5, 27.0, 0),        # U.FL LTE (top edge, under the LTE flex)
-        "J16": (-6.5, 27.0, 0),        # U.FL GNSS
+        "J16": (-6.5, 26.0, 0),        # U.FL GNSS
         "J14": (20.5, -9.5, 0),        # nano-SIM, card enters from the bottom edge
         "J1": (24.6, 12.5, 90),        # link to the power board (right edge, cable +X)
         "U1": (17.0, 4.0, 0),          # TPS63001 3V3
@@ -49,9 +49,19 @@ CARRIER = {
         "U9": (11.0, -5.0, 0),         # SIM ESD
         "U11": (-9.5, -4.0, 0),        # TPS61040 12 V
         "U12": (-10.0, 8.0, 0),        # LSM6DSOX IMU, rigid centre of the board
+        # RF chains (series 0R of each pi-match sits on the 50 ohm line, hand-routed in handroute.py)
+        "R18": (15.7, 24.55, 0),       # LTE: U7.32 -> R18 -> J15
+        "R19": (-5.0, 29.2, 180),      # GNSS: U7.68 -> R19 -> J16
+        "R28": (-52.6, 16.2, 180),      # BT: U10.46 -> R28 -> J17
     },
     "near": {},
     "keepouts": [],
+    # corridors around the hand-routed RF lines (handroute.py): autoplaced parts stay out
+    "no_parts": [{"pts": rect(*r)} for r in [
+        (13.4, 23.6, 17.8, 25.5), (16.0, 24.0, 17.9, 27.8),
+        (0.4, 25.0, 2.2, 27.9), (-0.7, 26.1, 2.2, 27.9), (-0.7, 26.1, 1.1, 30.0), (-6.4, 28.3, 1.1, 30.0),
+        (-10.9, 28.3, -4.6, 30.0), (-10.9, 25.1, -9.1, 30.0), (-10.9, 25.1, -7.1, 26.9),
+        (-51.4, 14.1, -49.6, 17.1), (-54.1, 15.3, -48.6, 17.1), (-54.9, 15.3, -52.7, 19.9), (-54.9, 18.1, -50.6, 19.9)]],
     "power_nets": ["GND", "+3V3", "VSYS"],
 }
 
@@ -90,7 +100,10 @@ POWER = {
                       "  (constraint edge_clearance (min 0.1mm)))", ""]),
     "no_parts": [{"pts": rect(47.4, 30.6, 58.1, 33.0)}, {"pts": rect(60.7, 30.6, 71.4, 33.0)}],
     "keepouts": [],
-    "power_nets": ["GND", "+3V3", "VSYS", "BAT_SW", "PVDD", "PVDD_AMP"],
+    # BAT_SW (cell after the fuse/FET, boosts, IC inductor, system) is an In2 plane, tied with vias at every pad (stitch.py --pads=BAT_SW)
+    "pours": [{"net": "BAT_SW", "layer": "In2.Cu", "pts": [(30.0, -16.0), (66.5, -16.0), (66.5, -1.0), (73.0, -1.0), (73.0, 33.0), (30.0, 33.0)],
+               "priority": 1, "clearance": 0.3}],
+    "power_nets": ["GND", "+3V3", "VSYS", "BAT_SW", "PVDD", "PVDD_AMP", "QI_VIN", "QI_9V_RAW"],
 }
 
 FRONT_SENSOR = {

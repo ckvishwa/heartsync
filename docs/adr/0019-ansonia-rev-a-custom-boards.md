@@ -35,3 +35,6 @@ and a power-bank / PD IC still to be chosen.
 
 - Review 2 (connector rule): wires soldered to the remote boards (front sensor 8 pads, touch strip 2 pads, no tab); JST SH stays on the carrier end;
   battery = Amass MR30PW-M (3-pole, 2 used) + SH-2 NTC; U.FL, FPC, J1 and speaker connectors unchanged.
+- Review 3: charger = Injoinic IP5356M_LBZ_CB (I2C, fig. 20 wiring; its VSYS is an internal bus, so the system rail is the battery);
+  Qi module gets its own TPS61088 + LC filter (single boost cannot carry amp + Qi: 7.2 A min peak limit in FPWM); design current 5 A / 8 A
+  from the cell with a firmware power budget; e-paper (G) pinout/booster verified; routing with Freerouting 2.1.0 (GND poured, RF hand-routed).

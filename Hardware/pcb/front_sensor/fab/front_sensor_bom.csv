@@ -1,0 +1,9 @@
+Comment,Designator,Footprint,LCSC Part #,MPN,Qty
+0.1uF,C1,C_0402_1005Metric,,,1
+1uF,"C2,C3",C_0402_1005Metric,,,2
+10uF,C4,C_0603_1608Metric,,,1
+Solder wires to carrier J8,J1,WirePads_1x08_P1.20mm,,,1
+100k,R1,R_0402_1005Metric,,,1
+22R,R2,R_0402_1005Metric,,,1
+ICS-43434,U1,InvenSense_ICS-43434-6_3.5x2.65mm,,ICS-43434,1
+APDS-9960,U2,Avago_APDS-9960,,APDS-9960,1

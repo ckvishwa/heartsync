@@ -1,24 +1,18 @@
 ** Drc report for front_touch.kicad_pcb **
-** Created on 2026-11-23T12:59:07 **
+** Created on 2026-11-23T15:19:43 **
 ** Report includes: Errors, Warnings, Exclusions **
 
-** Found 2 DRC violations **
-[isolated_copper]: Isolated copper fill
+** Found 4 DRC violations **
+[copper_sliver]: Copper sliver (F.Cu)
     Local override; warning
-    @(77.5000 mm, 72.7500 mm): Zone [GND] on B.Cu, priority 1
-[isolated_copper]: Isolated copper fill
+[copper_sliver]: Copper sliver (F.Cu)
     Local override; warning
-    @(77.5000 mm, 72.7500 mm): Zone [GND] on B.Cu, priority 1
+[copper_sliver]: Copper sliver (F.Cu)
+    Local override; warning
+[copper_sliver]: Copper sliver (F.Cu)
+    Local override; warning
 
-** Found 2 unconnected pads **
-[unconnected_items]: Missing connection between items
-    Local override; error
-    @(82.5000 mm, 70.2500 mm): Pad 1 [GND] of TP1 on F.Cu
-    @(83.0000 mm, 70.2500 mm): Pad 2 [GND] of J1 on B.Cu
-[unconnected_items]: Missing connection between items
-    Local override; error
-    @(63.0000 mm, 70.2500 mm): Pad 1 [TOUCH] of E1 on F.Cu
-    @(81.4000 mm, 70.2500 mm): Pad 1 [TOUCH] of J1 on B.Cu
+** Found 0 unconnected pads **
 
 ** Found 0 Footprint errors **
 

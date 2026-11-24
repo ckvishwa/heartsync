@@ -1,0 +1,119 @@
+[
+ {
+  "board": "carrier",
+  "ref": "J8",
+  "x0": -61.945,
+  "y0": 23.275,
+  "x1": -50.055,
+  "y1": 29.925,
+  "fp": "JST_SH_SM08B-SRSS-TB_1x08-1MP_P1.00mm_Horizontal"
+ },
+ {
+  "board": "carrier",
+  "ref": "J12",
+  "x0": -43.295,
+  "y0": 23.275,
+  "x1": -33.405,
+  "y1": 29.925,
+  "fp": "JST_SH_SM06B-SRSS-TB_1x06-1MP_P1.00mm_Horizontal"
+ },
+ {
+  "board": "carrier",
+  "ref": "J13",
+  "x0": -13.095,
+  "y0": -18.345,
+  "x1": 5.095,
+  "y1": -10.355,
+  "fp": "Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal"
+ },
+ {
+  "board": "carrier",
+  "ref": "J7",
+  "x0": -49.445,
+  "y0": 23.275,
+  "x1": -43.555,
+  "y1": 29.925,
+  "fp": "JST_SH_SM02B-SRSS-TB_1x02-1MP_P1.00mm_Horizontal"
+ },
+ {
+  "board": "carrier",
+  "ref": "J9",
+  "x0": -62.025,
+  "y0": -16.445,
+  "x1": -55.375,
+  "y1": -10.555,
+  "fp": "JST_SH_SM02B-SRSS-TB_1x02-1MP_P1.00mm_Horizontal"
+ },
+ {
+  "board": "carrier",
+  "ref": "J6",
+  "x0": -52.945,
+  "y0": -17.525,
+  "x1": -47.055,
+  "y1": -10.875,
+  "fp": "JST_SH_SM02B-SRSS-TB_1x02-1MP_P1.00mm_Horizontal"
+ },
+ {
+  "board": "carrier",
+  "ref": "J11",
+  "x0": -36.095,
+  "y0": -18.345,
+  "x1": -14.905,
+  "y1": -10.355,
+  "fp": "Hirose_FH12-30S-0.5SH_1x30-1MP_P0.50mm_Horizontal"
+ },
+ {
+  "board": "carrier",
+  "ref": "J4",
+  "x0": -62.025,
+  "y0": -9.945,
+  "x1": -55.375,
+  "y1": -4.055,
+  "fp": "JST_SH_SM02B-SRSS-TB_1x02-1MP_P1.00mm_Horizontal"
+ },
+ {
+  "board": "carrier",
+  "ref": "J1",
+  "x0": 21.275,
+  "y0": -0.445,
+  "x1": 27.925,
+  "y1": 25.445,
+  "fp": "JST_SH_SM22B-SRSS-TB_1x22-1MP_P1.00mm_Horizontal"
+ },
+ {
+  "board": "power",
+  "ref": "J5",
+  "x0": 37.555,
+  "y0": 26.475,
+  "x1": 43.445,
+  "y1": 33.125,
+  "fp": "JST_SH_SM02B-SRSS-TB_1x02-1MP_P1.00mm_Horizontal"
+ },
+ {
+  "board": "power",
+  "ref": "J7",
+  "x0": 62.855,
+  "y0": 4.355,
+  "x1": 73.145,
+  "y1": 13.645,
+  "fp": "JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal"
+ },
+ {
+  "board": "power",
+  "ref": "J1",
+  "x0": 29.975,
+  "y0": 1.055,
+  "x1": 36.625,
+  "y1": 26.945,
+  "fp": "JST_SH_SM22B-SRSS-TB_1x22-1MP_P1.00mm_Horizontal"
+ },
+ {
+  "board": "power",
+  "ref": "J6",
+  "x0": 60.075,
+  "y0": -13.445,
+  "x1": 66.725,
+  "y1": -5.555,
+  "fp": "JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal"
+ }
+]

@@ -47,6 +47,21 @@ Last updated: 2026-11-19 evening (enclosure full pass: 157 mm, dead-front 3.12 i
 - Repo: private github.com/ckvishwa/heartsync (`main`). CI runs on push; the cloud
   deploy job stays off until a `FIREBASE_PROJECT_ID` repo variable exists.
 
+## Ansonia rev G in Fusion (2026-11-23): digital clone, 18 clashes
+
+- `cad/fusion/ansonia_revG.py` (+ `run_revG.py`, `export_boards.sh`, `board_standins.py`, `cad/params_revG.csv`)
+  builds the rev G shell, lid, speaker boxes, bracket, TPU parts and every part, imports the four board STEPs
+  (commit `36561403` placement), runs interference + clearance/antenna/cable/mass checks. Report, clash list and
+  every interpretation: **`docs/hardware/fusion_revG.md`**. Outputs: `cad/exports/revG/` (3MF per part, STEP zip,
+  .f3d), `cad/renders/revG/`. The Fusion tab is unsaved (not in the cloud).
+- Biggest clashes: the 30 mm Dayton drivers sit on the lid tongue / gasket / end hooks; power board, J7, USB-C 2
+  reach 1.2 into speaker box R; OLED 1.2 into box L; MR30 plug on the nano-SIM; button PCB blocks J7/J8/J12;
+  carrier J1 and power J1 face each other 2 mm apart. Nothing fixed yet: waiting for the user's choices.
+- Safety review (same day) lists blockers at the top of that file: 35.5/38.0 vs the 35 mm hard limit, screw heads
+  and power back-side parts in the swell gap, no cell retention, cell on the e-paper glass, NTC connector blocked,
+  IP5356M + L1 over the cell end, no vent.
+- Rebuild after a placement change: `bash cad/fusion/export_boards.sh`, then `go("build")`, `go("exports")`, `go("shots")`.
+
 ## Ansonia rev A custom boards (2026-11-23, ADR 0019)
 
 Reviews 1-3 applied (IP5356M charger, own Qi boost, 5 A / 8 A budget, MR30 + wire pads, e-paper (G) verified). Routing in progress: touch strip

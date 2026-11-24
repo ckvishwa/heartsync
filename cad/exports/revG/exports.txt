@@ -1,0 +1,12 @@
+ansonia_front_shell_PETG.3mf: front_shell, 190.0 x 76.0 x 32.9 on the plate; front face on the plate; no supports (the clip ledges print as 2.4 mm overhangs, bridges over the USB-C and button windows)
+ansonia_lid_PETG.3mf: lid, 190.0 x 76.0 x 16.7 on the plate; back face on the plate; no supports; bridges: ring channel 4 mm, plate recess 18 mm, cover-recess ledge 1.5 mm
+ansonia_speaker_box_L_PETG.3mf: speaker_box_L, 29.9 x 66.8 x 18.0 on the plate; back wall on the plate; no supports (front plate prints as a 2-3 mm inward ledge, chamfer advised)
+ansonia_speaker_box_R_PETG.3mf: speaker_box_R, 29.9 x 66.8 x 18.0 on the plate; back wall on the plate; no supports (front plate as a 2-3 mm inward ledge)
+ansonia_carrier_bracket_PETG.3mf: bracket, 55.0 x 38.0 x 15.6 on the plate; carrier side on the plate; bars print as bridges 16-34 mm at 11 mm height (add supports under the bars if they sag)
+ansonia_button_strip_TPU.3mf: button_strip, 51.4 x 9.0 x 3.4 on the plate; icons up; tree supports from the plate under the strip (nubs 1.5 mm hang below it)
+ansonia_back_ring_TPU.3mf: back_ring, 184.9 x 70.9 x 2.5 on the plate; flat; no supports
+ansonia_trim_L_PLA-silk.3mf: trim_L, 31.2 x 71.2 x 0.6 on the plate; flat; no supports
+ansonia_trim_R_PLA-silk.3mf: trim_R, 31.2 x 71.2 x 0.6 on the plate; flat; no supports
+ansonia_signature_plate_PLA-silk.3mf: sig_plate, 17.8 x 51.8 x 0.8 on the plate; text face up; no supports
+ansonia_revG_assembly.step
+ansonia_revG.f3d

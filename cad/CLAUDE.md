@@ -43,6 +43,10 @@ No build step. Validate the CSV by importing it in Fusion; the script reports ba
 
 ## Assembly script
 
+- **Ansonia rev G (190 x 76 x 35.5) is `fusion/ansonia_revG.py`**, dimensions in `params_revG.csv`, run through
+  `fusion/run_revG.py` (`go("build" | "exports" | "shots")`); boards come from `cad/boards/*.step`
+  (`fusion/export_boards.sh`, git-ignored, regenerate). Results and clash list: `docs/hardware/fusion_revG.md`.
+  Everything below describes the old 157 mm HeartSync script.
 - `fusion/heartsync_assembly.py` builds the whole model from `params.csv` (dimensions) and
   its POS block (part positions). After moving parts by hand in Fusion, run
   `sync_from_fusion()` to write the positions back, then rebuild.

@@ -1,7 +1,7 @@
 name,value,unit,comment
 length,190.0,mm,"net rev G, outer length"
 width,76.0,mm,net rev G
-z_front,32.5,mm,front outer face (Z 0 = lid inner face)
+z_front,32.0,mm,"front outer face: front wall 1.7 (was 2.2) so the shell is 35.0 (option B, 2026-11-23)"
 z_inner,30.3,mm,interior Z 0..30.3 (brief)
 lid_t,3.0,mm,brief
 wall,2.2,mm,brief
@@ -178,7 +178,7 @@ bt_z0,15.0,mm,
 bt_z1,28.0,mm,
 bt_t,0.3,mm,
 fs_z,28.15,mm,
-touch_z,30.5,mm,
+touch_z,30.0,mm,"touch strip back face: 1.2 wall kept over it, strip 0.3 proud inside (1.7 front wall)"
 btn_pcb_y,30.6,mm,
 btn_pcb_t,0.8,mm,
 sw_body,6.0,mm,

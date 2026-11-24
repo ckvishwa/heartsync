@@ -37,7 +37,12 @@ against them.
 
 ## Enclosure
 
-- Hard limit: 3.5 cm thick.
+- Hard limit: 3.5 cm thick, measured on the printed shell (Ansonia rev G, option B, 2026-11-23: lid 3.0 +
+  interior 30.3 + front wall 1.7 = 35.0). Fabric 0.6, the raised Qi marking ring 0.4 and the TPU back ring 1.5
+  come on top (37.5 overall); the earlier HeartSync stack counted them inside the 35.
+- Front wall 1.7 (was 2.2): stiffened by ribs where its inner face is free and backed by the bonded OLED and
+  the Qi stack. Do not thin it further without re-checking the lens pocket (0.9 under the lens ledge, 0.7 at
+  the tuck groove) and the touch-strip pocket (1.2 wall kept over the strip).
 - IP54 is a design target, not a certification: gasket the seam, mesh the speaker
   and mic openings, and seal or plug the USB-C port. Do not seal the case airtight
   around the cell without considering venting.

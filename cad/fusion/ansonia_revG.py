@@ -34,7 +34,7 @@ BOARDS = os.path.join(CAD, "boards")
 
 # ----------------------------------------------------------------------------------------------- params
 D = {
-    "length": 190.0, "width": 76.0, "z_front": 32.5, "z_inner": 30.3, "lid_t": 3.0, "wall": 2.2, "corner_r": 6.0,
+    "length": 190.0, "width": 76.0, "z_front": 32.0, "z_inner": 30.3, "lid_t": 3.0, "wall": 2.2, "corner_r": 6.0,
     "fit": 0.2,
     # front
     "win_x0": -68.9, "win_x1": 10.9, "win_y0": -7.1, "win_y1": 15.1,
@@ -81,7 +81,7 @@ D = {
     "lte_x0": -14.0, "lte_x1": 28.0, "lte_z0": 11.9, "lte_z1": 30.0, "lte_t": 0.3,
     "bt_x0": 38.0, "bt_x1": 64.0, "bt_z0": 15.0, "bt_z1": 28.0, "bt_t": 0.3,
     # front boards
-    "fs_z": 28.15, "touch_z": 30.5,
+    "fs_z": 28.15, "touch_z": 30.0,
     # buttons
     "btn_pcb_y": 30.6, "btn_pcb_t": 0.8, "sw_body": 6.0, "sw_body_h": 3.5, "sw_h": 4.3, "sw_plunger_d": 3.5, "nub_d": 3.0,
     # carrier bracket
@@ -123,7 +123,32 @@ CLIP_X = (-50.0, -10.0, 20.0, 50.0)
 POGO_X = (-12.0, -4.0, 4.0, 12.0)
 MAG_X = (-70.0, -32.0, 32.0, 70.0)
 HOLES = {"H1": (-41.0, 20.5), "H2": (-41.0, 4.0), "H3": (-9.0, 16.0), "H4": (9.0, -12.5)}
-PPOSTS = ((49.0, -14.0), (63.0, -14.0), (68.5, 2.2), (69.5, 30.0), (56.0, 31.0))
+PPOSTS = ((50.0, 10.0), (64.5, -1.0), (69.5, 30.0), (56.0, 31.0))     # clear of the MR30 pocket and back-side parts
+# Option B (2026-11-23): sealed back-box chambers in the free layer above the boards, glued + gasketed to each
+# speaker box's back wall. outer/inner = (x0, x1, y0, y1); inner boxes overlap so the cavity is one volume and
+# run 1 mm past the open end. 5 mm from all antennas, 0.5 under the Qi ferrite, clear of the OLED FPC drop.
+CH_WALL = 1.2
+CH = {
+    "L": dict(z=(18.9, 27.05), joint_x=-71.3,
+              outer=[(-71.3, -37.0, -17.0, 22.5), (-37.0, -26.0, -8.5, 22.5)],
+              inner=[(-72.3, -38.2, -15.8, 21.3), (-39.0, -27.2, -7.3, 21.3)],
+              joint=(-15.8, 21.3), joint_outer=(-17.0, 22.5),
+              pillars=[(-62.0, -6.0), (-62.0, 9.0), (-50.0, -6.0), (-50.0, 9.0), (-32.0, 3.0), (-32.0, 15.0)],
+              bosses=["H1", "H2"]),
+    "R": dict(z=(19.3, 27.0), joint_x=71.3,
+              outer=[(29.0, 71.3, 0.5, 30.4), (33.0, 70.1, 30.4, 35.4), (29.0, 67.0, -30.3, 0.5)],
+              inner=[(30.2, 72.3, 1.7, 29.2), (34.2, 68.9, 29.0, 34.2), (30.2, 65.8, -29.1, 2.0)],
+              joint=(1.7, 29.2), joint_outer=(0.5, 30.4),
+              pillars=[(40.0, 9.0), (52.0, 9.0), (64.0, 9.0), (40.0, 21.0), (52.0, 21.0), (64.0, 21.0),
+                       (40.0, -9.0), (52.0, -9.0), (40.0, -21.0), (52.0, -21.0), (62.0, -15.0)],
+              bosses=[]),
+}
+# board parts changed in CAD only (the PCB change is for the board session): MR30 J4 off the power board,
+# J7 PH -> JST SH 2-pin (SM02B-SRSS-TB body 6.0 x 4.25 x 2.95, cable +X)
+OVERRIDE = {("power", "J4"): None,
+            ("power", "J7"): dict(x0=64.85, x1=69.1, y0=6.0, y1=12.0, h=2.95, side="F")}
+# mated MR30 pair (battery male + pigtail female) in the pocket beside the cell, along Y: 16 x 26.5 x 8 assumed (verify)
+MR30_PAIR = (51.0, 67.0, -30.0, -3.5, 0.5, 8.5)
 BOARD_T = {"carrier": 1.0, "power": 1.6, "front_sensor": 0.8, "front_touch": 0.8}
 BOARD_Z = {"carrier": Q["board_z"], "power": Q["board_z"], "front_sensor": Q["fs_z"], "front_touch": Q["touch_z"]}
 
@@ -151,7 +176,8 @@ MAT = {
     "lra": (None, "#7A7A7A", None), "epaper": (2.5, "#F4F4EE", None), "epaper_fpc": (1.4, "#C98A2B", None),
     "lte": (1.4, "#C98A2B", None), "bt_ant": (1.4, "#C98A2B", None), "gnss_gnd": (1.85, "#2F6E3B", None),
     "btn_pcb": (1.85, "#2F6E3B", None), "switch": (2.0, "#BFBFBF", None), "screw": (7.85, "#7F7F7F", None),
-    "mr30_plug": (1.6, "#E8C547", None), "bat_lead": (3.0, "#B22222", None), "standin": (2.2, "#5B5B5B", None),
+    "mr30_pair": (1.6, "#E8C547", None), "bat_lead": (3.0, "#B22222", None), "pigtail": (3.0, "#B22222", None),
+    "spk_chamber": (1.27, "#8FA6B8", "PETG"), "gasket_chamber": (1.10, "#2F7F6F", None), "standin": (2.2, "#5B5B5B", None),
     "cable_exit": (None, "#E05050", None),
 }
 
@@ -477,6 +503,13 @@ def build_front_shell():
     for x in CLIP_X:
         for sy in (-1, 1):
             U(s, box(x - cw, x + cw, sy * Q["ledge_y_in"], sy * (IY + 0.1), Q["ledge_z0"], Q["ledge_z1"]))
+    # stiffening ribs on the 1.7 front wall, where its inner face is free (2.0 deep, 1.5 wide)
+    rz0 = ZI - 2.0
+    U(s, box(-70.0, 13.0, 19.2, 20.6, rz0, ZI + 0.01))           # above the OLED, below the front sensor
+    U(s, box(-70.0, 5.0, -13.6, -12.2, rz0, ZI + 0.01))          # below the OLED FPC fold, above the Wi-Fi
+    ring = Dif(cylz(Q["qi_x"], 0, rz0, ZI + 0.01, 60.0), cylz(Q["qi_x"], 0, rz0 - 1, ZI + 1, 57.0))
+    Dif(ring, box(-100, 15.5, -40, 40, -1, 40), box(71.3, 100, -40, 40, -1, 40))
+    U(s, ring)                                                    # round the Qi magnet ring, cut at the OLED / box R
     add("front_shell", s)
 
 
@@ -651,8 +684,15 @@ def build_speakers():
         add("foam_spk_box_" + tag, Dif(box(X(gx0), X(gx1), -by, by, bz0, bz1), TB.copy(opening)))
         outer = box(X(gx1), X(bx - Q["box_back"]), -by, by, bz0, bz1)
         cav = box(X(gx1 - bw), X(bx), -by + bw, by - bw, bz0 + bw, bz1 - bw)
+        cav_v = cav.volume
+        mag_v = math.pi * (Q["spk_magnet_d"] / 2 * MM) ** 2 * (abs(Q["spk_basket_x"] - bx) * MM)
         bxb = Dif(outer, cav, opening)
         Dif(bxb, cyl((X(bx + 1), 0, 26.0), (X(bx - Q["box_back"] - 1), 0, 26.0), 2.5))       # sealed wire hole
+        c = CH[tag]
+        iz0, iz1 = c["z"][0] + CH_WALL, c["z"][1] - CH_WALL
+        hole = box(X(bx + 0.1), X(bx - Q["box_back"] - 0.1), c["joint"][0], c["joint"][1], iz0, iz1)
+        G.setdefault("vol", {})[tag] = {"cavity": cav_v, "magnet": mag_v, "hole": hole.volume}
+        Dif(bxb, hole)                                                                          # into the chamber
         add("speaker_box_" + tag, bxb)
 
 
@@ -711,23 +751,73 @@ def build_misc_parts():
     pd = Q["post_d"]
     z0 = Q["board_z"] + BOARD_T["carrier"]
     parts = []
-    for k, (x, y) in HOLES.items():
-        z1 = ZI if k in ("H1", "H4") else Q["short_post_z1"]
-        parts.append(Dif(cylz(x, y, z0, z1, pd), cylz(x, y, z0 - 1, z0 + Q["screw_l"] - 1.0 + 0.5, 1.6)))
-    for a, b in (("H1", "H2"), ("H1", "H3"), ("H3", "H4")):
-        parts.append(bar(HOLES[a], HOLES[b], Q["bar_w"], Q["bar_z0"], Q["bar_z1"]))
+    for k in ("H3", "H4"):
+        x, y = HOLES[k]
+        z1 = ZI if k == "H4" else Q["short_post_z1"]
+        parts.append(cylz(x, y, z0, z1, pd))
+    parts.append(bar(HOLES["H3"], HOLES["H4"], Q["bar_w"], Q["bar_z0"], Q["bar_z1"]))
     br = union_all(parts)
-    for k, (x, y) in HOLES.items():
+    for k in ("H3", "H4"):
+        x, y = HOLES[k]
         Dif(br, cylz(x, y, z0 - 1, z0 + Q["screw_l"] - 1.0 + 0.5, 1.6))
     add("bracket", br)
     # M2 screws from the back (head under the carrier, in the cell swell gap)
     for k, (x, y) in HOLES.items():
         zb = Q["board_z"]
         add("screw_" + k, U(cylz(x, y, zb - Q["screw_head_h"], zb, Q["screw_head_d"]), cylz(x, y, zb - 0.01, zb + Q["screw_l"] - 1.0, 1.6)), "screws")
-    # MR30 female plug + 2 x 18 AWG leads (plug mates with power J4 from -X; mating face at X 30)
-    add("mr30_plug", box(30.0 - 11.0, 30.0, -12.8, -3.2, Q["board_z"] + 1.6, Q["board_z"] + 1.6 + 6.0))
-    for dy in (-1.75, 1.75):
-        add("bat_lead_%s" % ("a" if dy < 0 else "b"), cyl((19.0, -8.0 + dy, 18.7), (12.0, -8.0 + dy, 18.7), 2.0), "bat_leads")
+    build_battery_pocket()
+
+
+def _path(pts, d):
+    segs = [cyl(pts[i], pts[i + 1], d) for i in range(len(pts) - 1)]
+    for q in pts[1:-1]:
+        segs.append(TB.createSphere(P(*q), d / 2 * MM))
+    ln = sum(math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1))
+    return union_all(segs), ln
+
+
+def build_battery_pocket():
+    """MR30 off the power board: pigtail (2 x 18 AWG, one dia 2.0 bundle) from TP1/TP2 (46.8, -13/-8, top side) round
+    the board's bottom edge to a female MR30 in the pocket beside the cell; the cell's male MR30 on its own leads."""
+    x0, x1, y0, y1, z0, z1 = MR30_PAIR
+    add("mr30_pair", box(x0, x1, y0, y1, z0, z1))
+    zt = Q["board_z"] + BOARD_T["power"] + 1.3
+    pig, ln = _path([(46.8, -10.5, zt), (48.8, -10.5, zt), (48.8, -18.5, zt), (48.8, -18.5, 10.3), (48.8, -1.5, 10.3),
+                     (59.0, -1.5, 10.3), (59.0, -1.5, 4.5), (59.0, y1, 4.5)], 2.0)
+    add("pigtail", pig)
+    lead, ln2 = _path([(49.0, -23.0, 6.6), (49.0, -31.5, 6.6), (59.0, -31.5, 6.6), (59.0, y0, 6.6)], 2.6)
+    add("bat_leads", lead)
+    G["pigtail_len"], G["batlead_len"] = ln, ln2
+
+
+def build_chambers():
+    """Sealed back-box chambers (option B) + their gaskets; back volume before/after per side."""
+    zc = Q["board_z"] + BOARD_T["carrier"]
+    for tag, c in CH.items():
+        z0, z1 = c["z"]
+        w = CH_WALL
+        outer = union_all([box(a, b, cc, d, z0, z1) for a, b, cc, d in c["outer"]])
+        vo = outer.volume
+        inner = union_all([box(a, b, cc, d, z0 + w, z1 - w) for a, b, cc, d in c["inner"]])
+        body = Dif(outer, inner)
+        for x, y in c["pillars"]:
+            U(body, cylz(x, y, z0 + w - 0.01, z1 - w + 0.01, 3.0))
+        for k in c["bosses"]:
+            x, y = HOLES[k]
+            U(body, cylz(x, y, z0 + w - 0.01, z1 - w + 0.01, 5.0))
+        air = vo - body.volume
+        for k in c["bosses"]:                      # bosses down to the carrier replace the bracket posts H1/H2
+            x, y = HOLES[k]
+            U(body, cylz(x, y, zc, z0 + 0.01, Q["post_d"]))
+            Dif(body, cylz(x, y, zc - 1, zc + Q["screw_l"] - 1.0 + 0.5, 1.6))
+        add("spk_chamber_" + tag, body)
+        sx = 1 if tag == "R" else -1
+        jo, ji = c["joint_outer"], c["joint"]
+        g = Dif(box(sx * 71.3, sx * 71.8, jo[0], jo[1], z0, z1), box(sx * 70, sx * 73, ji[0], ji[1], z0 + w, z1 - w))
+        add("gasket_chamber_" + tag, g)
+        v = G["vol"][tag]
+        before = v["cavity"] + 0.17 - v["magnet"] - 1.0          # cc: + plate opening air, - magnet, - basket frame (est.)
+        v.update(before=before, chamber=air, after=before + air + v["hole"])
 
 
 def bar_y(x0, z0, x1, z1, top, ih, w=0.5):
@@ -748,6 +838,11 @@ def build_standins():
     for s in json.load(open(p)):
         if s["ref"] in ("J2", "J3") and s["board"] == "power":
             continue
+        key = (s["board"], s["ref"])
+        if key in OVERRIDE:
+            if OVERRIDE[key] is None:
+                continue
+            s = dict(s, **OVERRIDE[key])
         z0 = BOARD_Z[s["board"]] + (BOARD_T[s["board"]] if s["side"] == "F" else 0)
         z1 = z0 + s["h"] if s["side"] == "F" else z0 - s["h"]
         add("standin_%s_%s" % (s["board"], s["ref"]), box(s["x0"], s["x1"], s["y0"], s["y1"], z0, z1), "standins")
@@ -842,7 +937,10 @@ def _merge(bbs):
 
 EXPECTED = {("board_power", "usb_c1"): "mid-mount USB-C legs/pads in the board cut-out",
             ("board_power", "usb_c2"): "mid-mount USB-C legs/pads in the board cut-out",
-            ("board_carrier", "epaper_fpc"): "FPC inserted in J13"}
+            ("board_carrier", "epaper_fpc"): "FPC inserted in J13",
+            ("bat_leads", "cell"): "lead continues the cell's lead stub",
+            ("board_carrier", "spk_chamber_L"): "H1/H2 bosses seated on the carrier",
+            ("screws", "spk_chamber_L"): "screws in the H1/H2 bosses"}
 
 
 def fit_check():
@@ -1013,8 +1111,35 @@ def clearance_checks():
         ("bracket", "oled", "bracket vs OLED panel/FPC"),
         ("lra", "speaker_box_L", "LRA vs speaker box L"),
         ("lra", "cell", "LRA vs cell"),
-        ("mr30_plug", "board_carrier", "MR30 plug vs carrier"),
-        ("mr30_plug", "standins", "MR30 plug vs stand-ins"),
+        ("mr30_pair", "cell", "MR30 pair vs cell"),
+        ("mr30_pair", "board_power", "MR30 pair vs power board (back-side parts)"),
+        ("mr30_pair", "lid", "MR30 pair vs lid (posts, clips)"),
+        ("mr30_pair", "qi_tx", "MR30 pair vs Qi TX board"),
+        ("mr30_pair", "bt_ant", "MR30 pair vs BT antenna"),
+        ("mr30_pair", "dock_magnet_4", "MR30 pair vs magnet X +70"),
+        ("pigtail", "cell", "pigtail vs cell"),
+        ("pigtail", "board_power", "pigtail vs power board"),
+        ("pigtail", "mr30_pair", "pigtail vs MR30 pair (enters its +Y end)"),
+        ("bat_leads", "lid", "battery leads vs lid (clip X +50)"),
+        ("bat_leads", "mr30_pair", "battery leads vs MR30 pair (enter its -Y end)"),
+        ("spk_chamber_L", "wifi_flexpifa", "chamber L vs Wi-Fi PIFA"),
+        ("spk_chamber_L", "gnss_patch", "chamber L vs GNSS patch"),
+        ("spk_chamber_L", "gnss_gnd", "chamber L vs GNSS ground board"),
+        ("spk_chamber_L", "lte_flex", "chamber L vs LTE flex"),
+        ("spk_chamber_L", "oled", "chamber L vs OLED (incl. folded FPC)"),
+        ("spk_chamber_L", "board_carrier", "chamber L vs carrier parts (bosses seated)"),
+        ("spk_chamber_L", "front_shell", "chamber L vs shell (ribs, walls)"),
+        ("spk_chamber_R", "lte_flex", "chamber R vs LTE flex"),
+        ("spk_chamber_R", "bt_ant", "chamber R vs BT antenna"),
+        ("spk_chamber_R", "wifi_flexpifa", "chamber R vs Wi-Fi PIFA"),
+        ("spk_chamber_R", "qi_ferrite", "chamber R vs Qi ferrite"),
+        ("spk_chamber_R", "qi_coil", "chamber R vs Qi coil"),
+        ("spk_chamber_R", "qi_magnet", "chamber R vs Qi magnet ring"),
+        ("spk_chamber_R", "qi_tx", "chamber R vs Qi TX board"),
+        ("spk_chamber_R", "board_power", "chamber R vs power board parts"),
+        ("spk_chamber_R", "standins", "chamber R vs stand-ins (inductors, SH)"),
+        ("spk_chamber_R", "usb_c1", "chamber R vs USB-C 1"),
+        ("spk_chamber_R", "front_shell", "chamber R vs shell (ribs, walls)"),
         ("usb_c1", "front_shell", "USB-C 1 vs shell opening"),
         ("usb_c2", "front_shell", "USB-C 2 vs shell opening"),
         ("speaker_L", "front_shell", "speaker L vs shell (corners)"),
@@ -1041,6 +1166,8 @@ def cable_exit_check():
     made = []
     for c in conns:
         key = (c["board"], c["ref"])
+        if OVERRIDE.get(key):
+            c = dict(c, **OVERRIDE[key])
         d = G["exits"].get(key)
         if not d:
             continue
@@ -1131,6 +1258,18 @@ def mass_estimate():
     return "\n".join(lines)
 
 
+def volume_report():
+    lines = ["BACK VOLUME per speaker (cc; air behind the cone: box cavity + plate opening - magnet - basket frame 1.0 est.)"]
+    for tag in ("L", "R"):
+        v = G.get("vol", {}).get(tag)
+        if not v or "after" not in v:
+            lines.append("  %s: not computed" % tag)
+            continue
+        lines.append("  %s: before %.1f cc; chamber %.1f cc + back-wall opening %.1f cc; after %.1f cc (x%.2f)" % (
+            tag, v["before"], v["chamber"], v["hole"], v["after"], v["after"] / v["before"]))
+    return "\n".join(lines)
+
+
 def routes_report():
     ey = Q["ep_y"] / 2
     fpc = G.get("fpc_len", 0)
@@ -1147,9 +1286,11 @@ def routes_report():
         "  buttons: button PCB (X -70..-19, Y 30.6) -> carrier J12 (-38.35, 26.6), cable +Y: about 4 Y + 5 Z = ~10 mm (see the cable-exit result)",
         "  front sensor: wire pads (-66.2, 25.4, Z 28.15) -> carrier J8 (-56, 26.6): about 10 X + 13 Z = ~25 mm",
         "  touch strip: pads (-17.8, 29.75, Z 30.5) -> carrier J7 (-46.5, 26.6): about 29 X + 3 Y + 15 Z = ~47 mm",
-        "  battery (18 AWG x 2): cell PCM end (+X, X 46.5..50.5, Z ~6) -> past the power board's bottom edge (Y -16) -> MR30 plug at "
-        "X 19..30, Y -12.8..-3.2, Z 15.3..21.3 entering from -X: the leads leave the cell towards +X but the plug faces -X, so they "
-        "make a U-turn of about 180 deg round the board edge: ~75 mm, bend radius >= 6 mm for 18 AWG silicone.",
+        "  battery: MR30 off the power board. Pigtail 2 x 18 AWG from TP1/TP2 (46.8, -13/-8, top side) over the board's bottom "
+        "edge (Y -16) and back under the board (Z 10.3) into the female MR30's +Y end: %.0f mm. Cell leads (AWG22 on the "
+        "drawing) from the PCM end (X 46.5..50.5, Y -21/-25) round the pair's -Y end into the male MR30: %.0f mm of the 100 mm "
+        "leads (coil the rest beside the pair). Mated pair %s assumed 16 x 26.5 x 8: verify." % (
+            G.get("pigtail_len", 0), G.get("batlead_len", 0), "X %.1f..%.1f Y %.1f..%.1f Z %.1f..%.1f" % MR30_PAIR),
     ]
     return "\n".join(lines)
 
@@ -1160,7 +1301,12 @@ def dims_report():
     # Amphenol shell: 8.94 x 3.26 nominal (USB-C receptacle shell)
     lines = [
         "KEY NUMBERS",
-        "  stack: lid 3.0 + interior 30.3 + front wall 2.2 = 35.5; + fabric 0.6 + Qi ring 0.4 + back ring 1.5 proud = 38.0 overall",
+        "  stack: lid %.1f + interior %.1f + front wall %.1f = %.1f; + fabric 0.6 + Qi ring 0.4 + back ring 1.5 proud = %.1f overall" % (
+            LT, ZI, ZF - ZI, LT + ZF, LT + ZF + 0.6 + 0.4 + Q["ring_proud"]),
+        "  front wall %.1f: lens pocket floor Z %.2f leaves %.2f under the lens ledge; tuck groove floor Z %.2f leaves %.2f; "
+        "touch pocket %.2f deep (wall over the strip %.1f), strip %.2f proud inside" % (
+            ZF - ZI, ZF - Q["lens_pocket_d"], ZF - Q["lens_pocket_d"] - ZI, ZF - Q["tuck_d"], ZF - Q["tuck_d"] - ZI,
+            max(ZF - Q["touch_wall"] - ZI, 0), Q["touch_wall"], ZI - Q["touch_z"]),
         "  cell Z %.1f..%.1f, insulator to %.1f, board layer Z %.1f: swell gap %.2f" % (
             Q["cell_pad"], Q["cell_pad"] + Q["cell_t"], Q["cell_pad"] + Q["cell_t"] + Q["insul"], Q["board_z"],
             Q["board_z"] - Q["cell_pad"] - Q["cell_t"] - Q["insul"]),
@@ -1188,6 +1334,7 @@ def build(report=None):
         build_signature(design); log("signature")
         build_front_parts(); log("front parts")
         build_speakers(); log("speakers")
+        build_chambers(); log("chambers")
         build_qi(); log("qi")
         build_misc_parts(); log("misc")
         build_standins(); log("standins")
@@ -1202,6 +1349,7 @@ def build(report=None):
         out.append(antenna_check()); log("antennas")
         out.append(cable_exit_check()); log("cable exits")
         out.append(haptic_envelope_check()); log("haptic")
+        out.append(volume_report())
         out.append(routes_report())
         out.append(mass_estimate()); log("mass")
     except Exception:
@@ -1233,6 +1381,8 @@ PRINT = {   # component -> (file, rotation spec, supports note)
     "trim_L": ("ansonia_trim_L_PLA-silk.3mf", "endL", "flat; no supports"),
     "trim_R": ("ansonia_trim_R_PLA-silk.3mf", "endR", "flat; no supports"),
     "sig_plate": ("ansonia_signature_plate_PLA-silk.3mf", "flipZ", "text face up; no supports"),
+    "spk_chamber_L": ("ansonia_spk_chamber_L_PETG.3mf", "flipZ", "top face down, H1/H2 bosses up; the floor bridges <= 15 mm between the inner pillars; no supports (sealed)"),
+    "spk_chamber_R": ("ansonia_spk_chamber_R_PETG.3mf", "flipZ", "top face down; the floor bridges <= 15 mm between the inner pillars; no supports (sealed)"),
 }
 
 

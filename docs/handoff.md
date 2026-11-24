@@ -61,6 +61,13 @@ Last updated: 2026-11-19 evening (enclosure full pass: 157 mm, dead-front 3.12 i
   and power back-side parts in the swell gap, no cell retention, cell on the e-paper glass, NTC connector blocked,
   IP5356M + L1 over the cell end, no vent.
 - Rebuild after a placement change: `bash cad/fusion/export_boards.sh`, then `go("build")`, `go("exports")`, `go("shots")`.
+- **Option B (user's choice, same day):** shell 35.0 (front wall 1.7, ribs; safety.md updated), interior 30.3 kept
+  for the Dayton drivers. The ~8 mm free layer is now sealed back-box chambers glued to each speaker box:
+  back volume L 23.2 -> 32.0 cc, R 23.2 -> 35.8 cc, all >= 5.0 mm from the antennas, 0.5 under the Qi ferrite.
+  Electronics minimum: 26.8 mm (30.8 with the MR30/PH on the power board). 16 clashes left (the drawn ones).
+- **Power-board change needed (board session, not done in KiCad):** J7 PH -> JST SM02B-SRSS-TB and turn it to take
+  the cable from +Y/-Y (box R blocks +X); remove MR30 J4 and keep TP1/TP2 for an 18 AWG pigtail (better on the
+  back side at X >= 48); then re-export and rebuild.
 
 ## Ansonia rev A custom boards (2026-11-23, ADR 0019)
 

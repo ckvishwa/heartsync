@@ -2,16 +2,86 @@
 
 Built 2026-11-23 by `cad/fusion/ansonia_revG.py` (direct modelling, one run about 2.5 min), from the rev G
 net, fit map and BOM (`docs/hardware/fit/*revG*`) and the four rev A boards at commit `36561403`.
-**Result: 18 clashing part pairs** (589 bodies, 60 parts). Nothing has been fixed in the drawings or boards yet:
-the clone shows the rev G design as drawn, so every clash below is real until the drawing or board changes.
+**Result (option B, below): 16 clashing part pairs** (592 bodies, 65 parts); the first pass had 18 (MR30 and J7
+are gone). The other 16 are the rev G drawings as drawn and stay real until a drawing or board changes.
+
+## Option B: compressed layer used as speaker back volume (2026-11-23)
+
+### Step 1: the stack, measured (Z from the lid's inner face)
+
+| Layer | Z | Thickness | Source |
+|---|---|---|---|
+| lid | -3.0..0 | 3.0 | |
+| foam | 0..1.0 | 1.0 | |
+| cell (max envelope) | 1.0..12.3 | 11.3 | |
+| insulator + swell gap | 12.3..13.7 | 0.2 + 1.2 | |
+| carrier / power board | 13.7..14.7 / 13.7..15.3 | 1.0 / 1.6 | |
+| tallest carrier part | to 17.9 | 3.2 | **ESP32-S3-WROOM-1U** (KiCad STEP). Next: JST SH headers 2.96 (STEP), U.FL 2.5 (STEP), EWM104 2.5 (no model: assumed), SIM7080G 2.4 (no model: datasheet) |
+| tallest power part, as placed | to 21.8 | 6.5 | **MR30PW-M J4** (no KiCad model: 6.5 read off the Amass drawing), then **PH J7** 6.0 (no model: estimate) |
+| tallest power part, MR30 off + J7 as SH | to 18.3 | 3.0 | **SRP7028A inductors L1-L3** (no model: Bourns 3.0 max), then SH J5/J6/J7 2.95 (STEP), USB-C 2.9 above the board (Amphenol STEP, Z 18.2) |
+| air | | 1.0 | your rule |
+| front layer over the carrier | 27.15..30.3 | 3.15 | OLED panel 2.15 + foam 1.0 |
+| front layer over the power board | 27.5..30.3 | 2.8 | Qi ferrite 0.8 + coil 1.0 + magnet ring 1.0 |
+| front wall | 30.3..32.0 | 1.7 (was 2.2) | |
+
+- Free air above the carrier: 27.15 - 17.9 - 1.0 = **8.25**. Above the power board under the Qi: 27.5 - 21.8 - 1.0 =
+  **4.7** with the MR30 and PH on the board, **8.2** after the change below.
+- Lower-profile parts: the MR30 is now off the board and J7 is a JST SH (2.95). The 3.0 inductors carry the
+  TPS61088 / IP5356M peaks (7-10 A); 2.0 mm parts with that saturation current are rare, so they stay. The ESP32
+  module (3.2) and the USB-C (2.9) have no thinner option in the same footprint.
+- **Minimum overall thickness the electronics allow:** 30.8 with the parts as committed (MR30 + PH on the power
+  board, 2.2 wall); **26.8** with the MR30 off, J7 as SH and the 1.7 wall (lid 3.0 + 13.7 + 1.6 + 3.0 + 1.0 + 2.8 +
+  1.7, the carrier side gives the same 26.75). The Dayton driver (30 tall) is what keeps the shell at 35.0.
+- Board standoffs: the board layer stays at Z 13.7 (option B keeps the 30.3 interior). The bracket lost its H1/H2
+  posts and bars: chamber L carries H1/H2 bosses down to the carrier; the bracket keeps H3, H4 and the H3-H4 bar.
+
+### Step 2: option B at 35.0 (your choice)
+
+- **Front wall 1.7:** shell 3.0 + 30.3 + 1.7 = **35.0** (37.5 with fabric, Qi marking ring and back ring; see
+  safety.md). Lens pocket 0.8 deep leaves **0.9** under the lens ledge, the tuck groove floor **0.7**: the lens
+  pocket still works. The touch-strip pocket is now 0.5 deep (1.2 wall kept over the strip) and the strip stands
+  0.3 proud inside. Ribs 1.5 x 2.0 on the inner face: a bar above the OLED (Y 19.2..20.6, X -70..13), a bar below
+  the OLED FPC fold (Y -13.6..-12.2, X -70..5), and an arc round the Qi magnet ring (dia 57..60, X 15.5..71.3).
+  A plain 1.7 PETG plate is (2.2/1.7)^3 = 2.2x as flexible as 2.2; behind the window it is backed by the bonded
+  OLED glass, at the Qi by the 2.8 stack. Not measured: press-test the first print.
+- **Back-box chambers** (PETG, wall 1.2, sealed, glued to the speaker box's back wall with a 0.5 gasket over a
+  window in that wall; inner pillars dia 3 keep the printed floor bridges under 15 mm):
+
+| | Chamber | Air added | Back volume before -> after |
+|---|---|---|---|
+| L | X -71.3..-26, Y -17..22.5, Z 18.9..27.05 (notched X -37..-26 below Y -8.5 for the OLED FPC drop to J11) | 8.4 cc + 0.4 window | **23.2 -> 32.0 cc** (x1.38) |
+| R | X 29..71.3, Y 0.5..30.4 + top-wall band X 33..70.1, Y 30.4..35.4 + bottom band X 29..67, Y -30.3..0.5; Z 19.3..27.0 | 12.3 cc + 0.2 window | **23.2 -> 35.8 cc** (x1.54) |
+
+  "Before" = box cavity + plate opening - magnet - 1.0 cc basket frame (estimate; the Dayton Vas is unknown).
+  The 1.2 walls take a lot of an 8 mm layer (inner height 5.85 / 5.3): 1.0 walls would add about 15 %.
+  Zeolite: L fits bags up to about 30 x 20 x 5, R up to 30 x 25 x 5 (between the pillars).
+- **Clearances of the chambers:** Wi-Fi 6.14, GNSS patch 6.25, GNSS board 5.75, LTE 17.7 (L) / **5.00** (R), BT
+  5.20, Qi ferrite **0.50**, coil 1.30, magnet ring 2.30, Qi TX board 0.50, OLED (incl. folded FPC) 0.30, carrier
+  parts 1.0 under the floor (0.09 next to the H1/H2 bosses), power parts 1.0, USB-C 1.10, shell 0.40. No clash.
+- Left free on purpose: the band X -26..29 over the carrier for the Wi-Fi/GNSS/LTE coax runs to the U.FLs, the
+  OLED and e-paper FPCs (J11, J13) and the H3/H4 bracket; the strip Y 22.5..30 over the carrier's top connectors.
+  The Wi-Fi coax now runs: PIFA end (-53, -29) -> along Y -20 at Z 20 -> up the middle band to the U.FL (-21, 27),
+  about 90 of its 100 mm. BT coax (J17, -50, 19) runs under chamber L's floor (1.7 over the U.FL) to the bottom band.
+- **J7 -> JST SH 2-pin** (SM02B-SRSS-TB, 1 A per pin vs about 0.7 A at 4 W / 8 ohm): in CAD only, **the power board
+  still has the PH footprint** (board session). Box R is 2.7 from the SH body; its +X cable exit is still blocked by
+  the box wall: turn J7 to take the cable from +Y or -Y.
+- **MR30 off the power board** (CAD only, **the board still has J4**): 2 x 18 AWG pigtail soldered to TP1/TP2
+  (46.8, -13/-8), over the board's bottom edge and back under the board at Z 10.3 into a female MR30; the cell's
+  male MR30 mates in the pocket beside the cell. Mated pair assumed 16 x 26.5 x 8 (verify) at X 51..67, Y -30..-3.5,
+  Z 0.5..8.5. **Pocket clearance:** cell lead stub 0.50, power-board post (64.5, -1) 0.50, Qi TX board 0.50,
+  power-board back-side parts 4.62, magnet (+70) 4.40, BT antenna 8.51. Pigtail 51 mm: 1.3 from the cell end,
+  0.39 under the power board. Cell leads (AWG22 per the cell drawing) 20 mm to the male end (coil the rest of the 100 mm), 0.38 over
+  clip +50. The X room is the tight one (21 mm between the cell end and the Qi board for a 16 mm pair): a narrower
+  pair or the pair along Y with the Qi board moved 2 mm would help. TP1/TP2 on the back side at X >= 48 would let
+  the pigtail drop straight down (the back-side keep-out ends at X 47). The power-board posts moved to (50, 10),
+  (64.5, -1), (69.5, 30), (56, 31) to free the pocket.
 
 ## Safety blockers (hardware-safety-reviewer, 2026-11-23)
 
 Read these before the fit problems further down: they touch the cell.
 
-1. **Thickness:** the brief's 35.5 shell is already over the 3.5 cm hard limit (`docs/hardware/safety.md`,
-   `cad/CLAUDE.md`, ADR 0014), and the stack with fabric 0.6, Qi ring 0.4 and back ring 1.5 is 38.0. That needs an
-   ADR that raises the limit, or the stack goes down.
+1. **Thickness:** now **35.0** on the shell (front wall 1.7, safety.md updated); 37.5 with fabric, Qi marking ring
+   and back ring, which the old HeartSync stack counted inside the 35. Say if the limit should include them.
 2. **Swell gap at the carrier screws:** M2 heads at Z 12.4..13.7 over the cell top 12.3 (clash #14). Wafer heads do
    not fix it. Nothing hard may sit in Z 12.5..13.7 over the cell: move H1..H4 off the cell or fasten from the front.
 3. **Power-board back-side parts over the cell:** 14 parts 0.32..0.67 above the insulator (check 2). The planned
@@ -76,6 +146,8 @@ The board STEPs are imported as they are, so a placement change is: re-export, r
 | back_ring_TPU | 184.9 x 70.9 x 2.5 | flat, no supports |
 | trim_L/R_PLA-silk | 71.2 x 31.2 x 0.6 | flat, no supports (0.8-1.2 wide bars: fragile) |
 | signature_plate_PLA-silk | 51.8 x 17.8 x 0.8 | text up, no supports; placeholder text until the scan arrives |
+| spk_chamber_L_PETG | 45.3 x 40.0 x 12.4 | top face down, H1/H2 bosses up; floor bridges <= 15 mm between inner pillars; no supports (sealed) |
+| spk_chamber_R_PETG | 42.3 x 65.7 x 7.7 | top face down; floor bridges <= 15 mm between inner pillars; no supports (sealed) |
 
 Not printed (bought or cut): lens (smoked PC 81.4 x 23.8 x 1.0), IR window (4.9 x 3.4 PC), e-paper cover
 (89.2 x 54.6 x 0.5 PC), gasket cord, ePTFE, foams.
@@ -95,8 +167,8 @@ power board cut-out 0.19 mm3 each, e-paper FPC inside J13). Coordinates in devic
 | 5 | foam gasket (driver -> box) L x lid tongue | 30.9 | X -90.8..-89.8, Y +-33.4, Z 0.3..2.5 | same cause |
 | 6 | same, R | 30.9 | mirror | same |
 | 7 | gasket cord x lid end hooks | 22.8 | X +-(91.65..92.6), Y +-4, Z 0.5..2.0 | the drawn hooks stand in the gasket groove: the seal is broken at both hooks |
-| 8 | MR30 plug x nano-SIM J14 (carrier) | 67.9 | X 19.0..27.85, Y -12.8..-3.2, Z 15.3..16.1 | the battery plug mates from -X at X 30, i.e. over the carrier's right edge where J14 sits (plug bottom Z 15.3, J14 top Z 16.1). Plus 31 mm3 with power J4's own courtyard (mating zone, ignore) |
-| 9 | speaker box R x power J7 (PH speaker connector) | 75.0 | X 71.8..73.15, Y 4.4..13.6, Z 15.3..21.3 | J7 sits at the board edge, under the box's back wall |
+| ~~8~~ | **fixed in option B (MR30 off the board)**: MR30 plug x nano-SIM J14 (carrier) | 67.9 | X 19.0..27.85, Y -12.8..-3.2, Z 15.3..16.1 | the battery plug mates from -X at X 30, i.e. over the carrier's right edge where J14 sits (plug bottom Z 15.3, J14 top Z 16.1). Plus 31 mm3 with power J4's own courtyard (mating zone, ignore) |
+| ~~9~~ | **fixed in option B (J7 as SH, 2.7 clear)**: speaker box R x power J7 (PH speaker connector) | 75.0 | X 71.8..73.15, Y 4.4..13.6, Z 15.3..21.3 | J7 sits at the board edge, under the box's back wall |
 | 10 | OLED panel x speaker box L | 68.4 | X -73.0..-71.8, Y -9.9..17.9, Z 28.15..30.2 | the fit map's "0.3 from speaker L" is to the driver (X -73.3); the sealed box adds its 1.5 back wall (to -71.8) |
 | 11 | power board x speaker box R | 63.2 | X 71.8..73.0, Y -1..33, Z 13.7..16.9 | board outline to X 73 vs box back wall from 71.8 (incl. C 1206 at X 71.8..72.3 and an 0402) |
 | 12 | front shell x speaker L | 5.5 | X -92.3..-91.3, Y +-35, Z 9.6..20.9 | the 70 mm racetrack lobes reach Y +-35 where the R6 corners pull the inner wall in (R 3.8) |
@@ -107,7 +179,8 @@ power board cut-out 0.19 mm3 each, e-paper FPC inside J13). Coordinates in devic
 | 17 | front sensor board x speaker box L | 1.3 | X -72.0..-71.8, Y 24..33.4 | board outline from X -72 |
 | 18 | USB-C 2 x speaker box R | 0.15 | X 71.8..72.15, Y 31.8..32.6 | receptacle flange (12.2 wide) reaches X 72.15 |
 
-Touching only (0 volume): lid / speaker boxes.
+Touching only (0 volume): lid / speaker boxes. Expected contacts: USB-C legs in the board cut-outs, e-paper FPC in
+J13, cell leads continuing the cell's lead stubs, chamber L's H1/H2 bosses and screws on the carrier.
 
 ## Check 2: power board back side vs cell
 
@@ -168,8 +241,8 @@ outside the cell's footprint. J13's cable side is clear.
 | Cable | Route, length | Result |
 |---|---|---|
 | Speaker L (2 w) | box hole (-71.8, 0, 26) -> carrier J4 (-58.7, -7): ~31 mm | J4 exit clear |
-| Speaker R (2 w) | box hole (71.8, 0, 26) -> power J7 (68, 9): ~22 mm | **J7 is under the box** (#9): no room for the PH plug |
-| Battery 2 leads (brief 18 AWG, cell drawing AWG22) | cell PCM end (+X, X 46.5..50.5) -> round the power board's bottom edge (Y -16) -> MR30 plug from -X at X 19..30: ~75 mm with a 180 deg turn | **plug hits J14** (#8); the leads leave the cell towards +X but the plug faces -X |
+| Speaker R (2 w) | box hole (71.8, 0, 26) -> power J7 (68, 9): ~22 mm | option B: J7 as SH is 2.7 from the box, but its +X cable exit still hits the box wall: turn J7 |
+| Battery 2 leads (brief 18 AWG, cell drawing AWG22) | cell PCM end (+X, X 46.5..50.5) -> round the power board's bottom edge (Y -16) -> MR30 plug from -X at X 19..30: ~75 mm with a 180 deg turn | first pass: plug hit J14 (#8). Option B: MR30 pair in the pocket beside the cell, see above |
 | Haptic | LRA (-65, 0) -> J6 (-50, -14.2): ~41 mm | clear |
 | Buttons (6 w) | button PCB (Y 30.6) -> J12 (-38.35, 26.6), cable +Y | **blocked**: 0.6 mm from the carrier edge to the button PCB, the SH plug needs ~4 |
 | Front sensor (8 w) | pads (-66.2, 25.4) -> J8 (-56, 26.6), cable +Y | **blocked** by the button PCB (same) |
@@ -181,7 +254,7 @@ outside the cell's footprint. J13's cable side is clear.
 
 ## Check 8: mass
 
-**About 465 g** (455 g modelled + ~10 g fabric, glue, wires). Cell 160 (given), front shell 70, lid 37, speakers
+**About 475 g** (option B: 464 g modelled, chambers +17 g, MR30 pair 5 g; + ~10 g fabric, glue, wires; first pass 465). Cell 160 (given), front shell 70, lid 37, speakers
 2 x 28 (estimate: Dayton weight not found), OLED 14, e-paper 12.5, board stand-ins 12.5, carrier 11, speaker
 boxes 2 x 9.3, Qi ferrite/magnet/coil 21, power board 7, back ring 6. PETG at 1.27, solid (no infill): printed at
 15-20 % infill the shell parts weigh about 40 g less.

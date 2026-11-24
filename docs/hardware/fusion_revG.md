@@ -76,6 +76,34 @@ are gone). The other 16 are the rev G drawings as drawn and stay real until a dr
   the pigtail drop straight down (the back-side keep-out ends at X 47). The power-board posts moved to (50, 10),
   (64.5, -1), (69.5, 30), (56, 31) to free the pocket.
 
+### Safety review of option B (hardware-safety-reviewer, commit 81407abc)
+
+No phase-gate rule broken (CAD and docs only). Open, for the user to decide:
+
+1. **Thickness basis:** safety.md now measures 35.0 on the shell (as asked); `cad/params.csv`
+   (`body_thickness_max`), `cad/CLAUDE.md`, ADR 0014 and `docs/prd.md` still count fabric, Qi ring and back ring inside
+   the 35, which makes rev G 37.5. Needs an ADR either way. 35.0 nominal leaves no margin for print growth or gasket
+   squeeze.
+2. **MR30 pair is a hard stop 0.5 from the cell's lead exits**, with nothing holding the cell: a drop drives the PCM
+   end into it. The moved post (50, 10) is 1.5 from the cell end face. Needs a soft-lined fence between the cell end
+   and the pocket (or the Qi board moved 2 mm) and the real MR30 size.
+3. **Genders:** the cell (always live) now carries the male pins. Put the female (shrouded) MR30 on the cell.
+   safety.md still says "JST connector on the battery".
+4. **Cell leads:** 0.38 over clip arm +50 and 0.6 from its ledge, in the path of every lid close; 80 mm of spare lead
+   to coil (not modelled). Fitting a connector to a live cell needs a written procedure (one lead at a time,
+   heat-shrink each), or buy the cell with the MR30 and lead length fitted.
+5. **Pigtail:** on 4 x 4 SMD pads that can peel; add strain relief and sleeving at the board edge (Y -16). Check
+   which half the power board stays with when the lid opens (no service loop yet), and whether the charger puts
+   voltage on BAT with USB in and no cell.
+6. **Heat:** chamber R boxes the power board in (1.0 over the inductors, 0.5 under the ferrite); PETG softens at
+   about 75-80 C. Thermocouple test (USB charge + Qi + full audio) on the cell end, charger IC, inductors, chamber R
+   floor and ferrite before trusting it. The cell NTC still cannot be plugged in.
+7. **Venting:** the chambers take about 30-35 cc of the case's free air (the outer boxes); no vent yet.
+8. **Screws:** H1/H2 now also clamp chamber L, so the back-side M2 heads in the swell gap have one more reason to
+   stay: fasten from the front instead.
+9. Minor: the cell-lead / cell overlap is whitelisted (start the lead at the stub tip instead); chamber glue must be
+   room-temperature cure and not needed to open the case.
+
 ## Safety blockers (hardware-safety-reviewer, 2026-11-23)
 
 Read these before the fit problems further down: they touch the cell.

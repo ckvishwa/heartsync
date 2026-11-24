@@ -43,7 +43,7 @@ No build step. Validate the CSV by importing it in Fusion; the script reports ba
 
 ## Assembly script
 
-- **Ansonia rev G (190 x 76 x 35.5) is `fusion/ansonia_revG.py`**, dimensions in `params_revG.csv`, run through
+- **Ansonia rev G (190 x 76 x 35.0 shell, option B) is `fusion/ansonia_revG.py`**, dimensions in `params_revG.csv`, run through
   `fusion/run_revG.py` (`go("build" | "exports" | "shots")`); boards come from `cad/boards/*.step`
   (`fusion/export_boards.sh`, git-ignored, regenerate). Results and clash list: `docs/hardware/fusion_revG.md`.
   Everything below describes the old 157 mm HeartSync script.
